@@ -1,0 +1,58 @@
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Req,
+  Res,
+  Get,
+  HttpCode,
+} from '@nestjs/common';
+import type { Response } from 'express';
+import { AuthService } from './auth.service';
+import { RegisterBeneficiarioDto } from './dto/create-user.dto';
+// LoginUserDto se usa solo para documentar/validar el shape del body;
+// las credenciales las procesa LocalStrategy vía Passport.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { LoginUserDto } from './dto/login-user.dto';
+import { LocalAuthGuard } from './guards/local-auth.guard';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import type { AuthRequest } from './interfaces/auth-request.interface';
+
+@Controller('auth/beneficiarios')
+export class AuthController {
+  constructor(private readonly authService: AuthService) {}
+
+  @Post('register')
+  async register(@Body() dto: RegisterBeneficiarioDto) {
+    return this.authService.register(dto);
+  }
+
+  @UseGuards(LocalAuthGuard)
+  @Post('login')
+  @HttpCode(200)
+  async login(
+    @Req() req: AuthRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    // req.user aca es el objeto Usuario+Beneficiario que devolvio
+    // AuthService.validateBeneficiario (via LocalStrategy)
+    const usuario = req.user as unknown as { id_usuario: number; email: string };
+    this.authService.issueTokenCookie(usuario, res);
+    return { message: 'Login exitoso' };
+  }
+
+  @Post('logout')
+  @HttpCode(200)
+  async logout(@Res({ passthrough: true }) res: Response) {
+    this.authService.clearTokenCookie(res);
+    return { message: 'Sesion cerrada' };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async me(@Req() req: AuthRequest) {
+    // Aca req.user ya es el JwtPayload (sub, email, rol)
+    return req.user;
+  }
+}

@@ -1,0 +1,407 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model administradores {
+  id_usuario                        Int                                 @id
+  nombre                             String                              @db.VarChar(100)
+  apellido                           String                              @db.VarChar(100)
+  usuarios                          usuarios                           @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+  solicitudes_habilitacion_empresas solicitudes_habilitacion_empresas[]
+}
+
+model areas_interes {
+  id_area             Int                   @id @default(autoincrement())
+  nombre              String                @db.VarChar(100)
+  beneficiarios_areas beneficiarios_areas[]
+  servicios           servicios[]
+}
+
+model beneficiarios {
+  id_usuario                   Int                            @id
+  nombre                       String                         @db.VarChar(100)
+  apellido                     String                         @db.VarChar(100)
+  dni                          String                         @unique(map: "uq_beneficiarios_dni") @db.VarChar(20)
+  fecha_nacimiento             DateTime?                      @db.Date
+  telefono                     String?                        @db.VarChar(50)
+  direccion                    String?                        @db.VarChar(200)
+  id_ciudad                    Int?
+  linkedin                     String?                        @db.VarChar(300)
+  github                       String?                        @db.VarChar(300)
+  cv_url                       String?                        @db.VarChar(300)
+  ciudades                     ciudades?                      @relation(fields: [id_ciudad], references: [id_ciudad], onDelete: NoAction, onUpdate: NoAction)
+  usuarios                     usuarios                       @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+  beneficiarios_areas          beneficiarios_areas[]
+  beneficiarios_discapacidades beneficiarios_discapacidades[]
+  beneficiarios_habilidades    beneficiarios_habilidades[]
+  inscripciones_cursos         inscripciones_cursos[]
+  inscripciones_mentorias      inscripciones_mentorias[]
+  notificaciones               notificaciones[]
+  postulaciones_laborales      postulaciones_laborales[]
+  seguimientos                 seguimientos[]
+}
+
+model beneficiarios_areas {
+  id_usuario_beneficiario Int
+  id_area                 Int
+  areas_interes           areas_interes @relation(fields: [id_area], references: [id_area], onDelete: Cascade, onUpdate: NoAction)
+  beneficiarios           beneficiarios @relation(fields: [id_usuario_beneficiario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([id_usuario_beneficiario, id_area])
+}
+
+model beneficiarios_discapacidades {
+  id_usuario_beneficiario Int
+  id_discapacidad         Int
+  discapacidades          discapacidades @relation(fields: [id_discapacidad], references: [id_discapacidad], onDelete: Cascade, onUpdate: NoAction)
+  beneficiarios           beneficiarios  @relation(fields: [id_usuario_beneficiario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([id_usuario_beneficiario, id_discapacidad])
+}
+
+model beneficiarios_habilidades {
+  id_usuario_beneficiario Int
+  id_habilidad            Int
+  id_nivel                Int?
+  habilidades             habilidades        @relation(fields: [id_habilidad], references: [id_habilidad], onDelete: Cascade, onUpdate: NoAction)
+  niveles_habilidad       niveles_habilidad? @relation(fields: [id_nivel], references: [id_nivel], onDelete: NoAction, onUpdate: NoAction)
+  beneficiarios           beneficiarios      @relation(fields: [id_usuario_beneficiario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([id_usuario_beneficiario, id_habilidad])
+}
+
+model certificados {
+  id_certificado       Int                  @id @default(autoincrement())
+  id_inscripcion       Int                  @unique(map: "uq_certificado_inscripcion")
+  fecha_emision        DateTime             @default(dbgenerated("CURRENT_DATE")) @db.Date
+  archivo_url          String?              @db.VarChar(300)
+  inscripciones_cursos inscripciones_cursos @relation(fields: [id_inscripcion], references: [id_inscripcion], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model ciudades {
+  id_ciudad     Int             @id @default(autoincrement())
+  nombre        String          @db.VarChar(100)
+  id_provincia  Int
+  beneficiarios beneficiarios[]
+  provincias    provincias      @relation(fields: [id_provincia], references: [id_provincia], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model clases {
+  id_clase    Int       @id @default(autoincrement())
+  id_servicio Int
+  nro_clase   Int
+  tema        String?   @db.VarChar(150)
+  fecha       DateTime? @db.Date
+  hora_inicio DateTime? @db.Time(6)
+  hora_fin    DateTime? @db.Time(6)
+  cursos      cursos    @relation(fields: [id_servicio], references: [id_servicio], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model cursos {
+  id_servicio          Int                    @id
+  fecha_inicio         DateTime?              @db.Date
+  fecha_fin            DateTime?              @db.Date
+  cupos                Int?
+  modalidad            String                 @db.VarChar(20)
+  requisitos           String?
+  otorga_certificado   Boolean                @default(false)
+  id_profesional       Int?
+  clases               clases[]
+  profesionales        profesionales?         @relation(fields: [id_profesional], references: [id_profesional], onDelete: NoAction, onUpdate: NoAction)
+  servicios            servicios              @relation(fields: [id_servicio], references: [id_servicio], onDelete: Cascade, onUpdate: NoAction)
+  inscripciones_cursos inscripciones_cursos[]
+}
+
+model discapacidades {
+  id_discapacidad              Int                            @id @default(autoincrement())
+  nombre                       String                         @db.VarChar(100)
+  descripcion                  String?
+  beneficiarios_discapacidades beneficiarios_discapacidades[]
+  servicios_discapacidades     servicios_discapacidades[]
+}
+
+model empresas {
+  id_usuario                        Int                                @id
+  razon_social                      String                             @db.VarChar(150)
+  cuit                              String                             @unique(map: "uq_empresas_cuit") @db.VarChar(20)
+  descripcion                       String?
+  sitio_web                         String?                            @db.VarChar(300)
+  logo_url                          String?                            @db.VarChar(300)
+  fecha_habilitacion                DateTime?                          @db.Date
+  fecha_baja                        DateTime?                          @db.Date
+  habilitada_operativamente         Boolean                            @default(false)
+  id_solicitud                      Int?
+  solicitudes_habilitacion_empresas solicitudes_habilitacion_empresas? @relation(fields: [id_solicitud], references: [id_solicitud], onDelete: NoAction, onUpdate: NoAction)
+  usuarios                          usuarios                           @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+  profesionales                     profesionales[]
+  servicios                         servicios[]
+}
+
+model estados_cursos {
+  id_estado_curso      Int                    @id @default(autoincrement())
+  nombre               String                 @db.VarChar(50)
+  inscripciones_cursos inscripciones_cursos[]
+}
+
+model estados_mentorias {
+  id_estado_mentoria      Int                       @id @default(autoincrement())
+  nombre                  String                    @db.VarChar(50)
+  inscripciones_mentorias inscripciones_mentorias[]
+}
+
+model estados_postulaciones {
+  id_estado_postulacion   Int                       @id @default(autoincrement())
+  nombre                  String                    @db.VarChar(50)
+  postulaciones_laborales postulaciones_laborales[]
+}
+
+model estados_publicacion_servicios {
+  id_estado_publicacion Int         @id @default(autoincrement())
+  nombre                String      @db.VarChar(50)
+  servicios             servicios[]
+}
+
+model estados_solicitudes {
+  id_estado_solicitud               Int                                 @id @default(autoincrement())
+  nombre                            String                              @db.VarChar(50)
+  solicitudes_habilitacion_empresas solicitudes_habilitacion_empresas[]
+}
+
+model habilidades {
+  id_habilidad              Int                         @id @default(autoincrement())
+  nombre                    String                      @db.VarChar(100)
+  beneficiarios_habilidades beneficiarios_habilidades[]
+  ofertas_habilidades       ofertas_habilidades[]
+}
+
+model inscripciones_cursos {
+  id_inscripcion          Int            @id @default(autoincrement())
+  id_usuario_beneficiario Int
+  id_servicio             Int
+  fecha_inscripcion       DateTime       @default(dbgenerated("CURRENT_DATE")) @db.Date
+  id_estado_curso         Int
+  fecha_actualizacion     DateTime?      @db.Date
+  certificados            certificados?
+  estados_cursos          estados_cursos @relation(fields: [id_estado_curso], references: [id_estado_curso], onDelete: NoAction, onUpdate: NoAction)
+  cursos                  cursos         @relation(fields: [id_servicio], references: [id_servicio], onDelete: Cascade, onUpdate: NoAction)
+  beneficiarios           beneficiarios  @relation(fields: [id_usuario_beneficiario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+  seguimientos            seguimientos[]
+
+  @@unique([id_usuario_beneficiario, id_servicio], map: "uq_inscripcion_curso")
+  @@index([id_usuario_beneficiario], map: "idx_inscripciones_cursos_beneficiario")
+}
+
+model inscripciones_mentorias {
+  id_inscripcion          Int               @id @default(autoincrement())
+  id_usuario_beneficiario Int
+  id_servicio             Int
+  fecha_inscripcion       DateTime          @default(dbgenerated("CURRENT_DATE")) @db.Date
+  id_estado_mentoria      Int
+  fecha_actualizacion     DateTime?         @db.Date
+  estados_mentorias       estados_mentorias @relation(fields: [id_estado_mentoria], references: [id_estado_mentoria], onDelete: NoAction, onUpdate: NoAction)
+  mentorias               mentorias         @relation(fields: [id_servicio], references: [id_servicio], onDelete: Cascade, onUpdate: NoAction)
+  beneficiarios           beneficiarios     @relation(fields: [id_usuario_beneficiario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+  seguimientos            seguimientos[]
+
+  @@unique([id_usuario_beneficiario, id_servicio], map: "uq_inscripcion_mentoria")
+  @@index([id_usuario_beneficiario], map: "idx_inscripciones_mentorias_beneficiario")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model mentorias {
+  id_servicio             Int                       @id
+  fecha                   DateTime?                 @db.Date
+  hora_inicio             DateTime?                 @db.Time(6)
+  modalidad               String                    @db.VarChar(20)
+  link_o_canal            String?                   @db.VarChar(300)
+  id_profesional          Int?
+  inscripciones_mentorias inscripciones_mentorias[]
+  profesionales           profesionales?            @relation(fields: [id_profesional], references: [id_profesional], onDelete: NoAction, onUpdate: NoAction)
+  servicios               servicios                 @relation(fields: [id_servicio], references: [id_servicio], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model niveles_habilidad {
+  id_nivel                  Int                         @id @default(autoincrement())
+  nombre                    String                      @db.VarChar(50)
+  beneficiarios_habilidades beneficiarios_habilidades[]
+}
+
+model notificaciones {
+  id_notificacion         Int                  @id @default(autoincrement())
+  id_usuario_beneficiario Int
+  id_servicio             Int?
+  id_tipo_notificacion    Int
+  mensaje                 String
+  fecha_envio             DateTime             @default(now()) @db.Timestamp(6)
+  leida                   Boolean              @default(false)
+  servicios               servicios?           @relation(fields: [id_servicio], references: [id_servicio], onDelete: Cascade, onUpdate: NoAction)
+  tipos_notificaciones    tipos_notificaciones @relation(fields: [id_tipo_notificacion], references: [id_tipo_notificacion], onDelete: NoAction, onUpdate: NoAction)
+  beneficiarios           beneficiarios        @relation(fields: [id_usuario_beneficiario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([id_usuario_beneficiario], map: "idx_notificaciones_beneficiario")
+}
+
+model ofertas_habilidades {
+  id_servicio       Int
+  id_habilidad      Int
+  habilidades       habilidades       @relation(fields: [id_habilidad], references: [id_habilidad], onDelete: Cascade, onUpdate: NoAction)
+  ofertas_laborales ofertas_laborales @relation(fields: [id_servicio], references: [id_servicio], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([id_servicio, id_habilidad])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model ofertas_laborales {
+  id_servicio             Int                       @id
+  id_tipo_contrato        Int?
+  modalidad               String                    @db.VarChar(20)
+  salario                 Decimal?                  @db.Decimal(12, 2)
+  fecha_limite            DateTime?                 @db.Date
+  vacantes                Int?
+  ofertas_habilidades     ofertas_habilidades[]
+  servicios               servicios                 @relation(fields: [id_servicio], references: [id_servicio], onDelete: Cascade, onUpdate: NoAction)
+  tipos_contrato          tipos_contrato?           @relation(fields: [id_tipo_contrato], references: [id_tipo_contrato], onDelete: NoAction, onUpdate: NoAction)
+  postulaciones_laborales postulaciones_laborales[]
+}
+
+model postulaciones_laborales {
+  id_postulacion          Int                   @id @default(autoincrement())
+  id_usuario_beneficiario Int
+  id_servicio             Int
+  fecha_postulacion       DateTime              @default(dbgenerated("CURRENT_DATE")) @db.Date
+  id_estado_postulacion   Int
+  cv_url                  String?               @db.VarChar(300)
+  carta_presentacion      String?
+  estados_postulaciones   estados_postulaciones @relation(fields: [id_estado_postulacion], references: [id_estado_postulacion], onDelete: NoAction, onUpdate: NoAction)
+  ofertas_laborales       ofertas_laborales     @relation(fields: [id_servicio], references: [id_servicio], onDelete: Cascade, onUpdate: NoAction)
+  beneficiarios           beneficiarios         @relation(fields: [id_usuario_beneficiario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+  seguimientos            seguimientos[]
+
+  @@index([id_usuario_beneficiario], map: "idx_postulaciones_beneficiario")
+}
+
+model profesionales {
+  id_profesional     Int         @id @default(autoincrement())
+  id_usuario_empresa Int
+  nombre             String      @db.VarChar(100)
+  apellido           String      @db.VarChar(100)
+  email              String?     @db.VarChar(150)
+  telefono           String?     @db.VarChar(50)
+  cursos             cursos[]
+  mentorias          mentorias[]
+  empresas           empresas    @relation(fields: [id_usuario_empresa], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model provincias {
+  id_provincia Int        @id @default(autoincrement())
+  nombre       String     @db.VarChar(100)
+  ciudades     ciudades[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model seguimientos {
+  id_seguimiento            Int                       @id @default(autoincrement())
+  id_usuario_beneficiario   Int
+  id_servicio               Int
+  id_inscripcion_curso      Int?
+  id_inscripcion_mentoria   Int?
+  id_postulacion            Int?
+  id_tipo_evento            Int
+  fecha                     DateTime                  @default(now()) @db.Timestamp(6)
+  descripcion               String?
+  inscripciones_cursos      inscripciones_cursos?     @relation(fields: [id_inscripcion_curso], references: [id_inscripcion], onDelete: Cascade, onUpdate: NoAction)
+  inscripciones_mentorias   inscripciones_mentorias?  @relation(fields: [id_inscripcion_mentoria], references: [id_inscripcion], onDelete: Cascade, onUpdate: NoAction)
+  postulaciones_laborales   postulaciones_laborales?  @relation(fields: [id_postulacion], references: [id_postulacion], onDelete: Cascade, onUpdate: NoAction)
+  servicios                 servicios                 @relation(fields: [id_servicio], references: [id_servicio], onDelete: Cascade, onUpdate: NoAction)
+  tipos_eventos_seguimiento tipos_eventos_seguimiento @relation(fields: [id_tipo_evento], references: [id_tipo_evento], onDelete: NoAction, onUpdate: NoAction)
+  beneficiarios             beneficiarios             @relation(fields: [id_usuario_beneficiario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([id_usuario_beneficiario], map: "idx_seguimientos_beneficiario")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model servicios {
+  id_servicio                   Int                            @id @default(autoincrement())
+  id_usuario_empresa            Int
+  id_area                       Int
+  tipo_servicio                 String                         @db.VarChar(20)
+  titulo                        String                         @db.VarChar(150)
+  descripcion                   String?
+  fecha_publicacion             DateTime                       @default(dbgenerated("CURRENT_DATE")) @db.Date
+  id_estado_publicacion         Int
+  cursos                        cursos?
+  mentorias                     mentorias?
+  notificaciones                notificaciones[]
+  ofertas_laborales             ofertas_laborales?
+  seguimientos                  seguimientos[]
+  areas_interes                 areas_interes                  @relation(fields: [id_area], references: [id_area], onDelete: NoAction, onUpdate: NoAction)
+  estados_publicacion_servicios estados_publicacion_servicios  @relation(fields: [id_estado_publicacion], references: [id_estado_publicacion], onDelete: NoAction, onUpdate: NoAction)
+  empresas                      empresas                       @relation(fields: [id_usuario_empresa], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+  servicios_discapacidades      servicios_discapacidades[]
+
+  @@index([id_area], map: "idx_servicios_area")
+  @@index([id_usuario_empresa], map: "idx_servicios_empresa")
+}
+
+model servicios_discapacidades {
+  id_servicio                 Int
+  id_discapacidad             Int
+  observaciones_accesibilidad String?
+  discapacidades              discapacidades @relation(fields: [id_discapacidad], references: [id_discapacidad], onDelete: Cascade, onUpdate: NoAction)
+  servicios                   servicios      @relation(fields: [id_servicio], references: [id_servicio], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([id_servicio, id_discapacidad])
+}
+
+model solicitudes_habilitacion_empresas {
+  id_solicitud        Int                 @id @default(autoincrement())
+  razon_social        String              @db.VarChar(150)
+  cuit                String              @db.VarChar(20)
+  email_contacto      String              @db.VarChar(150)
+  telefono_contacto   String?             @db.VarChar(50)
+  descripcion         String?
+  documentacion_url   String?             @db.VarChar(300)
+  fecha_solicitud     DateTime            @default(dbgenerated("CURRENT_DATE")) @db.Date
+  fecha_revision      DateTime?           @db.Date
+  motivo_rechazo      String?
+  id_estado_solicitud Int
+  id_admin_revisor    Int?
+  empresas            empresas[]
+  administradores     administradores?    @relation(fields: [id_admin_revisor], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction)
+  estados_solicitudes estados_solicitudes @relation(fields: [id_estado_solicitud], references: [id_estado_solicitud], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model tipos_contrato {
+  id_tipo_contrato  Int                 @id @default(autoincrement())
+  nombre            String              @db.VarChar(50)
+  ofertas_laborales ofertas_laborales[]
+}
+
+model tipos_eventos_seguimiento {
+  id_tipo_evento Int            @id @default(autoincrement())
+  nombre         String         @db.VarChar(50)
+  descripcion    String?
+  seguimientos   seguimientos[]
+}
+
+model tipos_notificaciones {
+  id_tipo_notificacion Int              @id @default(autoincrement())
+  nombre               String           @db.VarChar(50)
+  notificaciones       notificaciones[]
+}
+
+model usuarios {
+  id_usuario      Int              @id @default(autoincrement())
+  email           String           @unique(map: "uq_usuarios_email") @db.VarChar(150)
+  password_hash   String           @db.VarChar(255)
+  fecha_registro  DateTime         @default(dbgenerated("CURRENT_DATE")) @db.Date
+  activo          Boolean          @default(true)
+  administradores administradores?
+  beneficiarios   beneficiarios?
+  empresas        empresas?
+}

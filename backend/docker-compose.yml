@@ -1,0 +1,21 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/.env
+    environment:
+      - PORT=3000
+      - FRONTEND_URL=http://localhost:4200
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "4200:80"
+    environment:
+      - API_URL=http://localhost:3000
+    depends_on:
+      - backend
