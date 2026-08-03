@@ -15,7 +15,10 @@ const MOCK_PERFIL: PerfilBeneficiario = {
   avatarIniciales: 'CG',
   email: 'camila.gomez@example.com',
   dni: '30123456',
+  fechaNacimiento: '2001-05-14',
   ubicacion: 'Córdoba, Argentina',
+  direccion: 'Av. Colón 1234, 3º B',
+  telefono: '351-555-0102',
   sobreMi:
     'Estoy dando mis primeros pasos en tecnología. Me interesa el desarrollo web y busco mi primera oportunidad laboral en el rubro.',
   experiencia: [

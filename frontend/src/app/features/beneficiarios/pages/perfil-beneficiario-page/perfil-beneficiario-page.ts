@@ -1,13 +1,15 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { PerfilBeneficiarioService } from '../../services/perfil-beneficiario.service';
 import { EnlacesPerfil, EntradaTrayectoria, PerfilBeneficiario } from '../../models/perfil-beneficiario.model';
 
 type TipoTrayectoria = 'experiencia' | 'educacion';
-type ClaveEdicion = 'ubicacion' | 'sobreMi' | 'enlaces' | `${TipoTrayectoria}:${string}`;
+type CampoSimple = 'fechaNacimiento' | 'ubicacion' | 'direccion' | 'telefono';
+type ClaveEdicion = CampoSimple | 'sobreMi' | 'enlaces' | `${TipoTrayectoria}:${string}`;
 
 @Component({
   selector: 'app-perfil-beneficiario-page',
-  imports: [],
+  imports: [DatePipe],
   templateUrl: './perfil-beneficiario-page.html',
   styleUrl: './perfil-beneficiario-page.css',
 })
@@ -18,12 +20,13 @@ export class PerfilBeneficiarioPage implements OnInit {
   protected readonly nombreSaludo = computed(() => this.perfil()?.nombre.split(' ')[0] ?? '');
 
   protected readonly edicionActiva = signal<ClaveEdicion | null>(null);
-  protected readonly draftUbicacion = signal('');
+  protected readonly draftCampoSimple = signal('');
   protected readonly draftSobreMi = signal('');
   protected readonly draftEnlaces = signal<EnlacesPerfil>({ linkedin: '', github: '', cvUrl: '' });
   protected readonly draftEntrada = signal<EntradaTrayectoria | null>(null);
 
   private readonly perfilBeneficiarioService = inject(PerfilBeneficiarioService);
+  private campoSimpleEnEdicion: CampoSimple | null = null;
 
   ngOnInit(): void {
     this.perfilBeneficiarioService.getPerfil().subscribe((perfil) => this.perfil.set(perfil));
@@ -40,22 +43,40 @@ export class PerfilBeneficiarioPage implements OnInit {
   protected cancelarEdicion(): void {
     this.edicionActiva.set(null);
     this.draftEntrada.set(null);
+    this.campoSimpleEnEdicion = null;
   }
 
-  protected iniciarEdicionUbicacion(): void {
+  protected iniciarEdicionCampo(campo: CampoSimple): void {
     const perfil = this.perfil();
     if (!perfil) return;
-    this.draftUbicacion.set(perfil.ubicacion);
-    this.edicionActiva.set('ubicacion');
+    this.campoSimpleEnEdicion = campo;
+    this.draftCampoSimple.set(perfil[campo]);
+    this.edicionActiva.set(campo);
   }
 
-  protected onDraftUbicacionInput(event: Event): void {
-    this.draftUbicacion.set((event.target as HTMLInputElement).value);
+  protected onDraftCampoSimpleInput(event: Event): void {
+    this.draftCampoSimple.set((event.target as HTMLInputElement).value);
   }
 
-  protected guardarUbicacion(): void {
-    this.perfil.update((perfil) => (perfil ? { ...perfil, ubicacion: this.draftUbicacion() } : perfil));
+  /** Enmascara el teléfono a medida que se escribe: solo dígitos, agrupados como "351-555-0102". */
+  protected onDraftTelefonoInput(event: Event): void {
+    const inputEl = event.target as HTMLInputElement;
+    const digitos = inputEl.value.replace(/\D/g, '').slice(0, 10);
+    const grupos = [digitos.slice(0, 3), digitos.slice(3, 6), digitos.slice(6, 10)].filter(Boolean);
+    const formateado = grupos.join('-');
+    // Se refleja de inmediato en el input nativo: si el valor enmascarado no
+    // cambia respecto del anterior (p. ej. se tipeó un carácter inválido),
+    // el binding de Angular no vuelve a pisar el DOM por sí solo.
+    inputEl.value = formateado;
+    this.draftCampoSimple.set(formateado);
+  }
+
+  protected guardarCampoSimple(): void {
+    const campo = this.campoSimpleEnEdicion;
+    if (!campo) return;
+    this.perfil.update((perfil) => (perfil ? { ...perfil, [campo]: this.draftCampoSimple() } : perfil));
     this.edicionActiva.set(null);
+    this.campoSimpleEnEdicion = null;
   }
 
   protected iniciarEdicionSobreMi(): void {

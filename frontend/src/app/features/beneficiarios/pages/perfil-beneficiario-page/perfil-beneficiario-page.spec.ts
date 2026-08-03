@@ -64,6 +64,94 @@ describe('PerfilBeneficiarioPage', () => {
     expect(component['edicionActiva']()).toBeNull();
   });
 
+  it('should render fecha de nacimiento, dirección y teléfono as editable fields', () => {
+    const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    const filas = Array.from(compiled.querySelectorAll('.dato-row'));
+
+    for (const etiqueta of ['Fecha de nacimiento', 'Dirección', 'Teléfono']) {
+      const fila = filas.find((f) => f.querySelector('dt')?.textContent === etiqueta);
+      expect(fila?.querySelector('.btn-editar')).not.toBeNull();
+    }
+  });
+
+  it('should allow editing and saving the teléfono', () => {
+    const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    const filaTelefono = Array.from(compiled.querySelectorAll('.dato-row')).find(
+      (fila) => fila.querySelector('dt')?.textContent === 'Teléfono',
+    )!;
+    (filaTelefono.querySelector('.btn-editar') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const input = compiled.querySelector('.dato-edicion .input-edicion') as HTMLInputElement;
+    input.value = '351-555-9999';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    (compiled.querySelector('.dato-edicion .btn-guardar') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(component['perfil']()?.telefono).toBe('351-555-9999');
+    expect(component['edicionActiva']()).toBeNull();
+  });
+
+  it('should mask the teléfono input, keeping only digits grouped as XXX-XXX-XXXX', () => {
+    const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    const filaTelefono = Array.from(compiled.querySelectorAll('.dato-row')).find(
+      (fila) => fila.querySelector('dt')?.textContent === 'Teléfono',
+    )!;
+    (filaTelefono.querySelector('.btn-editar') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const input = compiled.querySelector('.dato-edicion .input-edicion') as HTMLInputElement;
+    input.value = '35a15550102xyz';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(input.value).toBe('351-555-0102');
+
+    (compiled.querySelector('.dato-edicion .btn-guardar') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(component['perfil']()?.telefono).toBe('351-555-0102');
+  });
+
+  it('should use a native date input for fecha de nacimiento and display it formatted', () => {
+    const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    expect(compiled.textContent).toContain('14/05/2001');
+
+    const filaFecha = Array.from(compiled.querySelectorAll('.dato-row')).find(
+      (fila) => fila.querySelector('dt')?.textContent === 'Fecha de nacimiento',
+    )!;
+    (filaFecha.querySelector('.btn-editar') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const input = compiled.querySelector('.dato-edicion .input-edicion') as HTMLInputElement;
+    expect(input.type).toBe('date');
+    expect(input.value).toBe('2001-05-14');
+
+    input.value = '1999-01-20';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    (compiled.querySelector('.dato-edicion .btn-guardar') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(component['perfil']()?.fechaNacimiento).toBe('1999-01-20');
+  });
+
   it('should discard changes when canceling the edición de sobre mí', () => {
     const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
     const component = fixture.componentInstance;

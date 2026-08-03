@@ -18,7 +18,10 @@ export interface PerfilBeneficiario {
   avatarIniciales: string;
   email: string;
   dni: string;
+  fechaNacimiento: string;
   ubicacion: string;
+  direccion: string;
+  telefono: string;
   sobreMi: string;
   experiencia: EntradaTrayectoria[];
   educacion: EntradaTrayectoria[];
