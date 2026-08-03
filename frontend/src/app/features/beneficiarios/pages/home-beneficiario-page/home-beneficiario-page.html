@@ -1,0 +1,115 @@
+<div class="page">
+  <header class="header">
+    <div class="brand">
+      <svg class="brand-icon" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <circle cx="33" cy="7" r="3" fill="#f2b93b" />
+        <rect x="4" y="24" width="6" height="12" rx="1" fill="#185fa5" />
+        <rect x="13" y="18" width="6" height="18" rx="1" fill="#185fa5" />
+        <rect x="22" y="12" width="6" height="24" rx="1" fill="#185fa5" />
+        <circle cx="7" cy="20" r="2.5" fill="#042c53" />
+        <circle cx="16" cy="14" r="2.5" fill="#042c53" />
+        <circle cx="25" cy="8" r="2.5" fill="#042c53" />
+      </svg>
+      <span class="brand-name">Puente Laboral</span>
+    </div>
+
+    <div class="header-actions">
+      <button type="button" class="btn-icon" aria-label="Notificaciones">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M12 3a6 6 0 0 0-6 6v3.2c0 .5-.18.99-.5 1.38L4 15.5c-.7.85-.1 2.1 1 2.1h14c1.1 0 1.7-1.25 1-2.1l-1.5-1.92c-.32-.4-.5-.89-.5-1.38V9a6 6 0 0 0-6-6Z"
+            stroke="#185FA5"
+            stroke-width="1.6"
+            stroke-linejoin="round"
+          />
+          <path d="M9.5 19a2.5 2.5 0 0 0 5 0" stroke="#185FA5" stroke-width="1.6" stroke-linecap="round" />
+        </svg>
+        @if (metricas().length) {
+          <span class="badge-count">{{ metricas()[2].valor }}</span>
+        }
+      </button>
+      <span class="header-greeting">Hola, {{ nombreBeneficiario() }}</span>
+    </div>
+  </header>
+
+  <main class="content">
+    <h1 class="main-title">Hola, {{ nombreBeneficiario() }}</h1>
+
+    <section class="metrics-row" aria-label="Resumen de actividad">
+      @for (metrica of metricas(); track metrica.etiqueta) {
+        <div class="metric-card">
+          <span class="metric-valor">{{ metrica.valor }}</span>
+          <span class="metric-etiqueta">{{ metrica.etiqueta }}</span>
+        </div>
+      }
+    </section>
+
+    <div class="search-bar">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" stroke="#185FA5" stroke-width="1.6" />
+        <path d="m20 20-3.2-3.2" stroke="#185FA5" stroke-width="1.6" stroke-linecap="round" />
+      </svg>
+      <input
+        type="search"
+        placeholder="Buscar empleos, cursos, mentorías..."
+        [value]="terminoBusqueda()"
+        (input)="onBusquedaInput($event)"
+      />
+    </div>
+
+    <div class="filters-row" role="tablist" aria-label="Filtrar por tipo">
+      @for (filtro of filtros; track filtro.id) {
+        <button
+          type="button"
+          class="filter-pill"
+          role="tab"
+          [class.active]="filtroActivo() === filtro.id"
+          [attr.aria-selected]="filtroActivo() === filtro.id"
+          (click)="seleccionarFiltro(filtro.id)"
+        >
+          {{ filtro.etiqueta }}
+        </button>
+      }
+    </div>
+
+    <section class="section">
+      <h2 class="section-title">Recomendado para vos</h2>
+
+      @if (oportunidadesFiltradas().length) {
+        <div class="oportunidades-grid">
+          @for (oportunidad of oportunidadesFiltradas(); track oportunidad.id) {
+            <article class="oportunidad-card">
+              <span class="match-badge">{{ oportunidad.matchPorcentaje }}% match</span>
+              <h3 class="oportunidad-titulo">{{ oportunidad.titulo }}</h3>
+              <p class="oportunidad-organizacion">{{ oportunidad.organizacion }}</p>
+            </article>
+          }
+        </div>
+      } @else {
+        <p class="empty-state">No encontramos resultados para tu búsqueda.</p>
+      }
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Últimas actualizaciones</h2>
+
+      @if (actualizaciones().length) {
+        <ul class="actualizaciones-list">
+          @for (actualizacion of actualizaciones(); track actualizacion.id) {
+            <li class="actualizacion-item">{{ actualizacion.mensaje }}</li>
+          }
+        </ul>
+      } @else {
+        <p class="empty-state">Todavía no tenés actualizaciones.</p>
+      }
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>© 2026 Puente Laboral. Todos los derechos reservados.</span>
+    <div class="footer-links">
+      <a href="#">Términos y condiciones</a>
+      <a href="#">Política de privacidad</a>
+    </div>
+  </footer>
+</div>
