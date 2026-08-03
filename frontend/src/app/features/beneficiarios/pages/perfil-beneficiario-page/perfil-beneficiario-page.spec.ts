@@ -1,0 +1,150 @@
+import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { PerfilBeneficiarioPage } from './perfil-beneficiario-page';
+
+describe('PerfilBeneficiarioPage', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [PerfilBeneficiarioPage],
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    }).compileComponents();
+  });
+
+  it('should create the component', () => {
+    const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
+    expect(fixture.componentInstance).toBeTruthy();
+  });
+
+  it('should render the loaded perfil data', () => {
+    const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    const perfil = fixture.componentInstance['perfil']()!;
+
+    expect(compiled.querySelector('.profile-nombre')?.textContent).toContain(perfil.nombre);
+    expect(compiled.textContent).toContain(perfil.email);
+    expect(compiled.textContent).toContain(perfil.dni);
+  });
+
+  it('should not render an edit button next to email or DNI', () => {
+    const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    const filas = Array.from(compiled.querySelectorAll('.dato-row'));
+
+    const filaEmail = filas.find((fila) => fila.querySelector('dt')?.textContent === 'Email');
+    const filaDni = filas.find((fila) => fila.querySelector('dt')?.textContent === 'DNI');
+
+    expect(filaEmail?.querySelector('.btn-editar')).toBeNull();
+    expect(filaDni?.querySelector('.btn-editar')).toBeNull();
+  });
+
+  it('should allow editing and saving the ubicación', () => {
+    const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    const filaUbicacion = Array.from(compiled.querySelectorAll('.dato-row')).find(
+      (fila) => fila.querySelector('dt')?.textContent === 'Ubicación',
+    )!;
+    (filaUbicacion.querySelector('.btn-editar') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const input = compiled.querySelector('.dato-edicion .input-edicion') as HTMLInputElement;
+    input.value = 'Buenos Aires, Argentina';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    (compiled.querySelector('.dato-edicion .btn-guardar') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(component['perfil']()?.ubicacion).toBe('Buenos Aires, Argentina');
+    expect(component['edicionActiva']()).toBeNull();
+  });
+
+  it('should discard changes when canceling the edición de sobre mí', () => {
+    const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    const sobreMiOriginal = component['perfil']()?.sobreMi;
+
+    (compiled.querySelector('.btn-editar[aria-label="Editar sobre mí"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const textarea = compiled.querySelector('.textarea-edicion') as HTMLTextAreaElement;
+    textarea.value = 'Un texto distinto';
+    textarea.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    (compiled.querySelector('.btn-cancelar') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(component['perfil']()?.sobreMi).toBe(sobreMiOriginal);
+    expect(compiled.querySelector('.textarea-edicion')).toBeNull();
+  });
+
+  it('should edit a single experiencia entry without affecting the others', () => {
+    const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    const primeraEntrada = component['perfil']()!.experiencia[0];
+    const segundaEntradaOriginal = { ...component['perfil']()!.experiencia[1] };
+
+    component['iniciarEdicionEntrada']('experiencia', primeraEntrada);
+    component['onDraftEntradaInput']('titulo', { target: { value: 'Nuevo puesto' } } as unknown as Event);
+    component['guardarEntrada']('experiencia');
+    fixture.detectChanges();
+
+    expect(component['perfil']()!.experiencia[0].titulo).toBe('Nuevo puesto');
+    expect(component['perfil']()!.experiencia[1]).toEqual(segundaEntradaOriginal);
+  });
+
+  it('should render habilidades and áreas de interés as read-only tags with distinct colors', () => {
+    const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    expect(compiled.querySelectorAll('.tag-habilidad').length).toBeGreaterThan(0);
+    expect(compiled.querySelectorAll('.tag-interes').length).toBeGreaterThan(0);
+
+    const sections = Array.from(compiled.querySelectorAll('.section'));
+    const seccionHabilidades = sections.find((s) => s.querySelector('.section-title')?.textContent === 'Habilidades');
+    const seccionIntereses = sections.find(
+      (s) => s.querySelector('.section-title')?.textContent === 'Áreas de interés',
+    );
+
+    expect(seccionHabilidades?.querySelector('.btn-editar')).toBeNull();
+    expect(seccionIntereses?.querySelector('.btn-editar')).toBeNull();
+  });
+
+  it('should allow editing enlaces and persist the values', () => {
+    const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    (compiled.querySelector('.btn-editar[aria-label="Editar enlaces"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const [linkedinInput, , cvInput] = Array.from(
+      compiled.querySelectorAll('.enlaces-edicion .input-edicion'),
+    ) as HTMLInputElement[];
+
+    linkedinInput.value = 'https://linkedin.com/in/nueva-url';
+    linkedinInput.dispatchEvent(new Event('input'));
+    cvInput.value = 'https://example.com/cv.pdf';
+    cvInput.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    (compiled.querySelector('.enlaces-edicion ~ .edicion-acciones .btn-guardar') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(component['perfil']()?.enlaces.linkedin).toBe('https://linkedin.com/in/nueva-url');
+    expect(component['perfil']()?.enlaces.cvUrl).toBe('https://example.com/cv.pdf');
+    expect(compiled.querySelector('.enlaces-list a[href="https://example.com/cv.pdf"]')).toBeTruthy();
+  });
+});

@@ -1,0 +1,438 @@
+:host {
+  --bg: #e6f1fb;
+  --card: #ffffff;
+  --accent: #185fa5;
+  --accent-soft: #5c8bb8;
+  --text: #042c53;
+  --text-2: #185fa5;
+  --border: #d5e6f7;
+  --skill-bg: #dceafb;
+  --skill-text: #185fa5;
+  --interes-bg: #e1f5ea;
+  --interes-text: #1f7a4d;
+
+  display: block;
+  min-height: 100vh;
+  background: var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text);
+}
+
+/* Header (igual a Home Beneficiario) */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: var(--card);
+  box-shadow: 0 1px 3px rgba(4, 44, 83, 0.08);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.brand-icon {
+  width: 32px;
+  height: 32px;
+}
+
+.brand-name {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: var(--bg);
+  cursor: pointer;
+}
+
+.btn-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.badge-count {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 0.65rem;
+  line-height: 16px;
+  text-align: center;
+}
+
+.header-greeting {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Contenido */
+
+.content {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.card,
+.profile-header-card {
+  background: var(--card);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px rgba(4, 44, 83, 0.06);
+}
+
+/* Cabecera de perfil */
+
+.profile-header-top {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.avatar {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.profile-nombre {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.profile-rol {
+  margin: 0.15rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-2);
+}
+
+.profile-datos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.dato-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.dato-row dt {
+  width: 90px;
+  flex-shrink: 0;
+  margin: 0;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.dato-row dd {
+  margin: 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text);
+}
+
+.dato-edicion {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+/* Secciones */
+
+.section-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.sobre-mi-texto {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+/* Botón editar */
+
+.btn-editar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem;
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.btn-editar svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Edición inline */
+
+.campo-edicion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.75rem;
+}
+
+.campo-edicion:last-of-type {
+  margin-bottom: 0;
+}
+
+.input-edicion,
+.textarea-edicion {
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.85rem;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--bg);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.textarea-edicion {
+  resize: vertical;
+}
+
+.edicion-acciones {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.btn-guardar {
+  background: var(--accent);
+  color: #ffffff;
+  border: none;
+  border-radius: 0.4rem;
+  padding: 0.45rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-cancelar {
+  background: transparent;
+  color: var(--text-2);
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  padding: 0.45rem 1rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+/* Experiencia / Educación */
+
+.entradas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.entrada-card {
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  padding: 1rem;
+}
+
+.entrada-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.entrada-titulo {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.entrada-organizacion {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text-2);
+}
+
+.entrada-detalle {
+  margin: 0.6rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+/* Tags */
+
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag {
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.tag-habilidad {
+  background: var(--skill-bg);
+  color: var(--skill-text);
+}
+
+.tag-interes {
+  background: var(--interes-bg);
+  color: var(--interes-text);
+}
+
+/* Enlaces */
+
+.enlaces-edicion {
+  display: flex;
+  flex-direction: column;
+}
+
+.enlaces-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.enlaces-list a {
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.empty-state {
+  font-size: 0.85rem;
+  color: var(--text-2);
+}
+
+/* Footer (igual a Home Beneficiario) */
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+  background: var(--card);
+  font-size: 0.8rem;
+  color: var(--text-2);
+}
+
+.footer-links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.footer-links a {
+  color: var(--text-2);
+  text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  .header {
+    padding: 1rem;
+  }
+
+  .content {
+    padding: 1.5rem 1rem;
+  }
+
+  .header-greeting {
+    display: none;
+  }
+
+  .dato-row {
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .dato-row dt {
+    width: auto;
+  }
+
+  .entrada-header {
+    flex-direction: column;
+  }
+
+  .footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1.5rem 1rem;
+  }
+}

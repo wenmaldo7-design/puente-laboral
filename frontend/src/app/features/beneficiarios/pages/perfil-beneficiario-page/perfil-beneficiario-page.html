@@ -1,0 +1,391 @@
+<div class="page">
+  <header class="header">
+    <div class="brand">
+      <svg class="brand-icon" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <circle cx="33" cy="7" r="3" fill="#f2b93b" />
+        <rect x="4" y="24" width="6" height="12" rx="1" fill="#185fa5" />
+        <rect x="13" y="18" width="6" height="18" rx="1" fill="#185fa5" />
+        <rect x="22" y="12" width="6" height="24" rx="1" fill="#185fa5" />
+        <circle cx="7" cy="20" r="2.5" fill="#042c53" />
+        <circle cx="16" cy="14" r="2.5" fill="#042c53" />
+        <circle cx="25" cy="8" r="2.5" fill="#042c53" />
+      </svg>
+      <span class="brand-name">Puente Laboral</span>
+    </div>
+
+    <div class="header-actions">
+      <button type="button" class="btn-icon" aria-label="Notificaciones">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M12 3a6 6 0 0 0-6 6v3.2c0 .5-.18.99-.5 1.38L4 15.5c-.7.85-.1 2.1 1 2.1h14c1.1 0 1.7-1.25 1-2.1l-1.5-1.92c-.32-.4-.5-.89-.5-1.38V9a6 6 0 0 0-6-6Z"
+            stroke="#185FA5"
+            stroke-width="1.6"
+            stroke-linejoin="round"
+          />
+          <path d="M9.5 19a2.5 2.5 0 0 0 5 0" stroke="#185FA5" stroke-width="1.6" stroke-linecap="round" />
+        </svg>
+        @if (notificacionesNoLeidas() > 0) {
+          <span class="badge-count">{{ notificacionesNoLeidas() }}</span>
+        }
+      </button>
+      <span class="header-greeting">Hola, {{ nombreSaludo() }}</span>
+    </div>
+  </header>
+
+  <main class="content">
+    @if (perfil(); as p) {
+      <section class="profile-header-card">
+        <div class="profile-header-top">
+          <div class="avatar" aria-hidden="true">{{ p.avatarIniciales }}</div>
+          <div class="profile-header-info">
+            <h1 class="profile-nombre">{{ p.nombre }}</h1>
+            <p class="profile-rol">{{ p.rol }}</p>
+          </div>
+        </div>
+
+        <dl class="profile-datos">
+          <div class="dato-row">
+            <dt>Email</dt>
+            <dd>{{ p.email }}</dd>
+          </div>
+
+          <div class="dato-row">
+            <dt>DNI</dt>
+            <dd>{{ p.dni }}</dd>
+          </div>
+
+          <div class="dato-row">
+            <dt>Ubicación</dt>
+            @if (estaEditando('ubicacion')) {
+              <dd class="dato-edicion">
+                <input
+                  type="text"
+                  class="input-edicion"
+                  [value]="draftUbicacion()"
+                  (input)="onDraftUbicacionInput($event)"
+                />
+                <div class="edicion-acciones">
+                  <button type="button" class="btn-guardar" (click)="guardarUbicacion()">Guardar</button>
+                  <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
+                </div>
+              </dd>
+            } @else {
+              <dd>
+                <span>{{ p.ubicacion }}</span>
+                <button
+                  type="button"
+                  class="btn-editar"
+                  aria-label="Editar ubicación"
+                  (click)="iniciarEdicionUbicacion()"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linejoin="round"
+                      stroke-linecap="round"
+                    />
+                    <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                  </svg>
+                </button>
+              </dd>
+            }
+          </div>
+        </dl>
+      </section>
+
+      <section class="section card">
+        <div class="section-header">
+          <h2 class="section-title">Sobre mí</h2>
+          @if (!estaEditando('sobreMi')) {
+            <button type="button" class="btn-editar" aria-label="Editar sobre mí" (click)="iniciarEdicionSobreMi()">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linejoin="round"
+                  stroke-linecap="round"
+                />
+                <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+              </svg>
+            </button>
+          }
+        </div>
+
+        @if (estaEditando('sobreMi')) {
+          <textarea class="textarea-edicion" rows="4" [value]="draftSobreMi()" (input)="onDraftSobreMiInput($event)"></textarea>
+          <div class="edicion-acciones">
+            <button type="button" class="btn-guardar" (click)="guardarSobreMi()">Guardar</button>
+            <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
+          </div>
+        } @else {
+          <p class="sobre-mi-texto">{{ p.sobreMi }}</p>
+        }
+      </section>
+
+      <section class="section card">
+        <h2 class="section-title">Experiencia</h2>
+        <div class="entradas-list">
+          @for (entrada of p.experiencia; track entrada.id) {
+            <article class="entrada-card">
+              @if (estaEditando(claveEntrada('experiencia', entrada.id))) {
+                <div class="entrada-edicion">
+                  <label class="campo-edicion">
+                    Puesto
+                    <input
+                      type="text"
+                      class="input-edicion"
+                      [value]="draftEntrada()?.titulo"
+                      (input)="onDraftEntradaInput('titulo', $event)"
+                    />
+                  </label>
+                  <label class="campo-edicion">
+                    Empresa
+                    <input
+                      type="text"
+                      class="input-edicion"
+                      [value]="draftEntrada()?.organizacion"
+                      (input)="onDraftEntradaInput('organizacion', $event)"
+                    />
+                  </label>
+                  <label class="campo-edicion">
+                    Fecha
+                    <input
+                      type="text"
+                      class="input-edicion"
+                      [value]="draftEntrada()?.fecha"
+                      (input)="onDraftEntradaInput('fecha', $event)"
+                    />
+                  </label>
+                  <label class="campo-edicion">
+                    Detalle
+                    <textarea
+                      class="textarea-edicion"
+                      rows="3"
+                      [value]="draftEntrada()?.detalle"
+                      (input)="onDraftEntradaInput('detalle', $event)"
+                    ></textarea>
+                  </label>
+                  <div class="edicion-acciones">
+                    <button type="button" class="btn-guardar" (click)="guardarEntrada('experiencia')">Guardar</button>
+                    <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
+                  </div>
+                </div>
+              } @else {
+                <div class="entrada-header">
+                  <div>
+                    <h3 class="entrada-titulo">{{ entrada.titulo }}</h3>
+                    <p class="entrada-organizacion">{{ entrada.organizacion }} · {{ entrada.fecha }}</p>
+                  </div>
+                  <button
+                    type="button"
+                    class="btn-editar"
+                    aria-label="Editar experiencia"
+                    (click)="iniciarEdicionEntrada('experiencia', entrada)"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path
+                        d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linejoin="round"
+                        stroke-linecap="round"
+                      />
+                      <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                    </svg>
+                  </button>
+                </div>
+                @if (entrada.detalle) {
+                  <p class="entrada-detalle">{{ entrada.detalle }}</p>
+                }
+              }
+            </article>
+          }
+        </div>
+      </section>
+
+      <section class="section card">
+        <h2 class="section-title">Educación</h2>
+        <div class="entradas-list">
+          @for (entrada of p.educacion; track entrada.id) {
+            <article class="entrada-card">
+              @if (estaEditando(claveEntrada('educacion', entrada.id))) {
+                <div class="entrada-edicion">
+                  <label class="campo-edicion">
+                    Título
+                    <input
+                      type="text"
+                      class="input-edicion"
+                      [value]="draftEntrada()?.titulo"
+                      (input)="onDraftEntradaInput('titulo', $event)"
+                    />
+                  </label>
+                  <label class="campo-edicion">
+                    Institución
+                    <input
+                      type="text"
+                      class="input-edicion"
+                      [value]="draftEntrada()?.organizacion"
+                      (input)="onDraftEntradaInput('organizacion', $event)"
+                    />
+                  </label>
+                  <label class="campo-edicion">
+                    Fecha
+                    <input
+                      type="text"
+                      class="input-edicion"
+                      [value]="draftEntrada()?.fecha"
+                      (input)="onDraftEntradaInput('fecha', $event)"
+                    />
+                  </label>
+                  <label class="campo-edicion">
+                    Detalle
+                    <textarea
+                      class="textarea-edicion"
+                      rows="3"
+                      [value]="draftEntrada()?.detalle"
+                      (input)="onDraftEntradaInput('detalle', $event)"
+                    ></textarea>
+                  </label>
+                  <div class="edicion-acciones">
+                    <button type="button" class="btn-guardar" (click)="guardarEntrada('educacion')">Guardar</button>
+                    <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
+                  </div>
+                </div>
+              } @else {
+                <div class="entrada-header">
+                  <div>
+                    <h3 class="entrada-titulo">{{ entrada.titulo }}</h3>
+                    <p class="entrada-organizacion">{{ entrada.organizacion }} · {{ entrada.fecha }}</p>
+                  </div>
+                  <button
+                    type="button"
+                    class="btn-editar"
+                    aria-label="Editar educación"
+                    (click)="iniciarEdicionEntrada('educacion', entrada)"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path
+                        d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linejoin="round"
+                        stroke-linecap="round"
+                      />
+                      <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                    </svg>
+                  </button>
+                </div>
+                @if (entrada.detalle) {
+                  <p class="entrada-detalle">{{ entrada.detalle }}</p>
+                }
+              }
+            </article>
+          }
+        </div>
+      </section>
+
+      <section class="section card">
+        <h2 class="section-title">Habilidades</h2>
+        <div class="tags-list">
+          @for (habilidad of p.habilidades; track habilidad) {
+            <span class="tag tag-habilidad">{{ habilidad }}</span>
+          }
+        </div>
+      </section>
+
+      <section class="section card">
+        <h2 class="section-title">Áreas de interés</h2>
+        <div class="tags-list">
+          @for (area of p.areasInteres; track area) {
+            <span class="tag tag-interes">{{ area }}</span>
+          }
+        </div>
+      </section>
+
+      <section class="section card">
+        <div class="section-header">
+          <h2 class="section-title">Enlaces</h2>
+          @if (!estaEditando('enlaces')) {
+            <button type="button" class="btn-editar" aria-label="Editar enlaces" (click)="iniciarEdicionEnlaces()">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linejoin="round"
+                  stroke-linecap="round"
+                />
+                <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+              </svg>
+            </button>
+          }
+        </div>
+
+        @if (estaEditando('enlaces')) {
+          <div class="enlaces-edicion">
+            <label class="campo-edicion">
+              LinkedIn
+              <input
+                type="url"
+                class="input-edicion"
+                placeholder="https://linkedin.com/in/tu-usuario"
+                [value]="draftEnlaces().linkedin"
+                (input)="onDraftEnlacesInput('linkedin', $event)"
+              />
+            </label>
+            <label class="campo-edicion">
+              GitHub
+              <input
+                type="url"
+                class="input-edicion"
+                placeholder="https://github.com/tu-usuario"
+                [value]="draftEnlaces().github"
+                (input)="onDraftEnlacesInput('github', $event)"
+              />
+            </label>
+            <label class="campo-edicion">
+              URL de CV
+              <input
+                type="url"
+                class="input-edicion"
+                placeholder="https://..."
+                [value]="draftEnlaces().cvUrl"
+                (input)="onDraftEnlacesInput('cvUrl', $event)"
+              />
+            </label>
+          </div>
+          <div class="edicion-acciones">
+            <button type="button" class="btn-guardar" (click)="guardarEnlaces()">Guardar</button>
+            <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
+          </div>
+        } @else {
+          <ul class="enlaces-list">
+            @if (p.enlaces.linkedin) {
+              <li><a [href]="p.enlaces.linkedin" target="_blank" rel="noopener">LinkedIn</a></li>
+            }
+            @if (p.enlaces.github) {
+              <li><a [href]="p.enlaces.github" target="_blank" rel="noopener">GitHub</a></li>
+            }
+            @if (p.enlaces.cvUrl) {
+              <li><a [href]="p.enlaces.cvUrl" target="_blank" rel="noopener">Curriculum (CV)</a></li>
+            }
+            @if (!p.enlaces.linkedin && !p.enlaces.github && !p.enlaces.cvUrl) {
+              <li class="empty-state">Todavía no agregaste enlaces.</li>
+            }
+          </ul>
+        }
+      </section>
+    }
+  </main>
+
+  <footer class="footer">
+    <span>© 2026 Puente Laboral. Todos los derechos reservados.</span>
+    <div class="footer-links">
+      <a href="#">Términos y condiciones</a>
+      <a href="#">Política de privacidad</a>
+    </div>
+  </footer>
+</div>
