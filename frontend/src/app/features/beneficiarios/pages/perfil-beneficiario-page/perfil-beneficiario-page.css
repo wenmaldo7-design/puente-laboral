@@ -337,6 +337,9 @@
 }
 
 .tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   border-radius: 999px;
   padding: 0.35rem 0.85rem;
   font-size: 0.8rem;
@@ -351,6 +354,63 @@
 .tag-interes {
   background: var(--interes-bg);
   color: var(--interes-text);
+}
+
+.tag-quitar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.tag-quitar:hover {
+  opacity: 1;
+}
+
+.tags-edicion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tag-buscador {
+  position: relative;
+}
+
+.tag-dropdown {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--card);
+  max-height: 180px;
+  overflow-y: auto;
+  box-shadow: 0 4px 10px rgba(4, 44, 83, 0.08);
+}
+
+.tag-opcion {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.tag-opcion:hover {
+  background: var(--bg);
 }
 
 /* Enlaces */

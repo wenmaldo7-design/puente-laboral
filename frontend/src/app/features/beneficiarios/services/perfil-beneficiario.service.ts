@@ -53,14 +53,78 @@ const MOCK_PERFIL: PerfilBeneficiario = {
       detalle: '',
     },
   ],
-  habilidades: ['HTML', 'CSS', 'JavaScript', 'Atención al cliente'],
-  areasInteres: ['Desarrollo web', 'Mentorías', 'Trabajo en equipo'],
+  habilidades: ['Atención al cliente', 'Excel', 'HTML/CSS', 'Trabajo en equipo'],
+  areasInteres: ['Desarrollo web / Tecnología', 'Mentorías', 'Primer empleo'],
   enlaces: {
     linkedin: 'https://linkedin.com/in/camila-gomez',
     github: 'https://github.com/camilagomez',
     cvUrl: '',
   },
 };
+
+/**
+ * Catálogo cerrado de habilidades: el usuario solo puede elegir de esta
+ * lista (no texto libre), para que el matching con oportunidades no se
+ * rompa por variantes de tipeo ("Excel" vs. "excel avanzado"). Todavía no
+ * existe un endpoint de catálogo en el backend; en cuanto exista, lo va a
+ * administrar el rol Admin.
+ */
+const CATALOGO_HABILIDADES: string[] = [
+  'Albañilería',
+  'Electricidad básica',
+  'Plomería',
+  'Carpintería',
+  'Pintura de obra',
+  'Soldadura',
+  'Cocina',
+  'Panadería y pastelería',
+  'Manejo de alimentos',
+  'Mozo/moza / atención en salón',
+  'Cuidado de niños',
+  'Cuidado de adultos mayores',
+  'Primeros auxilios',
+  'Acompañamiento terapéutico',
+  'Costura',
+  'Tejido',
+  'Manualidades y artesanías',
+  'Manejo de autoelevador',
+  'Carnet de conducir',
+  'Logística y depósito',
+  'Reparto y delivery',
+  'Limpieza general',
+  'Mantenimiento de espacios verdes',
+  'Jardinería',
+  'Ventas',
+  'Manejo de caja',
+  'Atención al cliente',
+  'Excel',
+  'Manejo de PC básico',
+  'Gestión de trámites',
+  'HTML/CSS',
+  'Soporte técnico IT',
+  'Peluquería',
+  'Manicuría',
+  'Trabajo en equipo',
+  'Comunicación efectiva',
+  'Organización y puntualidad',
+  'Resolución de problemas',
+];
+
+const CATALOGO_AREAS_INTERES: string[] = [
+  'Construcción y oficios',
+  'Gastronomía',
+  'Cuidado de personas',
+  'Textil y costura',
+  'Logística y transporte',
+  'Limpieza y mantenimiento',
+  'Comercio y ventas',
+  'Administración y oficina',
+  'Desarrollo web / Tecnología',
+  'Belleza y estética',
+  'Primer empleo',
+  'Mentorías',
+  'Capacitación y formación',
+];
 
 /**
  * El backend todavía no tiene los endpoints de perfil de beneficiario.
@@ -79,5 +143,15 @@ export class PerfilBeneficiarioService {
   getPerfil(): Observable<PerfilBeneficiario> {
     // return this.http.get<PerfilBeneficiario>(`${this.apiUrl}/beneficiarios/me/perfil`);
     return of(MOCK_PERFIL);
+  }
+
+  getCatalogoHabilidades(): Observable<string[]> {
+    // return this.http.get<string[]>(`${this.apiUrl}/catalogos/habilidades`);
+    return of(CATALOGO_HABILIDADES);
+  }
+
+  getCatalogoAreasInteres(): Observable<string[]> {
+    // return this.http.get<string[]>(`${this.apiUrl}/catalogos/areas-interes`);
+    return of(CATALOGO_AREAS_INTERES);
   }
 }

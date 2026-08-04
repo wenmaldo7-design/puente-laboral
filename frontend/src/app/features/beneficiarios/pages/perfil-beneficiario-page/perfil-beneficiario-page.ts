@@ -5,7 +5,8 @@ import { EnlacesPerfil, EntradaTrayectoria, PerfilBeneficiario } from '../../mod
 
 type TipoTrayectoria = 'experiencia' | 'educacion';
 type CampoSimple = 'fechaNacimiento' | 'ubicacion' | 'direccion' | 'telefono';
-type ClaveEdicion = CampoSimple | 'sobreMi' | 'enlaces' | `${TipoTrayectoria}:${string}`;
+type SeccionTags = 'habilidades' | 'areasInteres';
+type ClaveEdicion = CampoSimple | 'sobreMi' | 'enlaces' | SeccionTags | `${TipoTrayectoria}:${string}`;
 
 @Component({
   selector: 'app-perfil-beneficiario-page',
@@ -25,11 +26,32 @@ export class PerfilBeneficiarioPage implements OnInit {
   protected readonly draftEnlaces = signal<EnlacesPerfil>({ linkedin: '', github: '', cvUrl: '' });
   protected readonly draftEntrada = signal<EntradaTrayectoria | null>(null);
 
+  protected readonly catalogoHabilidades = signal<string[]>([]);
+  protected readonly catalogoAreasInteres = signal<string[]>([]);
+  protected readonly draftTags = signal<string[]>([]);
+  protected readonly tagBusqueda = signal('');
+  private readonly tagSeccionEnEdicion = signal<SeccionTags | null>(null);
+
+  protected readonly opcionesTagsFiltradas = computed(() => {
+    const seccion = this.tagSeccionEnEdicion();
+    if (!seccion) return [];
+
+    const catalogo = seccion === 'habilidades' ? this.catalogoHabilidades() : this.catalogoAreasInteres();
+    const termino = this.tagBusqueda().trim().toLowerCase();
+    const yaSeleccionados = new Set(this.draftTags());
+
+    return catalogo.filter(
+      (opcion) => !yaSeleccionados.has(opcion) && (!termino || opcion.toLowerCase().includes(termino)),
+    );
+  });
+
   private readonly perfilBeneficiarioService = inject(PerfilBeneficiarioService);
   private campoSimpleEnEdicion: CampoSimple | null = null;
 
   ngOnInit(): void {
     this.perfilBeneficiarioService.getPerfil().subscribe((perfil) => this.perfil.set(perfil));
+    this.perfilBeneficiarioService.getCatalogoHabilidades().subscribe((c) => this.catalogoHabilidades.set(c));
+    this.perfilBeneficiarioService.getCatalogoAreasInteres().subscribe((c) => this.catalogoAreasInteres.set(c));
   }
 
   protected claveEntrada(tipo: TipoTrayectoria, id: string): ClaveEdicion {
@@ -44,6 +66,7 @@ export class PerfilBeneficiarioPage implements OnInit {
     this.edicionActiva.set(null);
     this.draftEntrada.set(null);
     this.campoSimpleEnEdicion = null;
+    this.tagSeccionEnEdicion.set(null);
   }
 
   protected iniciarEdicionCampo(campo: CampoSimple): void {
@@ -134,5 +157,35 @@ export class PerfilBeneficiarioPage implements OnInit {
 
     this.edicionActiva.set(null);
     this.draftEntrada.set(null);
+  }
+
+  protected iniciarEdicionTags(seccion: SeccionTags): void {
+    const perfil = this.perfil();
+    if (!perfil) return;
+    this.tagSeccionEnEdicion.set(seccion);
+    this.draftTags.set([...perfil[seccion]]);
+    this.tagBusqueda.set('');
+    this.edicionActiva.set(seccion);
+  }
+
+  protected onTagBusquedaInput(event: Event): void {
+    this.tagBusqueda.set((event.target as HTMLInputElement).value);
+  }
+
+  protected agregarTag(opcion: string): void {
+    this.draftTags.update((tags) => (tags.includes(opcion) ? tags : [...tags, opcion]));
+    this.tagBusqueda.set('');
+  }
+
+  protected quitarTag(tag: string): void {
+    this.draftTags.update((tags) => tags.filter((t) => t !== tag));
+  }
+
+  protected guardarTags(): void {
+    const seccion = this.tagSeccionEnEdicion();
+    if (!seccion) return;
+    this.perfil.update((perfil) => (perfil ? { ...perfil, [seccion]: this.draftTags() } : perfil));
+    this.edicionActiva.set(null);
+    this.tagSeccionEnEdicion.set(null);
   }
 }

@@ -191,7 +191,7 @@ describe('PerfilBeneficiarioPage', () => {
     expect(component['perfil']()!.experiencia[1]).toEqual(segundaEntradaOriginal);
   });
 
-  it('should render habilidades and áreas de interés as read-only tags with distinct colors', () => {
+  it('should render habilidades and áreas de interés as editable tags with distinct colors', () => {
     const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
@@ -205,8 +205,83 @@ describe('PerfilBeneficiarioPage', () => {
       (s) => s.querySelector('.section-title')?.textContent === 'Áreas de interés',
     );
 
-    expect(seccionHabilidades?.querySelector('.btn-editar')).toBeNull();
-    expect(seccionIntereses?.querySelector('.btn-editar')).toBeNull();
+    expect(seccionHabilidades?.querySelector('.btn-editar[aria-label="Editar habilidades"]')).not.toBeNull();
+    expect(seccionIntereses?.querySelector('.btn-editar[aria-label="Editar áreas de interés"]')).not.toBeNull();
+  });
+
+  it('should add a habilidad from the autocomplete dropdown, without allowing free text', () => {
+    const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    (compiled.querySelector('.btn-editar[aria-label="Editar habilidades"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(component['perfil']()?.habilidades).not.toContain('Carnet de conducir');
+
+    const buscador = compiled.querySelector('.tag-buscador .input-edicion') as HTMLInputElement;
+    buscador.value = 'carnet';
+    buscador.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    const opciones = Array.from(compiled.querySelectorAll('.tag-opcion')) as HTMLButtonElement[];
+    expect(opciones.length).toBeGreaterThan(0);
+    expect(opciones.every((o) => o.textContent!.toLowerCase().includes('carnet'))).toBe(true);
+
+    opciones.find((o) => o.textContent?.trim() === 'Carnet de conducir')!.click();
+    fixture.detectChanges();
+
+    (compiled.querySelector('.tags-edicion .btn-guardar') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(component['perfil']()?.habilidades).toContain('Carnet de conducir');
+  });
+
+  it('should remove an existing tag from áreas de interés', () => {
+    const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    const cantidadOriginal = component['perfil']()!.areasInteres.length;
+    const tagAQuitar = component['perfil']()!.areasInteres[0];
+
+    (compiled.querySelector('.btn-editar[aria-label="Editar áreas de interés"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    (compiled.querySelector(`.tag-quitar[aria-label="Quitar ${tagAQuitar}"]`) as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(compiled.querySelectorAll('.tags-edicion .tag').length).toBe(cantidadOriginal - 1);
+
+    (compiled.querySelector('.tags-edicion .btn-guardar') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(component['perfil']()?.areasInteres).not.toContain(tagAQuitar);
+  });
+
+  it('should discard tag changes when canceling the edición de habilidades', () => {
+    const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    const habilidadesOriginales = [...component['perfil']()!.habilidades];
+
+    (compiled.querySelector('.btn-editar[aria-label="Editar habilidades"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const buscador = compiled.querySelector('.tag-buscador .input-edicion') as HTMLInputElement;
+    buscador.value = 'carnet';
+    buscador.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    (compiled.querySelector('.tag-opcion') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    (compiled.querySelector('.tags-edicion .btn-cancelar') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(component['perfil']()?.habilidades).toEqual(habilidadesOriginales);
+    expect(compiled.querySelector('.tags-edicion')).toBeNull();
   });
 
   it('should allow editing enlaces and persist the values', () => {
