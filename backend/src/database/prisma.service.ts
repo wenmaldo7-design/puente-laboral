@@ -1,4 +1,9 @@
-import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  Logger,
+} from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 
@@ -26,7 +31,6 @@ export class PrismaService
 
   constructor() {
     if (PrismaService.instance) {
-      // eslint-disable-next-line no-constructor-return
       return PrismaService.instance;
     }
 

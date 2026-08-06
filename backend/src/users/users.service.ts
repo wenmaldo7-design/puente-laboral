@@ -1,10 +1,15 @@
 import { Injectable, ConflictException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../database/prisma.service';
 import { RegisterBeneficiarioDto } from '../auth/dto/create-user.dto';
 import { BeneficiarioSafe } from './interfaces/user.interface';
 
 const SALT_ROUNDS = 10;
+
+type BeneficiarioConUsuario = Prisma.beneficiariosGetPayload<{
+  include: { usuarios: true };
+}>;
 
 @Injectable()
 export class UsersService {
@@ -82,14 +87,23 @@ export class UsersService {
     });
   }
 
-  toSafeBeneficiario(beneficiario: any): BeneficiarioSafe {
+  toSafeBeneficiario(beneficiario: BeneficiarioConUsuario): BeneficiarioSafe {
     const { usuarios, ...perfil } = beneficiario;
     return {
       id_usuario: usuarios.id_usuario,
       email: usuarios.email,
       activo: usuarios.activo,
       fecha_registro: usuarios.fecha_registro,
-      ...perfil,
+      nombre: perfil.nombre,
+      apellido: perfil.apellido,
+      dni: perfil.dni,
+      fecha_nacimiento: perfil.fecha_nacimiento,
+      telefono: perfil.telefono,
+      direccion: perfil.direccion,
+      id_ciudad: perfil.id_ciudad,
+      linkedin: perfil.linkedin,
+      github: perfil.github,
+      cv_url: perfil.cv_url,
     };
   }
 }

@@ -1,0 +1,93 @@
+@import '../auth-form.css';
+
+.rol-tabs {
+  display: flex;
+  gap: 4px;
+  background: #f1f5f9;
+  border-radius: var(--radius-md);
+  padding: 4px;
+  margin-bottom: 1.5rem;
+}
+
+.rol-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.65rem 0.4rem;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  color: var(--color-text-subtle);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.rol-tab app-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.rol-tab:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.rol-tab--activo {
+  background: var(--color-surface);
+  color: var(--color-primary);
+  box-shadow: 0 4px 10px -4px rgba(15, 23, 42, 0.2);
+}
+
+.rol-tab--activo .rol-tab__label {
+  border-bottom: 2px solid var(--color-primary);
+  padding-bottom: 2px;
+}
+
+form {
+  gap: 0.35rem;
+}
+
+.auth-links {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.link-button {
+  border: none;
+  background: none;
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.divider {
+  width: 100%;
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 0;
+}
+
+.link-secundario {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.link-secundario a {
+  color: var(--color-primary);
+  font-weight: 700;
+  text-decoration: none;
+}

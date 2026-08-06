@@ -1,0 +1,7 @@
+.inicio {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  gap: 1rem;
+  text-align: center;
+}

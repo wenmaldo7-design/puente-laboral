@@ -1,12 +1,1 @@
-<main>
-  <h1>Hola</h1>
-
-  @if (statusCode()) {
-    <p>Backend status: {{ statusCode() }}</p>
-    <p>Backend response: {{ healthResponse() }}</p>
-  } @else if (error()) {
-    <p>{{ error() }}</p>
-  } @else {
-    <p>Consultando backend...</p>
-  }
-</main>
+<router-outlet />

@@ -1,0 +1,7 @@
+<main class="inicio">
+  <h1>Sesión iniciada</h1>
+  @if (auth.sesion(); as sesion) {
+    <p>{{ sesion.email }} — rol: {{ sesion.rol }}</p>
+  }
+  <button type="button" (click)="cerrarSesion()">Cerrar sesión</button>
+</main>

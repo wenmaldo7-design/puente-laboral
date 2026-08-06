@@ -11,10 +11,6 @@ import {
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterBeneficiarioDto } from './dto/create-user.dto';
-// LoginUserDto se usa solo para documentar/validar el shape del body;
-// las credenciales las procesa LocalStrategy vía Passport.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { LoginUserDto } from './dto/login-user.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import type { AuthRequest } from './interfaces/auth-request.interface';
@@ -37,7 +33,10 @@ export class AuthController {
   ) {
     // req.user aca es el objeto Usuario+Beneficiario que devolvio
     // AuthService.validateBeneficiario (via LocalStrategy)
-    const usuario = req.user as unknown as { id_usuario: number; email: string };
+    const usuario = req.user as unknown as {
+      id_usuario: number;
+      email: string;
+    };
     this.authService.issueTokenCookie(usuario, res);
     return { message: 'Login exitoso' };
   }

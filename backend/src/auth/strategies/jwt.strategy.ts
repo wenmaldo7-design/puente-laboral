@@ -12,10 +12,8 @@ import { JwtPayload } from '../interfaces/jwt-payload.interface';
  * el secret correspondiente en main.ts.
  */
 const cookieExtractor = (req: Request): string | null => {
-  if (req && req.signedCookies) {
-    return req.signedCookies['access_token'] ?? null;
-  }
-  return null;
+  const token: unknown = req?.signedCookies?.['access_token'];
+  return typeof token === 'string' ? token : null;
 };
 
 @Injectable()

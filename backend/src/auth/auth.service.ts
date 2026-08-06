@@ -55,7 +55,10 @@ export class AuthService {
    * Firma el JWT y lo setea como cookie httpOnly + signed.
    * El frontend Angular nunca ve ni manipula el token.
    */
-  issueTokenCookie(usuario: { id_usuario: number; email: string }, res: Response) {
+  issueTokenCookie(
+    usuario: { id_usuario: number; email: string },
+    res: Response,
+  ) {
     const payload: JwtPayload = {
       sub: usuario.id_usuario,
       email: usuario.email,

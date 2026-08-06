@@ -1,0 +1,116 @@
+<app-auth-card>
+  <button type="button" class="btn-volver" routerLink="/auth/login" aria-label="Volver al login">
+    <app-icon name="arrow-left" />
+  </button>
+
+  <app-brand-header subtitulo="Registro de Beneficiario" />
+
+  <form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+    <section class="seccion">
+      <h2 class="seccion-titulo">Datos de acceso</h2>
+
+      <div class="campo-input">
+        <app-icon name="mail" class="campo-icono" />
+        <input type="email" formControlName="email" placeholder="Email" autocomplete="email" />
+      </div>
+      @if (form.controls.email.invalid && form.controls.email.touched) {
+        <p class="campo-error">Ingresá un email válido.</p>
+      }
+
+      <div class="campo-input">
+        <app-icon name="lock" class="campo-icono" />
+        <input
+          [type]="mostrarPassword() ? 'text' : 'password'"
+          formControlName="password"
+          placeholder="Contraseña"
+          autocomplete="new-password"
+        />
+        <button
+          type="button"
+          class="btn-ojo"
+          (click)="mostrarPassword.set(!mostrarPassword())"
+          [attr.aria-label]="mostrarPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+        >
+          <app-icon [name]="mostrarPassword() ? 'eye-off' : 'eye'" />
+        </button>
+      </div>
+      @if (form.controls.password.invalid && form.controls.password.touched) {
+        <p class="campo-error">Mínimo 8 caracteres.</p>
+      }
+    </section>
+
+    <section class="seccion">
+      <h2 class="seccion-titulo">Datos personales</h2>
+
+      <div class="campos-grid-2">
+        <div class="campo-input">
+          <app-icon name="user" class="campo-icono" />
+          <input type="text" formControlName="nombre" placeholder="Nombres" autocomplete="given-name" />
+        </div>
+        <div class="campo-input">
+          <app-icon name="user" class="campo-icono" />
+          <input type="text" formControlName="apellido" placeholder="Apellidos" autocomplete="family-name" />
+        </div>
+      </div>
+      @if ((form.controls.nombre.invalid && form.controls.nombre.touched) || (form.controls.apellido.invalid && form.controls.apellido.touched)) {
+        <p class="campo-error">Nombre y apellido son obligatorios.</p>
+      }
+
+      <div class="campos-grid-2">
+        <div class="campo-input">
+          <app-icon name="hash" class="campo-icono" />
+          <input type="text" inputmode="numeric" formControlName="dni" placeholder="DNI" />
+        </div>
+        <div class="campo-input">
+          <app-icon name="calendar" class="campo-icono" />
+          <input type="date" formControlName="fechaNacimiento" />
+        </div>
+      </div>
+      @if (form.controls.dni.invalid && form.controls.dni.touched) {
+        <p class="campo-error">Ingresá un DNI válido (7 a 10 dígitos).</p>
+      }
+    </section>
+
+    <section class="seccion">
+      <h2 class="seccion-titulo">Contacto y ubicación</h2>
+
+      <div class="campo-input">
+        <app-icon name="phone" class="campo-icono" />
+        <input type="tel" formControlName="telefono" placeholder="Teléfono" autocomplete="tel" />
+      </div>
+
+      <div class="campo-input">
+        <app-icon name="map-pin" class="campo-icono" />
+        <input type="text" formControlName="direccion" placeholder="Dirección" autocomplete="street-address" />
+      </div>
+
+      <div class="campo-input">
+        <app-icon name="building" class="campo-icono" />
+        <input type="text" formControlName="ciudad" placeholder="Ciudad" />
+      </div>
+    </section>
+
+    <section class="seccion">
+      <h2 class="seccion-titulo">Perfil profesional</h2>
+
+      <div class="campo-input campo-input--prefijo">
+        <app-icon name="github" class="campo-icono" />
+        <span class="campo-prefijo">github.com/</span>
+        <input type="text" formControlName="githubUsuario" placeholder="usuario" />
+      </div>
+
+      <div class="campo-input">
+        <app-icon name="link" class="campo-icono" />
+        <input type="url" formControlName="cvUrl" placeholder="URL de CV o portafolio" />
+      </div>
+    </section>
+
+    @if (errorMensaje()) {
+      <p class="form-error" role="alert">{{ errorMensaje() }}</p>
+    }
+
+    <button type="submit" class="btn-primario" [disabled]="enviando()">
+      {{ enviando() ? 'Creando cuenta...' : 'Registrarse' }}
+    </button>
+  </form>
+</app-auth-card>

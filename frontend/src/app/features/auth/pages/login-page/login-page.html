@@ -1,0 +1,71 @@
+<app-auth-card [mostrarFooter]="true">
+  <app-brand-header subtitulo="PORTAL DE ACCESO" />
+
+  <div class="rol-tabs" role="tablist">
+    @for (rol of roles; track rol.id) {
+      <button
+        type="button"
+        role="tab"
+        class="rol-tab"
+        [class.rol-tab--activo]="rolActivo() === rol.id"
+        [disabled]="!rol.disponible"
+        [attr.aria-selected]="rolActivo() === rol.id"
+        [title]="rol.disponible ? '' : 'Disponible próximamente'"
+        (click)="seleccionarRol(rol)"
+      >
+        <app-icon [name]="rol.icono" />
+        <span class="rol-tab__label">{{ rol.label }}</span>
+      </button>
+    }
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+    <div class="campo-input">
+      <app-icon name="user" class="campo-icono" />
+      <input id="email" type="email" formControlName="email" placeholder="Usuario" autocomplete="email" />
+    </div>
+    @if (form.controls.email.invalid && form.controls.email.touched) {
+      <p class="campo-error">Ingresá un email válido.</p>
+    }
+
+    <div class="campo-input">
+      <app-icon name="lock" class="campo-icono" />
+      <input
+        id="password"
+        [type]="mostrarPassword() ? 'text' : 'password'"
+        formControlName="password"
+        placeholder="Contraseña"
+        autocomplete="current-password"
+      />
+      <button
+        type="button"
+        class="btn-ojo"
+        (click)="mostrarPassword.set(!mostrarPassword())"
+        [attr.aria-label]="mostrarPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+      >
+        <app-icon [name]="mostrarPassword() ? 'eye-off' : 'eye'" />
+      </button>
+    </div>
+    @if (form.controls.password.invalid && form.controls.password.touched) {
+      <p class="campo-error">La contraseña es obligatoria.</p>
+    }
+
+    @if (errorMensaje()) {
+      <p class="form-error" role="alert">{{ errorMensaje() }}</p>
+    }
+
+    <button type="submit" class="btn-primario" [disabled]="enviando()">
+      {{ enviando() ? 'Ingresando...' : 'Ingresar' }}
+    </button>
+  </form>
+
+  <div class="auth-links">
+    <button type="button" class="link-button" title="Disponible próximamente">
+      ¿Olvidaste tu contraseña?
+    </button>
+    <hr class="divider" />
+    <p class="link-secundario">
+      ¿Eres beneficiario nuevo? <a routerLink="/auth/register">Crear cuenta</a>
+    </p>
+  </div>
+</app-auth-card>

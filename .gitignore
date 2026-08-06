@@ -4,3 +4,8 @@ dist/
 npm-debug.log*
 .DS_Store
 *.log
+
+# Secrets / local artifacts — nunca deben commitearse
+.env
+.env.*
+cookies.txt
