@@ -37,7 +37,8 @@ features (no específicos de Beneficiarios). `header`/`footer` usan clases
 con prefijo genérico (`app-header`, `app-footer`, etc.) y colores propios
 hardcodeados, sin depender de las custom properties CSS que define cada
 página — así cualquier feature los puede usar sin acoplarse al tema visual
-de otra.
+de otra. El Header muestra el logo real de la marca (`frontend/public/logo.png`),
+no un ícono genérico.
 
 Convenciones que venimos siguiendo:
 
@@ -88,9 +89,11 @@ Particularidades:
   navegador) en vez de texto libre.
 - Teléfono aplica una máscara de formato automática ("351-555-0102") mientras
   se escribe, sin depender de ninguna librería externa.
-- Habilidades y Áreas de interés quedan en **modo solo lectura** por ahora:
-  falta definir un catálogo centralizado de valores posibles (a cargo del
-  rol Admin) antes de habilitar su edición.
+- Habilidades y Áreas de interés son editables con el mismo patrón (lápiz +
+  Guardar/Cancelar), adaptado a listas de tags: cada pill tiene su "×" para
+  quitarla, y un buscador con autocompletado permite agregar tags nuevos
+  eligiendo de un catálogo cerrado — no se puede escribir texto libre, para
+  que el matching con oportunidades no se rompa por variantes de tipeo.
 
 ### Signup Organización
 
@@ -133,7 +136,10 @@ También se puede levantar todo junto con Docker Compose (`docker-compose up
 - **Router de Angular sin cablear**: `beneficiarios.routes.ts` existe pero
   todavía no está registrado en `app.config.ts`. Decisión pendiente de
   coordinar con el equipo antes de conectarlo.
-- **Catálogo de Habilidades / Áreas de interés**: pendiente de definir con
-  Mauri para poder habilitar la edición en Perfil Beneficiario.
+- **Catálogo de Habilidades / Áreas de interés**: hoy está hardcodeado en el
+  frontend (`PerfilBeneficiarioService`), pendiente de reemplazar por uno
+  centralizado cuando exista en el backend.
+- **Warning de presupuesto de CSS** en `perfil-beneficiario-page.css`
+  (4.73kB vs. el límite de warning de 4kB; no bloquea el build).
 - **Signup Organización**: descartado de este alcance, queda a cargo de Maxi.
 - **Testing multi-navegador**: por ahora solo se probó manualmente en Safari.
