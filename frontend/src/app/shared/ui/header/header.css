@@ -1,0 +1,81 @@
+:host {
+  display: block;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 2rem;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(4, 44, 83, 0.08);
+}
+
+.app-header-brand {
+  display: flex;
+  align-items: center;
+}
+
+.app-header-logo {
+  /* El archivo /logo.png trae harto margen transparente alrededor del
+     isotipo (~20-25% por lado), por eso el height necesita ser bastante
+     mayor al tamaño visual que se busca lograr en pantalla. */
+  display: block;
+  height: 76px;
+  width: auto;
+}
+
+.app-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.app-header-btn-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: #e6f1fb;
+  cursor: pointer;
+}
+
+.app-header-btn-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.app-header-badge-count {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background: #185fa5;
+  color: #ffffff;
+  font-size: 0.65rem;
+  line-height: 16px;
+  text-align: center;
+}
+
+.app-header-greeting {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #042c53;
+}
+
+@media (max-width: 640px) {
+  .app-header {
+    padding: 1rem;
+  }
+
+  .app-header-greeting {
+    display: none;
+  }
+}

@@ -1,4 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Header } from '../../../../shared/ui/header/header';
+import { Footer } from '../../../../shared/ui/footer/footer';
 import { BeneficiarioHomeService } from '../../services/beneficiario-home.service';
 import {
   ActualizacionPostulacion,
@@ -10,7 +12,7 @@ import {
 
 @Component({
   selector: 'app-home-beneficiario-page',
-  imports: [],
+  imports: [Header, Footer],
   templateUrl: './home-beneficiario-page.html',
   styleUrl: './home-beneficiario-page.css',
 })
@@ -19,6 +21,10 @@ export class HomeBeneficiarioPage implements OnInit {
   protected readonly metricas = signal<MetricaResumen[]>([]);
   protected readonly oportunidades = signal<Oportunidad[]>([]);
   protected readonly actualizaciones = signal<ActualizacionPostulacion[]>([]);
+
+  protected readonly notificacionesNoLeidas = computed(
+    () => this.metricas().find((metrica) => metrica.etiqueta === 'Notificaciones')?.valor ?? 0,
+  );
 
   protected readonly filtros: FiltroOportunidad[] = FILTROS_OPORTUNIDAD;
   protected readonly filtroActivo = signal<FiltroOportunidad['id']>('todo');

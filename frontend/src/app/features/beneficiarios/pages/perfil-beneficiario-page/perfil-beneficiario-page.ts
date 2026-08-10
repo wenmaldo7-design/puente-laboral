@@ -1,5 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { Header } from '../../../../shared/ui/header/header';
+import { Footer } from '../../../../shared/ui/footer/footer';
 import { PerfilBeneficiarioService } from '../../services/perfil-beneficiario.service';
 import { EnlacesPerfil, EntradaTrayectoria, PerfilBeneficiario } from '../../models/perfil-beneficiario.model';
 
@@ -10,7 +12,7 @@ type ClaveEdicion = CampoSimple | 'sobreMi' | 'enlaces' | SeccionTags | `${TipoT
 
 @Component({
   selector: 'app-perfil-beneficiario-page',
-  imports: [DatePipe],
+  imports: [DatePipe, Header, Footer],
   templateUrl: './perfil-beneficiario-page.html',
   styleUrl: './perfil-beneficiario-page.css',
 })

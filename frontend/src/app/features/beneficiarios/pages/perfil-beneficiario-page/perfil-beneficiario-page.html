@@ -1,36 +1,5 @@
-<div class="page">
-  <header class="header">
-    <div class="brand">
-      <svg class="brand-icon" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-        <circle cx="33" cy="7" r="3" fill="#f2b93b" />
-        <rect x="4" y="24" width="6" height="12" rx="1" fill="#185fa5" />
-        <rect x="13" y="18" width="6" height="18" rx="1" fill="#185fa5" />
-        <rect x="22" y="12" width="6" height="24" rx="1" fill="#185fa5" />
-        <circle cx="7" cy="20" r="2.5" fill="#042c53" />
-        <circle cx="16" cy="14" r="2.5" fill="#042c53" />
-        <circle cx="25" cy="8" r="2.5" fill="#042c53" />
-      </svg>
-      <span class="brand-name">Puente Laboral</span>
-    </div>
-
-    <div class="header-actions">
-      <button type="button" class="btn-icon" aria-label="Notificaciones">
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path
-            d="M12 3a6 6 0 0 0-6 6v3.2c0 .5-.18.99-.5 1.38L4 15.5c-.7.85-.1 2.1 1 2.1h14c1.1 0 1.7-1.25 1-2.1l-1.5-1.92c-.32-.4-.5-.89-.5-1.38V9a6 6 0 0 0-6-6Z"
-            stroke="#185FA5"
-            stroke-width="1.6"
-            stroke-linejoin="round"
-          />
-          <path d="M9.5 19a2.5 2.5 0 0 0 5 0" stroke="#185FA5" stroke-width="1.6" stroke-linecap="round" />
-        </svg>
-        @if (notificacionesNoLeidas() > 0) {
-          <span class="badge-count">{{ notificacionesNoLeidas() }}</span>
-        }
-      </button>
-      <span class="header-greeting">Hola, {{ nombreSaludo() }}</span>
-    </div>
-  </header>
+<div class="beneficiario-page">
+  <app-header [nombre]="nombreSaludo()" [notificacionesNoLeidas]="notificacionesNoLeidas()"></app-header>
 
   <main class="content">
     @if (perfil(); as p) {
@@ -217,7 +186,7 @@
       </section>
 
       <section class="section card">
-        <div class="section-header">
+        <div class="beneficiario-section-header">
           <h2 class="section-title">Sobre mí</h2>
           @if (!estaEditando('sobreMi')) {
             <button type="button" class="btn-editar" aria-label="Editar sobre mí" (click)="iniciarEdicionSobreMi()">
@@ -295,7 +264,7 @@
                   </div>
                 </div>
               } @else {
-                <div class="entrada-header">
+                <div class="beneficiario-entrada-header">
                   <div>
                     <h3 class="entrada-titulo">{{ entrada.titulo }}</h3>
                     <p class="entrada-organizacion">{{ entrada.organizacion }} · {{ entrada.fecha }}</p>
@@ -376,7 +345,7 @@
                   </div>
                 </div>
               } @else {
-                <div class="entrada-header">
+                <div class="beneficiario-entrada-header">
                   <div>
                     <h3 class="entrada-titulo">{{ entrada.titulo }}</h3>
                     <p class="entrada-organizacion">{{ entrada.organizacion }} · {{ entrada.fecha }}</p>
@@ -409,7 +378,7 @@
       </section>
 
       <section class="section card">
-        <div class="section-header">
+        <div class="beneficiario-section-header">
           <h2 class="section-title">Habilidades</h2>
           @if (!estaEditando('habilidades')) {
             <button
@@ -481,7 +450,7 @@
       </section>
 
       <section class="section card">
-        <div class="section-header">
+        <div class="beneficiario-section-header">
           <h2 class="section-title">Áreas de interés</h2>
           @if (!estaEditando('areasInteres')) {
             <button
@@ -553,7 +522,7 @@
       </section>
 
       <section class="section card">
-        <div class="section-header">
+        <div class="beneficiario-section-header">
           <h2 class="section-title">Enlaces</h2>
           @if (!estaEditando('enlaces')) {
             <button type="button" class="btn-editar" aria-label="Editar enlaces" (click)="iniciarEdicionEnlaces()">
@@ -628,11 +597,5 @@
     }
   </main>
 
-  <footer class="footer">
-    <span>© 2026 Puente Laboral. Todos los derechos reservados.</span>
-    <div class="footer-links">
-      <a href="#">Términos y condiciones</a>
-      <a href="#">Política de privacidad</a>
-    </div>
-  </footer>
+  <app-footer></app-footer>
 </div>

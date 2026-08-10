@@ -26,7 +26,18 @@ frontend/src/app/features/beneficiarios/
     home-beneficiario-page/     # componente + template + estilos + spec
     perfil-beneficiario-page/
   beneficiarios.routes.ts       # rutas de la feature (ver "Pendientes")
+
+frontend/src/app/shared/ui/
+  header/                       # <app-header>, usado por cualquier feature
+  footer/                       # <app-footer>, usado por cualquier feature
 ```
+
+`shared/ui/` es para componentes de presentación reutilizables entre
+features (no específicos de Beneficiarios). `header`/`footer` usan clases
+con prefijo genérico (`app-header`, `app-footer`, etc.) y colores propios
+hardcodeados, sin depender de las custom properties CSS que define cada
+página — así cualquier feature los puede usar sin acoplarse al tema visual
+de otra.
 
 Convenciones que venimos siguiendo:
 
@@ -124,9 +135,5 @@ También se puede levantar todo junto con Docker Compose (`docker-compose up
   coordinar con el equipo antes de conectarlo.
 - **Catálogo de Habilidades / Áreas de interés**: pendiente de definir con
   Mauri para poder habilitar la edición en Perfil Beneficiario.
-- **Warning de presupuesto de CSS** en `perfil-beneficiario-page.css` (5.05kB
-  vs. el límite de warning de 4kB; no bloquea el build, el límite de error es
-  8kB). Se resolvería extrayendo un componente compartido de header/footer,
-  ya que hoy se duplican entre Home y Perfil Beneficiario.
 - **Signup Organización**: descartado de este alcance, queda a cargo de Maxi.
 - **Testing multi-navegador**: por ahora solo se probó manualmente en Safari.
