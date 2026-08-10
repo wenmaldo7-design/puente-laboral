@@ -12,6 +12,11 @@ export interface EnlacesPerfil {
   cvUrl: string;
 }
 
+export interface HabilidadCatalogo {
+  nombre: string;
+  categoria: string;
+}
+
 export interface PerfilBeneficiario {
   nombre: string;
   rol: string;

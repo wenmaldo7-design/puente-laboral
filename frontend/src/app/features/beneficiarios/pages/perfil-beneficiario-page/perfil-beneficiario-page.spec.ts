@@ -238,6 +238,28 @@ describe('PerfilBeneficiarioPage', () => {
     expect(component['perfil']()?.habilidades).toContain('Carnet de conducir');
   });
 
+  it('should group the habilidades dropdown by categoría, but not the áreas de interés one', () => {
+    const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    (compiled.querySelector('.btn-editar[aria-label="Editar habilidades"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const categoriasHabilidades = compiled.querySelectorAll('.tag-dropdown-categoria');
+    expect(categoriasHabilidades.length).toBeGreaterThan(1);
+    expect(categoriasHabilidades[0].textContent).toContain('Construcción y oficios');
+
+    (compiled.querySelector('.tags-edicion .btn-cancelar') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    (compiled.querySelector('.btn-editar[aria-label="Editar áreas de interés"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(compiled.querySelectorAll('.tag-dropdown-categoria').length).toBe(0);
+    expect(compiled.querySelectorAll('.tag-opcion').length).toBeGreaterThan(0);
+  });
+
   it('should remove an existing tag from áreas de interés', () => {
     const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
     const component = fixture.componentInstance;

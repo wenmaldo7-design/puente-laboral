@@ -424,10 +424,15 @@
               />
               @if (opcionesTagsFiltradas().length) {
                 <ul class="tag-dropdown">
-                  @for (opcion of opcionesTagsFiltradas(); track opcion) {
-                    <li>
-                      <button type="button" class="tag-opcion" (click)="agregarTag(opcion)">{{ opcion }}</button>
-                    </li>
+                  @for (grupo of opcionesTagsFiltradas(); track grupo.categoria) {
+                    @if (grupo.categoria) {
+                      <li class="tag-dropdown-categoria">{{ grupo.categoria }}</li>
+                    }
+                    @for (opcion of grupo.opciones; track opcion) {
+                      <li>
+                        <button type="button" class="tag-opcion" (click)="agregarTag(opcion)">{{ opcion }}</button>
+                      </li>
+                    }
                   }
                 </ul>
               } @else if (tagBusqueda()) {
@@ -496,10 +501,15 @@
               />
               @if (opcionesTagsFiltradas().length) {
                 <ul class="tag-dropdown">
-                  @for (opcion of opcionesTagsFiltradas(); track opcion) {
-                    <li>
-                      <button type="button" class="tag-opcion" (click)="agregarTag(opcion)">{{ opcion }}</button>
-                    </li>
+                  @for (grupo of opcionesTagsFiltradas(); track grupo.categoria) {
+                    @if (grupo.categoria) {
+                      <li class="tag-dropdown-categoria">{{ grupo.categoria }}</li>
+                    }
+                    @for (opcion of grupo.opciones; track opcion) {
+                      <li>
+                        <button type="button" class="tag-opcion" (click)="agregarTag(opcion)">{{ opcion }}</button>
+                      </li>
+                    }
                   }
                 </ul>
               } @else if (tagBusqueda()) {

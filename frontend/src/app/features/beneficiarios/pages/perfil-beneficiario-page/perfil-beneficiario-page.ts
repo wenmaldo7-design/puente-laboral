@@ -3,12 +3,23 @@ import { DatePipe } from '@angular/common';
 import { Header } from '../../../../shared/ui/header/header';
 import { Footer } from '../../../../shared/ui/footer/footer';
 import { PerfilBeneficiarioService } from '../../services/perfil-beneficiario.service';
-import { EnlacesPerfil, EntradaTrayectoria, PerfilBeneficiario } from '../../models/perfil-beneficiario.model';
+import {
+  EnlacesPerfil,
+  EntradaTrayectoria,
+  HabilidadCatalogo,
+  PerfilBeneficiario,
+} from '../../models/perfil-beneficiario.model';
 
 type TipoTrayectoria = 'experiencia' | 'educacion';
 type CampoSimple = 'fechaNacimiento' | 'ubicacion' | 'direccion' | 'telefono';
 type SeccionTags = 'habilidades' | 'areasInteres';
 type ClaveEdicion = CampoSimple | 'sobreMi' | 'enlaces' | SeccionTags | `${TipoTrayectoria}:${string}`;
+
+/** Grupo de opciones del dropdown de tags. `categoria` es null para catálogos sin agrupar. */
+interface GrupoOpcionesTag {
+  categoria: string | null;
+  opciones: string[];
+}
 
 @Component({
   selector: 'app-perfil-beneficiario-page',
@@ -28,23 +39,41 @@ export class PerfilBeneficiarioPage implements OnInit {
   protected readonly draftEnlaces = signal<EnlacesPerfil>({ linkedin: '', github: '', cvUrl: '' });
   protected readonly draftEntrada = signal<EntradaTrayectoria | null>(null);
 
-  protected readonly catalogoHabilidades = signal<string[]>([]);
+  protected readonly catalogoHabilidades = signal<HabilidadCatalogo[]>([]);
   protected readonly catalogoAreasInteres = signal<string[]>([]);
   protected readonly draftTags = signal<string[]>([]);
   protected readonly tagBusqueda = signal('');
   private readonly tagSeccionEnEdicion = signal<SeccionTags | null>(null);
 
-  protected readonly opcionesTagsFiltradas = computed(() => {
+  /**
+   * Habilidades se agrupa por categoría (son ~95 opciones); Áreas de interés
+   * es una lista chica y queda en un único grupo sin encabezado.
+   */
+  protected readonly opcionesTagsFiltradas = computed<GrupoOpcionesTag[]>(() => {
     const seccion = this.tagSeccionEnEdicion();
     if (!seccion) return [];
 
-    const catalogo = seccion === 'habilidades' ? this.catalogoHabilidades() : this.catalogoAreasInteres();
     const termino = this.tagBusqueda().trim().toLowerCase();
     const yaSeleccionados = new Set(this.draftTags());
+    const coincide = (nombre: string) =>
+      !yaSeleccionados.has(nombre) && (!termino || nombre.toLowerCase().startsWith(termino));
 
-    return catalogo.filter(
-      (opcion) => !yaSeleccionados.has(opcion) && (!termino || opcion.toLowerCase().includes(termino)),
-    );
+    if (seccion === 'areasInteres') {
+      const opciones = this.catalogoAreasInteres().filter(coincide);
+      return opciones.length ? [{ categoria: null, opciones }] : [];
+    }
+
+    const grupos: GrupoOpcionesTag[] = [];
+    for (const habilidad of this.catalogoHabilidades()) {
+      if (!coincide(habilidad.nombre)) continue;
+      let grupo = grupos.find((g) => g.categoria === habilidad.categoria);
+      if (!grupo) {
+        grupo = { categoria: habilidad.categoria, opciones: [] };
+        grupos.push(grupo);
+      }
+      grupo.opciones.push(habilidad.nombre);
+    }
+    return grupos;
   });
 
   private readonly perfilBeneficiarioService = inject(PerfilBeneficiarioService);
