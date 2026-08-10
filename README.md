@@ -93,7 +93,12 @@ Particularidades:
   Guardar/Cancelar), adaptado a listas de tags: cada pill tiene su "×" para
   quitarla, y un buscador con autocompletado permite agregar tags nuevos
   eligiendo de un catálogo cerrado — no se puede escribir texto libre, para
-  que el matching con oportunidades no se rompa por variantes de tipeo.
+  que el matching con oportunidades no se rompa por variantes de tipeo. El
+  filtro del buscador es por prefijo (el nombre debe *empezar* con lo
+  tipeado, case-insensitive), no por substring. El catálogo de Habilidades
+  tiene 95 opciones agrupadas en 22 categorías (el dropdown muestra
+  encabezados de categoría); Áreas de interés tiene 25 opciones y queda
+  como lista plana, sin agrupar.
 
 ### Signup Organización
 
@@ -140,6 +145,7 @@ También se puede levantar todo junto con Docker Compose (`docker-compose up
   frontend (`PerfilBeneficiarioService`), pendiente de reemplazar por uno
   centralizado cuando exista en el backend.
 - **Warning de presupuesto de CSS** en `perfil-beneficiario-page.css`
-  (4.73kB vs. el límite de warning de 4kB; no bloquea el build).
+  (4.88kB vs. el límite de warning de 4kB; no bloquea el build, el límite
+  de error es 8kB).
 - **Signup Organización**: descartado de este alcance, queda a cargo de Maxi.
 - **Testing multi-navegador**: por ahora solo se probó manualmente en Safari.
