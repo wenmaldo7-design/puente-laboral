@@ -4,19 +4,34 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-home-page',
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.css' // <-- Cambiado a singular (styleUrl)
+  templateUrl: './home-page.html',
+  styleUrl: './home-page.css'
 })
-export class HomeComponent implements OnInit {
+export class HomePageComponent implements OnInit {
   searchTerm: string = '';
   selectedTag: string = 'Todos';
 
   availableTags: string[] = ['Todos', 'Ventas', 'Excel', 'Atención al Cliente', 'Logística', 'Programación'];
 
-  // Tipado temporal como any[] para aislar el error de TypeScript
+  // 1. VARIABLE NOVEDADES AGREGADA AQUI
+  novedades: any[] = [
+    {
+      imgUrl: '/alianzas.jpg',
+      alt: 'Alianzas estratégicas',
+      titulo: 'Alianzas estratégicas para la capacitación laboral',
+      descripcion: 'Conoce cómo nos unimos con empresas e instituciones educativas para brindar mejores herramientas a los postulantes.'
+    },
+    {
+      imgUrl: '/insercion-laboral.jpg',
+      alt: 'Impacto positivo en inserción laboral',
+      titulo: 'Impacto positivo en la inserción laboral juvenil',
+      descripcion: 'Descubre las métricas y testimonios del último trimestre sobre inserción laboral directa.'
+    }
+  ];
+
   oportunidades: any[] = [
     {
       id: '1',
