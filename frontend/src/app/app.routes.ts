@@ -1,7 +1,8 @@
 import { Routes } from '@angular/router';
+import { HomePageComponent } from './features/home/pages/home-page/home-page';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'organizacion/home', pathMatch: 'full' },
+  { path: '', component: HomePageComponent },
   {
     path: 'organizacion',
     loadChildren: () =>
@@ -13,5 +14,5 @@ export const routes: Routes = [
     path: 'organizaciones',
     redirectTo: 'organizacion/home',
   },
-  { path: '**', redirectTo: 'organizacion/home' },
+  { path: '**', redirectTo: '' },
 ];
