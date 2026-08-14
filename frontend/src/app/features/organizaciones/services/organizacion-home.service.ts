@@ -8,13 +8,7 @@ import {
   PostulanteReciente,
 } from '../models/organizacion-home.model';
 
-declare global {
-  interface Window {
-    __env?: { apiUrl?: string };
-  }
-}
-
-const MOCK_METRICAS: MetricaOrgResumen[] = [
+let MOCK_METRICAS: MetricaOrgResumen[] = [
   {
     id: 'm-1',
     valor: '3',
@@ -170,6 +164,10 @@ export class OrganizacionHomeService {
     };
 
     MOCK_OPORTUNIDADES = [nueva, ...MOCK_OPORTUNIDADES];
+    const oportunidadMetrica = MOCK_METRICAS.find(m => m.id === 'm-1');
+    if (oportunidadMetrica) {
+      oportunidadMetrica.valor = (parseInt(oportunidadMetrica.valor) + 1).toString();
+    }
     return of(nueva);
   }
 

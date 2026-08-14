@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal, HostListener } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { OrganizacionHomeService } from '../../services/organizacion-home.service';
 import {
@@ -90,6 +90,7 @@ export class HomeOrganizacionPage implements OnInit {
     this.modalPublicarAbierto.set(true);
   }
 
+  @HostListener('document:keydown.escape')
   protected cerrarModalPublicar(): void {
     if (this.guardandoOportunidad()) return;
     this.modalPublicarAbierto.set(false);

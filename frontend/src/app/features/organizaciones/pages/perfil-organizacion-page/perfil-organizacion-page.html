@@ -24,7 +24,9 @@
             stroke="#185FA5" stroke-width="1.6" stroke-linejoin="round" />
           <path d="M9.5 19a2.5 2.5 0 0 0 5 0" stroke="#185FA5" stroke-width="1.6" stroke-linecap="round" />
         </svg>
-        <span class="badge-count">12</span>
+        @if (notificacionesNoLeidas() > 0) {
+          <span class="badge-count">{{ notificacionesNoLeidas() }}</span>
+        }
       </button>
       <a routerLink="/organizacion/perfil" class="header-user" aria-label="Ir al Perfil de la Organización">
         <span class="avatar-sm">{{ perfil()?.avatarIniciales ?? 'IT' }}</span>
