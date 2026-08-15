@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 @Component({
   selector: 'app-header',
@@ -8,6 +8,6 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Header {
-  @Input() nombre = '';
-  @Input() notificacionesNoLeidas = 0;
+  nombre = input<string>('');
+  notificacionesNoLeidas = input<number>(0);
 }

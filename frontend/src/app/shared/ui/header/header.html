@@ -14,10 +14,10 @@
         />
         <path d="M9.5 19a2.5 2.5 0 0 0 5 0" stroke="#185FA5" stroke-width="1.6" stroke-linecap="round" />
       </svg>
-      @if (notificacionesNoLeidas > 0) {
-        <span class="app-header-badge-count">{{ notificacionesNoLeidas }}</span>
+      @if (notificacionesNoLeidas() > 0) {
+        <span class="app-header-badge-count">{{ notificacionesNoLeidas() }}</span>
       }
     </button>
-    <span class="app-header-greeting">Hola, {{ nombre }}</span>
+    <span class="app-header-greeting">Hola, {{ nombre() }}</span>
   </div>
 </header>

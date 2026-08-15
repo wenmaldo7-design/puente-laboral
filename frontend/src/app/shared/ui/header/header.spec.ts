@@ -15,7 +15,7 @@ describe('Header', () => {
 
   it('should render the greeting with the given nombre', () => {
     const fixture = TestBed.createComponent(Header);
-    fixture.componentInstance.nombre = 'Camila';
+    fixture.componentRef.setInput('nombre', 'Camila');
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
 
@@ -24,7 +24,7 @@ describe('Header', () => {
 
   it('should show the badge with the unread count when greater than zero', () => {
     const fixture = TestBed.createComponent(Header);
-    fixture.componentInstance.notificacionesNoLeidas = 3;
+    fixture.componentRef.setInput('notificacionesNoLeidas', 3);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
 
@@ -33,7 +33,7 @@ describe('Header', () => {
 
   it('should hide the badge when there are no unread notifications', () => {
     const fixture = TestBed.createComponent(Header);
-    fixture.componentInstance.notificacionesNoLeidas = 0;
+    fixture.componentRef.setInput('notificacionesNoLeidas', 0);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
 
