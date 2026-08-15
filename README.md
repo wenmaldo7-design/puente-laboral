@@ -57,10 +57,17 @@ Convenciones que venimos siguiendo:
 - Cada `service` expone métodos que devuelven `Observable`, para que sea
   transparente reemplazar un mock por una llamada HTTP real más adelante
   (mismo tipo de retorno, misma forma de dato).
-- Los componentes son standalone, usan `signal`/`computed` para el estado y
-  se comunican con el DOM leyendo `event.target` en los handlers (sin
-  `FormsModule`/`ngModel`), salvo los formularios de alta que usan
-  `ReactiveFormsModule` (`FormBuilder` + `Validators`).
+- Los componentes son standalone, usan `signal`/`computed` para el estado. Las
+  cargas de datos que solo asignan el resultado de un `Observable` a un
+  signal usan `toSignal()` (`@angular/core/rxjs-interop`) en vez de
+  `subscribe()` manual; cuando hay lógica extra en el callback (setear más
+  de un signal, side-effects) se mantiene el `subscribe()` manual.
+- Los formularios de alta y los campos editables de Perfil Beneficiario usan
+  `ReactiveFormsModule` (`FormBuilder`/`NonNullableFormBuilder` +
+  `Validators`); el resto de las interacciones simples sigue leyendo
+  `event.target` en los handlers, sin `FormsModule`/`ngModel`.
+- Los componentes de presentación (p. ej. `Header`) exponen sus datos de
+  entrada con Signal Inputs (`input()`) en vez de `@Input()` clásico.
 - Cada página trae su propio `.spec.ts` con cobertura de render y de las
   interacciones principales (clicks, edición inline, filtros).
 
@@ -94,13 +101,43 @@ oportunidades, postulaciones y notificaciones. Incluye:
 Componente + servicio (`PerfilBeneficiarioService`) + modelo + tests, también
 con datos mock. Edición inline por sección (ícono de lápiz → editar el campo
 puntual → Guardar/Cancelar), sin un formulario único para toda la pantalla.
+
+Mejoras técnicas aplicadas tras el code review de Mauri:
+
+- Las cargas de datos que solo asignan el resultado del `Observable` a un
+  signal (catálogo de habilidades, catálogo de áreas de interés) usan
+  `toSignal()` en vez de `subscribe()` manual. El signal `perfil` se
+  mantiene con `subscribe()` manual a propósito: se reescribe con
+  `.update()` en varios métodos de guardado, y `toSignal()` devuelve un
+  signal de solo lectura.
+- Todos los campos editables usan `ReactiveFormsModule`
+  (`FormGroup`/`FormControl` vía `NonNullableFormBuilder`): los campos
+  simples (Fecha de nacimiento, Ubicación, Dirección, Teléfono), Sobre mí, y
+  Enlaces (LinkedIn/GitHub/CV, como un único `FormGroup` que se guarda y
+  cancela en conjunto). Las entradas de Experiencia y Educación comparten un
+  mismo `FormGroup` reutilizado por la entrada activa (cada entrada se sigue
+  editando de forma independiente). La excepción son Habilidades y Áreas de
+  interés, que mantienen su mecanismo manual por la lógica de autocompletado
+  con catálogo cerrado, que no encaja bien con Reactive Forms.
+- El `<app-header>` que usa esta pantalla (compartido con Home y Mentorías)
+  expone sus datos con Signal Inputs (`input()`) en vez de `@Input()`
+  clásico.
+- Como toda la pantalla comparte un único signal de "edición activa" (solo
+  una sección o entrada editable a la vez), pasar a editar otra sección
+  mientras había cambios sin guardar los descartaba en silencio. Ahora se
+  pide confirmación ("Tenés cambios sin guardar, ¿querés descartarlos?")
+  antes de descartar, comparando el estado del formulario contra el valor
+  original (dirty check).
+
 Particularidades:
 
 - Email y DNI se muestran pero **no son editables** (campos de verificación).
 - Fecha de nacimiento usa un input `type="date"` (selector nativo del
   navegador) en vez de texto libre.
 - Teléfono aplica una máscara de formato automática ("351-555-0102") mientras
-  se escribe, sin depender de ninguna librería externa.
+  se escribe, mediante un listener sobre `valueChanges` del `FormControl`
+  (`setValue(..., { emitEvent: false })`), sin manipular el DOM directamente
+  ni depender de ninguna librería externa.
 - Habilidades y Áreas de interés son editables con el mismo patrón (lápiz +
   Guardar/Cancelar), adaptado a listas de tags: cada pill tiene su "×" para
   quitarla, y un buscador con autocompletado permite agregar tags nuevos
