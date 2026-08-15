@@ -195,7 +195,7 @@
         </div>
 
         @if (estaEditando('sobreMi')) {
-          <textarea class="textarea-edicion" rows="4" [value]="draftSobreMi()" (input)="onDraftSobreMiInput($event)"></textarea>
+          <textarea class="textarea-edicion" rows="4" [formControl]="sobreMiControl"></textarea>
           <div class="edicion-acciones">
             <button type="button" class="btn-guardar" (click)="guardarSobreMi()">Guardar</button>
             <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
@@ -211,45 +211,27 @@
           @for (entrada of p.experiencia; track entrada.id) {
             <article class="entrada-card">
               @if (estaEditando(claveEntrada('experiencia', entrada.id))) {
-                <div class="entrada-edicion">
+                <div class="entrada-edicion" [formGroup]="entradaForm">
                   <label class="campo-edicion">
                     Puesto
-                    <input
-                      type="text"
-                      class="input-edicion"
-                      [value]="draftEntrada()?.titulo"
-                      (input)="onDraftEntradaInput('titulo', $event)"
-                    />
+                    <input type="text" class="input-edicion" formControlName="titulo" />
                   </label>
                   <label class="campo-edicion">
                     Empresa
-                    <input
-                      type="text"
-                      class="input-edicion"
-                      [value]="draftEntrada()?.organizacion"
-                      (input)="onDraftEntradaInput('organizacion', $event)"
-                    />
+                    <input type="text" class="input-edicion" formControlName="organizacion" />
                   </label>
                   <label class="campo-edicion">
                     Fecha
-                    <input
-                      type="text"
-                      class="input-edicion"
-                      [value]="draftEntrada()?.fecha"
-                      (input)="onDraftEntradaInput('fecha', $event)"
-                    />
+                    <input type="text" class="input-edicion" formControlName="fecha" />
                   </label>
                   <label class="campo-edicion">
                     Detalle
-                    <textarea
-                      class="textarea-edicion"
-                      rows="3"
-                      [value]="draftEntrada()?.detalle"
-                      (input)="onDraftEntradaInput('detalle', $event)"
-                    ></textarea>
+                    <textarea class="textarea-edicion" rows="3" formControlName="detalle"></textarea>
                   </label>
                   <div class="edicion-acciones">
-                    <button type="button" class="btn-guardar" (click)="guardarEntrada('experiencia')">Guardar</button>
+                    <button type="button" class="btn-guardar" (click)="guardarEntrada('experiencia', entrada.id)">
+                      Guardar
+                    </button>
                     <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
                   </div>
                 </div>
@@ -292,45 +274,27 @@
           @for (entrada of p.educacion; track entrada.id) {
             <article class="entrada-card">
               @if (estaEditando(claveEntrada('educacion', entrada.id))) {
-                <div class="entrada-edicion">
+                <div class="entrada-edicion" [formGroup]="entradaForm">
                   <label class="campo-edicion">
                     Título
-                    <input
-                      type="text"
-                      class="input-edicion"
-                      [value]="draftEntrada()?.titulo"
-                      (input)="onDraftEntradaInput('titulo', $event)"
-                    />
+                    <input type="text" class="input-edicion" formControlName="titulo" />
                   </label>
                   <label class="campo-edicion">
                     Institución
-                    <input
-                      type="text"
-                      class="input-edicion"
-                      [value]="draftEntrada()?.organizacion"
-                      (input)="onDraftEntradaInput('organizacion', $event)"
-                    />
+                    <input type="text" class="input-edicion" formControlName="organizacion" />
                   </label>
                   <label class="campo-edicion">
                     Fecha
-                    <input
-                      type="text"
-                      class="input-edicion"
-                      [value]="draftEntrada()?.fecha"
-                      (input)="onDraftEntradaInput('fecha', $event)"
-                    />
+                    <input type="text" class="input-edicion" formControlName="fecha" />
                   </label>
                   <label class="campo-edicion">
                     Detalle
-                    <textarea
-                      class="textarea-edicion"
-                      rows="3"
-                      [value]="draftEntrada()?.detalle"
-                      (input)="onDraftEntradaInput('detalle', $event)"
-                    ></textarea>
+                    <textarea class="textarea-edicion" rows="3" formControlName="detalle"></textarea>
                   </label>
                   <div class="edicion-acciones">
-                    <button type="button" class="btn-guardar" (click)="guardarEntrada('educacion')">Guardar</button>
+                    <button type="button" class="btn-guardar" (click)="guardarEntrada('educacion', entrada.id)">
+                      Guardar
+                    </button>
                     <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
                   </div>
                 </div>
@@ -541,15 +505,14 @@
         </div>
 
         @if (estaEditando('enlaces')) {
-          <div class="enlaces-edicion">
+          <div class="enlaces-edicion" [formGroup]="enlacesForm">
             <label class="campo-edicion">
               LinkedIn
               <input
                 type="url"
                 class="input-edicion"
                 placeholder="https://linkedin.com/in/tu-usuario"
-                [value]="draftEnlaces().linkedin"
-                (input)="onDraftEnlacesInput('linkedin', $event)"
+                formControlName="linkedin"
               />
             </label>
             <label class="campo-edicion">
@@ -558,19 +521,12 @@
                 type="url"
                 class="input-edicion"
                 placeholder="https://github.com/tu-usuario"
-                [value]="draftEnlaces().github"
-                (input)="onDraftEnlacesInput('github', $event)"
+                formControlName="github"
               />
             </label>
             <label class="campo-edicion">
               URL de CV
-              <input
-                type="url"
-                class="input-edicion"
-                placeholder="https://..."
-                [value]="draftEnlaces().cvUrl"
-                (input)="onDraftEnlacesInput('cvUrl', $event)"
-              />
+              <input type="url" class="input-edicion" placeholder="https://..." formControlName="cvUrl" />
             </label>
           </div>
           <div class="edicion-acciones">

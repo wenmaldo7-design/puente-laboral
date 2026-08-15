@@ -5,12 +5,7 @@ import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Header } from '../../../../shared/ui/header/header';
 import { Footer } from '../../../../shared/ui/footer/footer';
 import { PerfilBeneficiarioService } from '../../services/perfil-beneficiario.service';
-import {
-  EnlacesPerfil,
-  EntradaTrayectoria,
-  HabilidadCatalogo,
-  PerfilBeneficiario,
-} from '../../models/perfil-beneficiario.model';
+import { EntradaTrayectoria, HabilidadCatalogo, PerfilBeneficiario } from '../../models/perfil-beneficiario.model';
 
 type TipoTrayectoria = 'experiencia' | 'educacion';
 type CampoSimple = 'fechaNacimiento' | 'ubicacion' | 'direccion' | 'telefono';
@@ -56,9 +51,18 @@ export class PerfilBeneficiarioPage implements OnInit {
     telefono: [''],
   });
 
-  protected readonly draftSobreMi = signal('');
-  protected readonly draftEnlaces = signal<EnlacesPerfil>({ linkedin: '', github: '', cvUrl: '' });
-  protected readonly draftEntrada = signal<EntradaTrayectoria | null>(null);
+  protected readonly sobreMiControl = this.fb.control('');
+  protected readonly enlacesForm = this.fb.group({
+    linkedin: [''],
+    github: [''],
+    cvUrl: [''],
+  });
+  protected readonly entradaForm = this.fb.group({
+    titulo: [''],
+    organizacion: [''],
+    fecha: [''],
+    detalle: [''],
+  });
 
   protected readonly catalogoHabilidades = toSignal(this.perfilBeneficiarioService.getCatalogoHabilidades(), {
     initialValue: [] as HabilidadCatalogo[],
@@ -116,6 +120,8 @@ export class PerfilBeneficiarioPage implements OnInit {
     this.perfilBeneficiarioService.getPerfil().subscribe((perfil) => {
       this.perfil.set(perfil);
       this.campoSimpleForm.reset(this.valoresCampoSimple(perfil));
+      this.sobreMiControl.setValue(perfil.sobreMi);
+      this.enlacesForm.reset(perfil.enlaces);
     });
   }
 
@@ -140,16 +146,45 @@ export class PerfilBeneficiarioPage implements OnInit {
     const perfil = this.perfil();
     if (perfil) {
       this.campoSimpleForm.reset(this.valoresCampoSimple(perfil));
+      this.sobreMiControl.reset(perfil.sobreMi);
+      this.enlacesForm.reset(perfil.enlaces);
     }
     this.edicionActiva.set(null);
-    this.draftEntrada.set(null);
     this.tagSeccionEnEdicion.set(null);
   }
 
+  /**
+   * Antes de abrir otra edición, si la que está activa tiene cambios sin
+   * guardar, confirma con el usuario que quiere descartarlos.
+   */
+  private puedeAbrirNuevaEdicion(): boolean {
+    const activa = this.edicionActiva();
+    if (!activa || !this.hayCambiosSinGuardar(activa)) return true;
+    return confirm('Tenés cambios sin guardar, ¿querés descartarlos?');
+  }
+
+  private hayCambiosSinGuardar(clave: ClaveEdicion): boolean {
+    if (clave === 'sobreMi') return this.sobreMiControl.dirty;
+    if (clave === 'enlaces') return this.enlacesForm.dirty;
+    if (clave === 'habilidades' || clave === 'areasInteres') return this.hayTagsSinGuardar(clave);
+    if (clave.includes(':')) return this.entradaForm.dirty;
+    return this.campoSimpleForm.controls[clave as CampoSimple].dirty;
+  }
+
+  private hayTagsSinGuardar(seccion: SeccionTags): boolean {
+    const perfil = this.perfil();
+    if (!perfil) return false;
+    const originales = perfil[seccion];
+    const actuales = this.draftTags();
+    return originales.length !== actuales.length || originales.some((tag, i) => tag !== actuales[i]);
+  }
+
   protected iniciarEdicionCampo(campo: CampoSimple): void {
+    if (!this.puedeAbrirNuevaEdicion()) return;
     const perfil = this.perfil();
     if (!perfil) return;
     this.campoSimpleForm.controls[campo].setValue(perfil[campo]);
+    this.campoSimpleForm.controls[campo].markAsPristine();
     this.edicionActiva.set(campo);
   }
 
@@ -160,63 +195,61 @@ export class PerfilBeneficiarioPage implements OnInit {
   }
 
   protected iniciarEdicionSobreMi(): void {
+    if (!this.puedeAbrirNuevaEdicion()) return;
     const perfil = this.perfil();
     if (!perfil) return;
-    this.draftSobreMi.set(perfil.sobreMi);
+    this.sobreMiControl.setValue(perfil.sobreMi);
+    this.sobreMiControl.markAsPristine();
     this.edicionActiva.set('sobreMi');
   }
 
-  protected onDraftSobreMiInput(event: Event): void {
-    this.draftSobreMi.set((event.target as HTMLTextAreaElement).value);
-  }
-
   protected guardarSobreMi(): void {
-    this.perfil.update((perfil) => (perfil ? { ...perfil, sobreMi: this.draftSobreMi() } : perfil));
+    const valor = this.sobreMiControl.value;
+    this.perfil.update((perfil) => (perfil ? { ...perfil, sobreMi: valor } : perfil));
     this.edicionActiva.set(null);
   }
 
   protected iniciarEdicionEnlaces(): void {
+    if (!this.puedeAbrirNuevaEdicion()) return;
     const perfil = this.perfil();
     if (!perfil) return;
-    this.draftEnlaces.set({ ...perfil.enlaces });
+    this.enlacesForm.setValue(perfil.enlaces);
+    this.enlacesForm.markAsPristine();
     this.edicionActiva.set('enlaces');
   }
 
-  protected onDraftEnlacesInput(campo: keyof EnlacesPerfil, event: Event): void {
-    const valor = (event.target as HTMLInputElement).value;
-    this.draftEnlaces.update((enlaces) => ({ ...enlaces, [campo]: valor }));
-  }
-
   protected guardarEnlaces(): void {
-    this.perfil.update((perfil) => (perfil ? { ...perfil, enlaces: this.draftEnlaces() } : perfil));
+    const valor = this.enlacesForm.getRawValue();
+    this.perfil.update((perfil) => (perfil ? { ...perfil, enlaces: valor } : perfil));
     this.edicionActiva.set(null);
   }
 
   protected iniciarEdicionEntrada(tipo: TipoTrayectoria, entrada: EntradaTrayectoria): void {
-    this.draftEntrada.set({ ...entrada });
+    if (!this.puedeAbrirNuevaEdicion()) return;
+    this.entradaForm.setValue({
+      titulo: entrada.titulo,
+      organizacion: entrada.organizacion,
+      fecha: entrada.fecha,
+      detalle: entrada.detalle,
+    });
+    this.entradaForm.markAsPristine();
     this.edicionActiva.set(this.claveEntrada(tipo, entrada.id));
   }
 
-  protected onDraftEntradaInput(campo: keyof EntradaTrayectoria, event: Event): void {
-    const valor = (event.target as HTMLInputElement | HTMLTextAreaElement).value;
-    this.draftEntrada.update((entrada) => (entrada ? { ...entrada, [campo]: valor } : entrada));
-  }
-
-  protected guardarEntrada(tipo: TipoTrayectoria): void {
-    const draft = this.draftEntrada();
-    if (!draft) return;
+  protected guardarEntrada(tipo: TipoTrayectoria, id: string): void {
+    const valor = this.entradaForm.getRawValue();
 
     this.perfil.update((perfil) => {
       if (!perfil) return perfil;
-      const lista = perfil[tipo].map((entrada) => (entrada.id === draft.id ? draft : entrada));
+      const lista = perfil[tipo].map((entrada) => (entrada.id === id ? { ...entrada, ...valor } : entrada));
       return { ...perfil, [tipo]: lista };
     });
 
     this.edicionActiva.set(null);
-    this.draftEntrada.set(null);
   }
 
   protected iniciarEdicionTags(seccion: SeccionTags): void {
+    if (!this.puedeAbrirNuevaEdicion()) return;
     const perfil = this.perfil();
     if (!perfil) return;
     this.tagSeccionEnEdicion.set(seccion);

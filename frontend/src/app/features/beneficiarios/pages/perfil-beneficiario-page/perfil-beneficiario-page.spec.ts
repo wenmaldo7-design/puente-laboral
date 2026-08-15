@@ -11,6 +11,10 @@ describe('PerfilBeneficiarioPage', () => {
     }).compileComponents();
   });
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('should create the component', () => {
     const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
     expect(fixture.componentInstance).toBeTruthy();
@@ -183,12 +187,68 @@ describe('PerfilBeneficiarioPage', () => {
     const segundaEntradaOriginal = { ...component['perfil']()!.experiencia[1] };
 
     component['iniciarEdicionEntrada']('experiencia', primeraEntrada);
-    component['onDraftEntradaInput']('titulo', { target: { value: 'Nuevo puesto' } } as unknown as Event);
-    component['guardarEntrada']('experiencia');
+    component['entradaForm'].controls.titulo.setValue('Nuevo puesto');
+    component['guardarEntrada']('experiencia', primeraEntrada.id);
     fixture.detectChanges();
 
     expect(component['perfil']()!.experiencia[0].titulo).toBe('Nuevo puesto');
     expect(component['perfil']()!.experiencia[1]).toEqual(segundaEntradaOriginal);
+  });
+
+  it('should ask for confirmation before discarding unsaved changes when switching entries', () => {
+    const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    const primeraEntrada = component['perfil']()!.experiencia[0];
+    const segundaEntrada = component['perfil']()!.experiencia[1];
+
+    component['iniciarEdicionEntrada']('experiencia', primeraEntrada);
+    component['entradaForm'].controls.titulo.setValue('Cambio sin guardar');
+    component['entradaForm'].controls.titulo.markAsDirty();
+
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    component['iniciarEdicionEntrada']('experiencia', segundaEntrada);
+
+    expect(confirmSpy).toHaveBeenCalledWith('Tenés cambios sin guardar, ¿querés descartarlos?');
+    expect(component['edicionActiva']()).toBe(component['claveEntrada']('experiencia', primeraEntrada.id));
+    expect(component['entradaForm'].controls.titulo.value).toBe('Cambio sin guardar');
+  });
+
+  it('should switch entries and discard changes when the user confirms', () => {
+    const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    const primeraEntrada = component['perfil']()!.experiencia[0];
+    const segundaEntrada = component['perfil']()!.experiencia[1];
+
+    component['iniciarEdicionEntrada']('experiencia', primeraEntrada);
+    component['entradaForm'].controls.titulo.setValue('Cambio sin guardar');
+    component['entradaForm'].controls.titulo.markAsDirty();
+
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    component['iniciarEdicionEntrada']('experiencia', segundaEntrada);
+
+    expect(component['edicionActiva']()).toBe(component['claveEntrada']('experiencia', segundaEntrada.id));
+    expect(component['entradaForm'].controls.titulo.value).toBe(segundaEntrada.titulo);
+  });
+
+  it('should switch entries without asking when there are no unsaved changes', () => {
+    const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    const primeraEntrada = component['perfil']()!.experiencia[0];
+    const segundaEntrada = component['perfil']()!.experiencia[1];
+
+    component['iniciarEdicionEntrada']('experiencia', primeraEntrada);
+
+    const confirmSpy = vi.spyOn(window, 'confirm');
+    component['iniciarEdicionEntrada']('experiencia', segundaEntrada);
+
+    expect(confirmSpy).not.toHaveBeenCalled();
+    expect(component['edicionActiva']()).toBe(component['claveEntrada']('experiencia', segundaEntrada.id));
   });
 
   it('should render habilidades and áreas de interés as editable tags with distinct colors', () => {
