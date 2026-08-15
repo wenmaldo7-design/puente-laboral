@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
+import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Header } from '../../../../shared/ui/header/header';
 import { Footer } from '../../../../shared/ui/footer/footer';
 import { PerfilBeneficiarioService } from '../../services/perfil-beneficiario.service';
@@ -22,15 +23,24 @@ interface GrupoOpcionesTag {
   opciones: string[];
 }
 
+/** Solo dígitos, agrupados como "351-555-0102"; recorta a 10 dígitos. */
+function formatearTelefono(valor: string): string {
+  const digitos = valor.replace(/\D/g, '').slice(0, 10);
+  const grupos = [digitos.slice(0, 3), digitos.slice(3, 6), digitos.slice(6, 10)].filter(Boolean);
+  return grupos.join('-');
+}
+
 @Component({
   selector: 'app-perfil-beneficiario-page',
-  imports: [DatePipe, Header, Footer],
+  imports: [DatePipe, ReactiveFormsModule, Header, Footer],
   templateUrl: './perfil-beneficiario-page.html',
   styleUrl: './perfil-beneficiario-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PerfilBeneficiarioPage implements OnInit {
   private readonly perfilBeneficiarioService = inject(PerfilBeneficiarioService);
+  private readonly fb = inject(NonNullableFormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly perfil = signal<PerfilBeneficiario | null>(null);
   protected readonly notificacionesNoLeidas = signal(2);
@@ -38,7 +48,14 @@ export class PerfilBeneficiarioPage implements OnInit {
   protected readonly nombreSaludo = computed(() => this.perfil()?.nombre.split(' ')[0] ?? '');
 
   protected readonly edicionActiva = signal<ClaveEdicion | null>(null);
-  protected readonly draftCampoSimple = signal('');
+
+  protected readonly campoSimpleForm = this.fb.group({
+    fechaNacimiento: [''],
+    ubicacion: [''],
+    direccion: [''],
+    telefono: [''],
+  });
+
   protected readonly draftSobreMi = signal('');
   protected readonly draftEnlaces = signal<EnlacesPerfil>({ linkedin: '', github: '', cvUrl: '' });
   protected readonly draftEntrada = signal<EntradaTrayectoria | null>(null);
@@ -84,10 +101,31 @@ export class PerfilBeneficiarioPage implements OnInit {
     return grupos;
   });
 
-  private campoSimpleEnEdicion: CampoSimple | null = null;
+  constructor() {
+    this.campoSimpleForm.controls.telefono.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((valor) => {
+        const formateado = formatearTelefono(valor);
+        if (formateado !== valor) {
+          this.campoSimpleForm.controls.telefono.setValue(formateado, { emitEvent: false });
+        }
+      });
+  }
 
   ngOnInit(): void {
-    this.perfilBeneficiarioService.getPerfil().subscribe((perfil) => this.perfil.set(perfil));
+    this.perfilBeneficiarioService.getPerfil().subscribe((perfil) => {
+      this.perfil.set(perfil);
+      this.campoSimpleForm.reset(this.valoresCampoSimple(perfil));
+    });
+  }
+
+  private valoresCampoSimple(perfil: PerfilBeneficiario): Record<CampoSimple, string> {
+    return {
+      fechaNacimiento: perfil.fechaNacimiento,
+      ubicacion: perfil.ubicacion,
+      direccion: perfil.direccion,
+      telefono: perfil.telefono,
+    };
   }
 
   protected claveEntrada(tipo: TipoTrayectoria, id: string): ClaveEdicion {
@@ -99,43 +137,26 @@ export class PerfilBeneficiarioPage implements OnInit {
   }
 
   protected cancelarEdicion(): void {
+    const perfil = this.perfil();
+    if (perfil) {
+      this.campoSimpleForm.reset(this.valoresCampoSimple(perfil));
+    }
     this.edicionActiva.set(null);
     this.draftEntrada.set(null);
-    this.campoSimpleEnEdicion = null;
     this.tagSeccionEnEdicion.set(null);
   }
 
   protected iniciarEdicionCampo(campo: CampoSimple): void {
     const perfil = this.perfil();
     if (!perfil) return;
-    this.campoSimpleEnEdicion = campo;
-    this.draftCampoSimple.set(perfil[campo]);
+    this.campoSimpleForm.controls[campo].setValue(perfil[campo]);
     this.edicionActiva.set(campo);
   }
 
-  protected onDraftCampoSimpleInput(event: Event): void {
-    this.draftCampoSimple.set((event.target as HTMLInputElement).value);
-  }
-
-  /** Enmascara el teléfono a medida que se escribe: solo dígitos, agrupados como "351-555-0102". */
-  protected onDraftTelefonoInput(event: Event): void {
-    const inputEl = event.target as HTMLInputElement;
-    const digitos = inputEl.value.replace(/\D/g, '').slice(0, 10);
-    const grupos = [digitos.slice(0, 3), digitos.slice(3, 6), digitos.slice(6, 10)].filter(Boolean);
-    const formateado = grupos.join('-');
-    // Se refleja de inmediato en el input nativo: si el valor enmascarado no
-    // cambia respecto del anterior (p. ej. se tipeó un carácter inválido),
-    // el binding de Angular no vuelve a pisar el DOM por sí solo.
-    inputEl.value = formateado;
-    this.draftCampoSimple.set(formateado);
-  }
-
-  protected guardarCampoSimple(): void {
-    const campo = this.campoSimpleEnEdicion;
-    if (!campo) return;
-    this.perfil.update((perfil) => (perfil ? { ...perfil, [campo]: this.draftCampoSimple() } : perfil));
+  protected guardarCampoSimple(campo: CampoSimple): void {
+    const valor = this.campoSimpleForm.controls[campo].value;
+    this.perfil.update((perfil) => (perfil ? { ...perfil, [campo]: valor } : perfil));
     this.edicionActiva.set(null);
-    this.campoSimpleEnEdicion = null;
   }
 
   protected iniciarEdicionSobreMi(): void {

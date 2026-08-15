@@ -12,7 +12,7 @@
           </div>
         </div>
 
-        <dl class="profile-datos">
+        <dl class="profile-datos" [formGroup]="campoSimpleForm">
           <div class="dato-row">
             <dt>Email</dt>
             <dd>{{ p.email }}</dd>
@@ -27,14 +27,11 @@
             <dt>Fecha de nacimiento</dt>
             @if (estaEditando('fechaNacimiento')) {
               <dd class="dato-edicion">
-                <input
-                  type="date"
-                  class="input-edicion"
-                  [value]="draftCampoSimple()"
-                  (input)="onDraftCampoSimpleInput($event)"
-                />
+                <input type="date" class="input-edicion" formControlName="fechaNacimiento" />
                 <div class="edicion-acciones">
-                  <button type="button" class="btn-guardar" (click)="guardarCampoSimple()">Guardar</button>
+                  <button type="button" class="btn-guardar" (click)="guardarCampoSimple('fechaNacimiento')">
+                    Guardar
+                  </button>
                   <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
                 </div>
               </dd>
@@ -66,14 +63,11 @@
             <dt>Ubicación</dt>
             @if (estaEditando('ubicacion')) {
               <dd class="dato-edicion">
-                <input
-                  type="text"
-                  class="input-edicion"
-                  [value]="draftCampoSimple()"
-                  (input)="onDraftCampoSimpleInput($event)"
-                />
+                <input type="text" class="input-edicion" formControlName="ubicacion" />
                 <div class="edicion-acciones">
-                  <button type="button" class="btn-guardar" (click)="guardarCampoSimple()">Guardar</button>
+                  <button type="button" class="btn-guardar" (click)="guardarCampoSimple('ubicacion')">
+                    Guardar
+                  </button>
                   <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
                 </div>
               </dd>
@@ -105,14 +99,11 @@
             <dt>Dirección</dt>
             @if (estaEditando('direccion')) {
               <dd class="dato-edicion">
-                <input
-                  type="text"
-                  class="input-edicion"
-                  [value]="draftCampoSimple()"
-                  (input)="onDraftCampoSimpleInput($event)"
-                />
+                <input type="text" class="input-edicion" formControlName="direccion" />
                 <div class="edicion-acciones">
-                  <button type="button" class="btn-guardar" (click)="guardarCampoSimple()">Guardar</button>
+                  <button type="button" class="btn-guardar" (click)="guardarCampoSimple('direccion')">
+                    Guardar
+                  </button>
                   <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
                 </div>
               </dd>
@@ -151,11 +142,10 @@
                   pattern="[0-9\-\s]*"
                   maxlength="12"
                   placeholder="351-555-0102"
-                  [value]="draftCampoSimple()"
-                  (input)="onDraftTelefonoInput($event)"
+                  formControlName="telefono"
                 />
                 <div class="edicion-acciones">
-                  <button type="button" class="btn-guardar" (click)="guardarCampoSimple()">Guardar</button>
+                  <button type="button" class="btn-guardar" (click)="guardarCampoSimple('telefono')">Guardar</button>
                   <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
                 </div>
               </dd>
