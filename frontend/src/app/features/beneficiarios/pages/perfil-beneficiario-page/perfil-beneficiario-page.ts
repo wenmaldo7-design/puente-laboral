@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { Header } from '../../../../shared/ui/header/header';
 import { Footer } from '../../../../shared/ui/footer/footer';
@@ -29,6 +30,8 @@ interface GrupoOpcionesTag {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PerfilBeneficiarioPage implements OnInit {
+  private readonly perfilBeneficiarioService = inject(PerfilBeneficiarioService);
+
   protected readonly perfil = signal<PerfilBeneficiario | null>(null);
   protected readonly notificacionesNoLeidas = signal(2);
 
@@ -40,8 +43,12 @@ export class PerfilBeneficiarioPage implements OnInit {
   protected readonly draftEnlaces = signal<EnlacesPerfil>({ linkedin: '', github: '', cvUrl: '' });
   protected readonly draftEntrada = signal<EntradaTrayectoria | null>(null);
 
-  protected readonly catalogoHabilidades = signal<HabilidadCatalogo[]>([]);
-  protected readonly catalogoAreasInteres = signal<string[]>([]);
+  protected readonly catalogoHabilidades = toSignal(this.perfilBeneficiarioService.getCatalogoHabilidades(), {
+    initialValue: [] as HabilidadCatalogo[],
+  });
+  protected readonly catalogoAreasInteres = toSignal(this.perfilBeneficiarioService.getCatalogoAreasInteres(), {
+    initialValue: [] as string[],
+  });
   protected readonly draftTags = signal<string[]>([]);
   protected readonly tagBusqueda = signal('');
   private readonly tagSeccionEnEdicion = signal<SeccionTags | null>(null);
@@ -77,13 +84,10 @@ export class PerfilBeneficiarioPage implements OnInit {
     return grupos;
   });
 
-  private readonly perfilBeneficiarioService = inject(PerfilBeneficiarioService);
   private campoSimpleEnEdicion: CampoSimple | null = null;
 
   ngOnInit(): void {
     this.perfilBeneficiarioService.getPerfil().subscribe((perfil) => this.perfil.set(perfil));
-    this.perfilBeneficiarioService.getCatalogoHabilidades().subscribe((c) => this.catalogoHabilidades.set(c));
-    this.perfilBeneficiarioService.getCatalogoAreasInteres().subscribe((c) => this.catalogoAreasInteres.set(c));
   }
 
   protected claveEntrada(tipo: TipoTrayectoria, id: string): ClaveEdicion {
