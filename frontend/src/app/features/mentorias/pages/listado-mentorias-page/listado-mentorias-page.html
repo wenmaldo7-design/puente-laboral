@@ -1,0 +1,60 @@
+<div class="beneficiario-page">
+  <app-header [nombre]="nombreBeneficiario()" [notificacionesNoLeidas]="notificacionesNoLeidas()"></app-header>
+
+  <main class="content">
+    <h1 class="main-title">Mentorías</h1>
+
+    <div class="search-bar">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" stroke="#185FA5" stroke-width="1.6" />
+        <path d="m20 20-3.2-3.2" stroke="#185FA5" stroke-width="1.6" stroke-linecap="round" />
+      </svg>
+      <input
+        type="search"
+        placeholder="Buscar mentorías por título o temática..."
+        aria-label="Buscar mentorías por título o temática..."
+        [value]="terminoBusqueda()"
+        (input)="onBusquedaInput($event)"
+      />
+    </div>
+
+    <div class="filters-row" aria-label="Filtrar por modalidad">
+      @for (filtro of filtros; track filtro.id) {
+        <button
+          type="button"
+          class="filter-pill"
+          [class.active]="filtroActivo() === filtro.id"
+          [attr.aria-pressed]="filtroActivo() === filtro.id"
+          (click)="seleccionarFiltro(filtro.id)"
+        >
+          {{ filtro.etiqueta }}
+        </button>
+      }
+    </div>
+
+    @if (mentoriasFiltradas().length) {
+      <div class="mentorias-grid">
+        @for (mentoria of mentoriasFiltradas(); track mentoria.id) {
+          <article class="mentoria-card">
+            @if (mentoria.matchPorcentaje) {
+              <span class="match-badge">{{ mentoria.matchPorcentaje }}% match</span>
+            }
+            <h2 class="mentoria-titulo">{{ mentoria.titulo }}</h2>
+            <p class="mentoria-mentor">{{ mentoria.mentorNombre }}</p>
+            <div class="mentoria-datos">
+              <span class="modalidad-badge" [class.virtual]="mentoria.modalidad === 'virtual'">
+                {{ mentoria.modalidad === 'virtual' ? 'Virtual' : 'Presencial' }}
+              </span>
+              <span class="mentoria-fecha">{{ mentoria.fecha }} · {{ mentoria.horaInicio }}</span>
+            </div>
+            <a class="btn-detalle" [routerLink]="[mentoria.id]">Ver detalle</a>
+          </article>
+        }
+      </div>
+    } @else {
+      <p class="empty-state">No encontramos mentorías para tu búsqueda.</p>
+    }
+  </main>
+
+  <app-footer></app-footer>
+</div>

@@ -1,0 +1,53 @@
+<div class="beneficiario-page">
+  <app-header [nombre]="nombreBeneficiario()" [notificacionesNoLeidas]="notificacionesNoLeidas()"></app-header>
+
+  <main class="content">
+    <a class="volver" routerLink="/beneficiario/mentorias">‹ Volver a Mentorías</a>
+
+    @if (mentoria(); as m) {
+      <article class="detalle-card">
+        @if (m.matchPorcentaje) {
+          <span class="match-badge">{{ m.matchPorcentaje }}% match</span>
+        }
+
+        <h1 class="detalle-titulo">{{ m.titulo }}</h1>
+
+        <div class="mentor-row">
+          <span class="mentor-avatar" aria-hidden="true">{{ m.mentorIniciales }}</span>
+          <span class="mentor-nombre">{{ m.mentorNombre }}</span>
+        </div>
+
+        <div class="detalle-datos">
+          <span class="modalidad-badge" [class.virtual]="m.modalidad === 'virtual'">
+            {{ m.modalidad === 'virtual' ? 'Virtual' : 'Presencial' }}
+          </span>
+          <span class="detalle-fecha">{{ m.fecha }} · {{ m.horaInicio }}</span>
+        </div>
+
+        <p class="detalle-descripcion">{{ m.descripcion }}</p>
+
+        @if (estaInscripto()) {
+          <div class="inscripcion-confirmada">
+            <p>Ya estás inscripto/a en esta mentoría.</p>
+            @if (m.modalidad === 'virtual' && m.linkOCanal) {
+              <a class="link-acceso" [href]="m.linkOCanal" target="_blank" rel="noopener">
+                Acceder a la mentoría
+              </a>
+            }
+          </div>
+          <button type="button" class="btn-baja" [disabled]="dandoBaja()" (click)="darDeBaja()">
+            {{ dandoBaja() ? 'Procesando...' : 'Darme de baja' }}
+          </button>
+        } @else {
+          <button type="button" class="btn-inscribirme" [disabled]="inscribiendo()" (click)="inscribirme()">
+            {{ inscribiendo() ? 'Inscribiendo...' : 'Inscribirme' }}
+          </button>
+        }
+      </article>
+    } @else if (!cargando()) {
+      <p class="empty-state">No encontramos esta mentoría.</p>
+    }
+  </main>
+
+  <app-footer></app-footer>
+</div>

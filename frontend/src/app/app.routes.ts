@@ -8,4 +8,9 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./features/beneficiarios/beneficiarios.routes').then((m) => m.BENEFICIARIOS_ROUTES),
   },
+  {
+    path: 'beneficiario/mentorias',
+    loadChildren: () =>
+      import('./features/mentorias/mentorias.routes').then((m) => m.MENTORIAS_ROUTES),
+  },
 ];
