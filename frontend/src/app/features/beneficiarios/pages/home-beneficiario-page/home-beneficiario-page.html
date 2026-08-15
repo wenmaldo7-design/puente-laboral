@@ -21,19 +21,19 @@
       <input
         type="search"
         placeholder="Buscar empleos, cursos, mentorías..."
+        aria-label="Buscar empleos, cursos, mentorías..."
         [value]="terminoBusqueda()"
         (input)="onBusquedaInput($event)"
       />
     </div>
 
-    <div class="filters-row" role="tablist" aria-label="Filtrar por tipo">
+    <div class="filters-row" aria-label="Filtrar por tipo">
       @for (filtro of filtros; track filtro.id) {
         <button
           type="button"
           class="filter-pill"
-          role="tab"
           [class.active]="filtroActivo() === filtro.id"
-          [attr.aria-selected]="filtroActivo() === filtro.id"
+          [attr.aria-pressed]="filtroActivo() === filtro.id"
           (click)="seleccionarFiltro(filtro.id)"
         >
           {{ filtro.etiqueta }}

@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Header } from '../../../../shared/ui/header/header';
 import { Footer } from '../../../../shared/ui/footer/footer';
 import { BeneficiarioHomeService } from '../../services/beneficiario-home.service';
@@ -15,6 +15,7 @@ import {
   imports: [Header, Footer],
   templateUrl: './home-beneficiario-page.html',
   styleUrl: './home-beneficiario-page.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeBeneficiarioPage implements OnInit {
   protected readonly nombreBeneficiario = signal('Camila');

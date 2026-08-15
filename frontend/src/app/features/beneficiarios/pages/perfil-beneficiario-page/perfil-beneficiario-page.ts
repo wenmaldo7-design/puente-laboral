@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Header } from '../../../../shared/ui/header/header';
 import { Footer } from '../../../../shared/ui/footer/footer';
@@ -26,6 +26,7 @@ interface GrupoOpcionesTag {
   imports: [DatePipe, Header, Footer],
   templateUrl: './perfil-beneficiario-page.html',
   styleUrl: './perfil-beneficiario-page.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PerfilBeneficiarioPage implements OnInit {
   protected readonly perfil = signal<PerfilBeneficiario | null>(null);
