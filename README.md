@@ -12,6 +12,10 @@ cualquiera del equipo pueda entender rápido dónde está parado el proyecto.
 - **Backend**: NestJS — en desarrollo por otro miembro del equipo.
 - **Base de datos**: Supabase (PostgreSQL) — stack decidido, todavía no
   integrado en el backend (que hoy solo expone un endpoint `/health`).
+- **Estilos**: Tailwind, integrado al mergear `origin/staging` — hoy se usa
+  en Home pública y está pensado para las pantallas de Organización (a
+  cargo de Maxi). Las pantallas de Beneficiario y Mentorías siguen con CSS
+  propio por componente, sin Tailwind.
 
 ## Estructura de carpetas del frontend
 
@@ -25,7 +29,15 @@ frontend/src/app/features/beneficiarios/
   pages/
     home-beneficiario-page/     # componente + template + estilos + spec
     perfil-beneficiario-page/
-  beneficiarios.routes.ts       # rutas de la feature (ver "Pendientes")
+  beneficiarios.routes.ts       # rutas de la feature, lazy-loaded desde app.routes.ts
+
+frontend/src/app/features/mentorias/
+  models/
+  services/                     # Mentorias, InscripcionesMentorias
+  pages/
+    listado-mentorias-page/
+    detalle-mentoria-page/
+  mentorias.routes.ts
 
 frontend/src/app/shared/ui/
   header/                       # <app-header>, usado por cualquier feature
@@ -100,10 +112,43 @@ Particularidades:
   encabezados de categoría); Áreas de interés tiene 25 opciones y queda
   como lista plana, sin agrupar.
 
+### Mentorías — implementado
+
+`features/mentorias/pages/listado-mentorias-page/` y `detalle-mentoria-page/`
+
+Componentes + servicios (`Mentorias`, `InscripcionesMentorias`) + modelos +
+tests, con datos mock (5 mentorías variadas en temática y modalidad) a la
+espera de que el backend tenga los endpoints reales. Incluye:
+
+- Listado con buscador (por título y descripción) y filtro por modalidad
+  (Todas / Presencial / Virtual).
+- Detalle de una mentoría por `:id`, leído con `ActivatedRoute`, con badge
+  de % de match cuando la mentoría lo tiene.
+- Inscripción simulada: el botón "Inscribirme" actualiza el estado en
+  memoria (se pierde al recargar la página, todavía no hay backend). El
+  link/canal de una mentoría virtual solo se revela después de confirmar
+  la inscripción, y nunca para mentorías presenciales.
+- Baja de la inscripción ("Darme de baja"), con estilo secundario para no
+  competir visualmente con la confirmación — reactiva el botón
+  "Inscribirme" para poder volver a anotarse.
+
 ### Signup Organización
 
 Se armó una propuesta de implementación y luego se descartó: la va a
 desarrollar Maxi con su propio enfoque.
+
+## Rutas
+
+El router de Angular ya está cableado (`app.config.ts` usa
+`provideRouter(routes)`; `app.html` es solo `<router-outlet></router-outlet>`,
+ya no hay montaje manual de páginas para revisarlas). Rutas actuales, todas
+lazy-loaded excepto la raíz:
+
+- `/` — Home pública (de Roland, `features/home`).
+- `/beneficiario/home` — Home Beneficiario.
+- `/beneficiario/perfil` — Perfil Beneficiario.
+- `/beneficiario/mentorias` — Listado de Mentorías.
+- `/beneficiario/mentorias/:id` — Detalle de una mentoría.
 
 ## Cómo levantar el proyecto (modo desarrollo)
 
@@ -134,13 +179,11 @@ También se puede levantar todo junto con Docker Compose (`docker-compose up
 
 ## Pendientes conocidos
 
-- **Conectar servicios mock a endpoints reales**: `BeneficiarioHomeService` y
-  `PerfilBeneficiarioService` ya están estructurados para esto (cada método
-  mock tiene comentada al lado la llamada HTTP real) — falta que el backend
-  exponga los endpoints correspondientes.
-- **Router de Angular sin cablear**: `beneficiarios.routes.ts` existe pero
-  todavía no está registrado en `app.config.ts`. Decisión pendiente de
-  coordinar con el equipo antes de conectarlo.
+- **Conectar servicios mock a endpoints reales**: `BeneficiarioHomeService`,
+  `PerfilBeneficiarioService`, `Mentorias` e `InscripcionesMentorias` ya
+  están estructurados para esto (cada método mock tiene comentada al lado
+  la llamada HTTP real) — falta que el backend exponga los endpoints
+  correspondientes.
 - **Catálogo de Habilidades / Áreas de interés**: hoy está hardcodeado en el
   frontend (`PerfilBeneficiarioService`), pendiente de reemplazar por uno
   centralizado cuando exista en el backend.
