@@ -112,12 +112,6 @@
   color: var(--text);
 }
 
-.dato-edicion {
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.5rem;
-}
-
 /* Secciones */
 
 .section-title {

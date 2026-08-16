@@ -1,0 +1,105 @@
+/*
+ * Los tokens de color (--text, --border, --bg, --accent, --text-2) los
+ * define :host en perfil-beneficiario-page.css y se heredan hasta acá.
+ */
+
+:host {
+  display: contents;
+}
+
+.dato-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.dato-row dt {
+  width: 140px;
+  flex-shrink: 0;
+  margin: 0;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.dato-row dd {
+  margin: 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text);
+}
+
+.dato-edicion {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.btn-editar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0.2rem;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.btn-editar svg {
+  width: 15px;
+  height: 15px;
+}
+
+.input-edicion {
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.85rem;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--bg);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.edicion-acciones {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.btn-guardar,
+.btn-cancelar {
+  border-radius: 0.4rem;
+  padding: 0.45rem 1rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.btn-guardar {
+  background: var(--accent);
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+}
+
+.btn-cancelar {
+  background: transparent;
+  color: var(--text-2);
+  border: 1px solid var(--border);
+}
+
+@media (max-width: 640px) {
+  .dato-row {
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .dato-row dt {
+    width: auto;
+  }
+}

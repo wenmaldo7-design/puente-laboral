@@ -44,7 +44,19 @@ describe('PerfilBeneficiarioPage', () => {
     expect(filaDni?.querySelector('.btn-editar')).toBeNull();
   });
 
-  it('should allow editing and saving the ubicación', () => {
+  it('should render the perfil-info-personal child with the current values', () => {
+    const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    const perfil = fixture.componentInstance['perfil']()!;
+
+    expect(compiled.querySelector('app-perfil-info-personal')).not.toBeNull();
+    expect(compiled.textContent).toContain(perfil.ubicacion);
+    expect(compiled.textContent).toContain(perfil.direccion);
+    expect(compiled.textContent).toContain(perfil.telefono);
+  });
+
+  it('should save a campo simple edit from the child section into the perfil signal', () => {
     const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
     const component = fixture.componentInstance;
     fixture.detectChanges();
@@ -68,19 +80,7 @@ describe('PerfilBeneficiarioPage', () => {
     expect(component['edicionActiva']()).toBeNull();
   });
 
-  it('should render fecha de nacimiento, dirección y teléfono as editable fields', () => {
-    const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    const filas = Array.from(compiled.querySelectorAll('.dato-row'));
-
-    for (const etiqueta of ['Fecha de nacimiento', 'Dirección', 'Teléfono']) {
-      const fila = filas.find((f) => f.querySelector('dt')?.textContent === etiqueta);
-      expect(fila?.querySelector('.btn-editar')).not.toBeNull();
-    }
-  });
-
-  it('should allow editing and saving the teléfono', () => {
+  it('should ask for confirmation before discarding unsaved campo simple changes when switching to another section', () => {
     const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
     const component = fixture.componentInstance;
     fixture.detectChanges();
@@ -97,63 +97,15 @@ describe('PerfilBeneficiarioPage', () => {
     input.dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
-    (compiled.querySelector('.dato-edicion .btn-guardar') as HTMLButtonElement).click();
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    (
+      compiled.querySelector('.btn-editar[aria-label="Editar sobre mí"]') as HTMLButtonElement
+    ).click();
     fixture.detectChanges();
 
-    expect(component['perfil']()?.telefono).toBe('351-555-9999');
-    expect(component['edicionActiva']()).toBeNull();
-  });
-
-  it('should mask the teléfono input, keeping only digits grouped as XXX-XXX-XXXX', () => {
-    const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
-    const component = fixture.componentInstance;
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-
-    const filaTelefono = Array.from(compiled.querySelectorAll('.dato-row')).find(
-      (fila) => fila.querySelector('dt')?.textContent === 'Teléfono',
-    )!;
-    (filaTelefono.querySelector('.btn-editar') as HTMLButtonElement).click();
-    fixture.detectChanges();
-
-    const input = compiled.querySelector('.dato-edicion .input-edicion') as HTMLInputElement;
-    input.value = '35a15550102xyz';
-    input.dispatchEvent(new Event('input'));
-    fixture.detectChanges();
-
-    expect(input.value).toBe('351-555-0102');
-
-    (compiled.querySelector('.dato-edicion .btn-guardar') as HTMLButtonElement).click();
-    fixture.detectChanges();
-
-    expect(component['perfil']()?.telefono).toBe('351-555-0102');
-  });
-
-  it('should use a native date input for fecha de nacimiento and display it formatted', () => {
-    const fixture = TestBed.createComponent(PerfilBeneficiarioPage);
-    const component = fixture.componentInstance;
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-
-    expect(compiled.textContent).toContain('14/05/2001');
-
-    const filaFecha = Array.from(compiled.querySelectorAll('.dato-row')).find(
-      (fila) => fila.querySelector('dt')?.textContent === 'Fecha de nacimiento',
-    )!;
-    (filaFecha.querySelector('.btn-editar') as HTMLButtonElement).click();
-    fixture.detectChanges();
-
-    const input = compiled.querySelector('.dato-edicion .input-edicion') as HTMLInputElement;
-    expect(input.type).toBe('date');
-    expect(input.value).toBe('2001-05-14');
-
-    input.value = '1999-01-20';
-    input.dispatchEvent(new Event('input'));
-    fixture.detectChanges();
-    (compiled.querySelector('.dato-edicion .btn-guardar') as HTMLButtonElement).click();
-    fixture.detectChanges();
-
-    expect(component['perfil']()?.fechaNacimiento).toBe('1999-01-20');
+    expect(confirmSpy).toHaveBeenCalledWith('Tenés cambios sin guardar, ¿querés descartarlos?');
+    expect(component['edicionActiva']()).toBe('telefono');
+    expect(compiled.querySelector('.dato-edicion')).not.toBeNull();
   });
 
   it('should discard changes when canceling the edición de sobre mí', () => {
@@ -163,7 +115,9 @@ describe('PerfilBeneficiarioPage', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const sobreMiOriginal = component['perfil']()?.sobreMi;
 
-    (compiled.querySelector('.btn-editar[aria-label="Editar sobre mí"]') as HTMLButtonElement).click();
+    (
+      compiled.querySelector('.btn-editar[aria-label="Editar sobre mí"]') as HTMLButtonElement
+    ).click();
     fixture.detectChanges();
 
     const textarea = compiled.querySelector('.textarea-edicion') as HTMLTextAreaElement;
@@ -211,7 +165,9 @@ describe('PerfilBeneficiarioPage', () => {
     component['iniciarEdicionEntrada']('experiencia', segundaEntrada);
 
     expect(confirmSpy).toHaveBeenCalledWith('Tenés cambios sin guardar, ¿querés descartarlos?');
-    expect(component['edicionActiva']()).toBe(component['claveEntrada']('experiencia', primeraEntrada.id));
+    expect(component['edicionActiva']()).toBe(
+      component['claveEntrada']('experiencia', primeraEntrada.id),
+    );
     expect(component['entradaForm'].controls.titulo.value).toBe('Cambio sin guardar');
   });
 
@@ -230,7 +186,9 @@ describe('PerfilBeneficiarioPage', () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     component['iniciarEdicionEntrada']('experiencia', segundaEntrada);
 
-    expect(component['edicionActiva']()).toBe(component['claveEntrada']('experiencia', segundaEntrada.id));
+    expect(component['edicionActiva']()).toBe(
+      component['claveEntrada']('experiencia', segundaEntrada.id),
+    );
     expect(component['entradaForm'].controls.titulo.value).toBe(segundaEntrada.titulo);
   });
 
@@ -248,7 +206,9 @@ describe('PerfilBeneficiarioPage', () => {
     component['iniciarEdicionEntrada']('experiencia', segundaEntrada);
 
     expect(confirmSpy).not.toHaveBeenCalled();
-    expect(component['edicionActiva']()).toBe(component['claveEntrada']('experiencia', segundaEntrada.id));
+    expect(component['edicionActiva']()).toBe(
+      component['claveEntrada']('experiencia', segundaEntrada.id),
+    );
   });
 
   it('should render the perfil-habilidades-section child with the current tags', () => {
@@ -267,7 +227,9 @@ describe('PerfilBeneficiarioPage', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
 
-    (compiled.querySelector('.btn-editar[aria-label="Editar habilidades"]') as HTMLButtonElement).click();
+    (
+      compiled.querySelector('.btn-editar[aria-label="Editar habilidades"]') as HTMLButtonElement
+    ).click();
     fixture.detectChanges();
 
     const buscador = compiled.querySelector('.tag-buscador .input-edicion') as HTMLInputElement;
@@ -290,7 +252,9 @@ describe('PerfilBeneficiarioPage', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
 
-    (compiled.querySelector('.btn-editar[aria-label="Editar habilidades"]') as HTMLButtonElement).click();
+    (
+      compiled.querySelector('.btn-editar[aria-label="Editar habilidades"]') as HTMLButtonElement
+    ).click();
     fixture.detectChanges();
 
     const buscador = compiled.querySelector('.tag-buscador .input-edicion') as HTMLInputElement;
@@ -301,7 +265,9 @@ describe('PerfilBeneficiarioPage', () => {
     fixture.detectChanges();
 
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
-    (compiled.querySelector('.btn-editar[aria-label="Editar sobre mí"]') as HTMLButtonElement).click();
+    (
+      compiled.querySelector('.btn-editar[aria-label="Editar sobre mí"]') as HTMLButtonElement
+    ).click();
     fixture.detectChanges();
 
     expect(confirmSpy).toHaveBeenCalledWith('Tenés cambios sin guardar, ¿querés descartarlos?');
@@ -315,7 +281,9 @@ describe('PerfilBeneficiarioPage', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
 
-    (compiled.querySelector('.btn-editar[aria-label="Editar enlaces"]') as HTMLButtonElement).click();
+    (
+      compiled.querySelector('.btn-editar[aria-label="Editar enlaces"]') as HTMLButtonElement
+    ).click();
     fixture.detectChanges();
 
     const [linkedinInput, , cvInput] = Array.from(
@@ -328,11 +296,17 @@ describe('PerfilBeneficiarioPage', () => {
     cvInput.dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
-    (compiled.querySelector('.enlaces-edicion ~ .edicion-acciones .btn-guardar') as HTMLButtonElement).click();
+    (
+      compiled.querySelector(
+        '.enlaces-edicion ~ .edicion-acciones .btn-guardar',
+      ) as HTMLButtonElement
+    ).click();
     fixture.detectChanges();
 
     expect(component['perfil']()?.enlaces.linkedin).toBe('https://linkedin.com/in/nueva-url');
     expect(component['perfil']()?.enlaces.cvUrl).toBe('https://example.com/cv.pdf');
-    expect(compiled.querySelector('.enlaces-list a[href="https://example.com/cv.pdf"]')).toBeTruthy();
+    expect(
+      compiled.querySelector('.enlaces-list a[href="https://example.com/cv.pdf"]'),
+    ).toBeTruthy();
   });
 });

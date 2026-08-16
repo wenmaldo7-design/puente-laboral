@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal, untracked } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  input,
+  output,
+  signal,
+  untracked,
+} from '@angular/core';
 import { HabilidadCatalogo } from '../../models/perfil-beneficiario.model';
 
 export type SeccionTags = 'habilidades' | 'areasInteres';
@@ -82,7 +91,9 @@ export class PerfilHabilidadesSection {
     if (!seccion) return false;
     const originales = seccion === 'habilidades' ? this.habilidades() : this.areasInteres();
     const actuales = this.draftTags();
-    return originales.length !== actuales.length || originales.some((tag, i) => tag !== actuales[i]);
+    return (
+      originales.length !== actuales.length || originales.some((tag, i) => tag !== actuales[i])
+    );
   });
 
   constructor() {

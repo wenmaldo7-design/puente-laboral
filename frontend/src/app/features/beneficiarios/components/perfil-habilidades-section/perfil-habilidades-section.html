@@ -2,7 +2,12 @@
   <div class="beneficiario-section-header">
     <h2 class="section-title">Habilidades</h2>
     @if (activo() !== 'habilidades') {
-      <button type="button" class="btn-editar" aria-label="Editar habilidades" (click)="onEditar('habilidades')">
+      <button
+        type="button"
+        class="btn-editar"
+        aria-label="Editar habilidades"
+        (click)="onEditar('habilidades')"
+      >
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path
             d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
@@ -23,7 +28,14 @@
         @for (tag of draftTags(); track tag) {
           <span class="tag tag-habilidad">
             {{ tag }}
-            <button type="button" class="tag-quitar" aria-label="Quitar {{ tag }}" (click)="quitarTag(tag)">×</button>
+            <button
+              type="button"
+              class="tag-quitar"
+              aria-label="Quitar {{ tag }}"
+              (click)="quitarTag(tag)"
+            >
+              ×
+            </button>
           </span>
         }
       </div>
@@ -44,7 +56,9 @@
               }
               @for (opcion of grupo.opciones; track opcion) {
                 <li>
-                  <button type="button" class="tag-opcion" (click)="agregarTag(opcion)">{{ opcion }}</button>
+                  <button type="button" class="tag-opcion" (click)="agregarTag(opcion)">
+                    {{ opcion }}
+                  </button>
                 </li>
               }
             }
@@ -98,7 +112,14 @@
         @for (tag of draftTags(); track tag) {
           <span class="tag tag-interes">
             {{ tag }}
-            <button type="button" class="tag-quitar" aria-label="Quitar {{ tag }}" (click)="quitarTag(tag)">×</button>
+            <button
+              type="button"
+              class="tag-quitar"
+              aria-label="Quitar {{ tag }}"
+              (click)="quitarTag(tag)"
+            >
+              ×
+            </button>
           </span>
         }
       </div>
@@ -119,7 +140,9 @@
               }
               @for (opcion of grupo.opciones; track opcion) {
                 <li>
-                  <button type="button" class="tag-opcion" (click)="agregarTag(opcion)">{{ opcion }}</button>
+                  <button type="button" class="tag-opcion" (click)="agregarTag(opcion)">
+                    {{ opcion }}
+                  </button>
                 </li>
               }
             }

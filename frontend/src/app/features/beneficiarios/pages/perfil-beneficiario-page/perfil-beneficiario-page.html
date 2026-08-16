@@ -1,5 +1,8 @@
 <div class="beneficiario-page">
-  <app-header [nombre]="nombreSaludo()" [notificacionesNoLeidas]="notificacionesNoLeidas()"></app-header>
+  <app-header
+    [nombre]="nombreSaludo()"
+    [notificacionesNoLeidas]="notificacionesNoLeidas()"
+  ></app-header>
 
   <main class="content">
     @if (perfil(); as p) {
@@ -12,7 +15,7 @@
           </div>
         </div>
 
-        <dl class="profile-datos" [formGroup]="campoSimpleForm">
+        <dl class="profile-datos">
           <div class="dato-row">
             <dt>Email</dt>
             <dd>{{ p.email }}</dd>
@@ -23,155 +26,16 @@
             <dd>{{ p.dni }}</dd>
           </div>
 
-          <div class="dato-row">
-            <dt>Fecha de nacimiento</dt>
-            @if (estaEditando('fechaNacimiento')) {
-              <dd class="dato-edicion">
-                <input type="date" class="input-edicion" formControlName="fechaNacimiento" />
-                <div class="edicion-acciones">
-                  <button type="button" class="btn-guardar" (click)="guardarCampoSimple('fechaNacimiento')">
-                    Guardar
-                  </button>
-                  <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
-                </div>
-              </dd>
-            } @else {
-              <dd>
-                <span>{{ p.fechaNacimiento | date: 'dd/MM/yyyy' }}</span>
-                <button
-                  type="button"
-                  class="btn-editar"
-                  aria-label="Editar fecha de nacimiento"
-                  (click)="iniciarEdicionCampo('fechaNacimiento')"
-                >
-                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path
-                      d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
-                      stroke="currentColor"
-                      stroke-width="1.6"
-                      stroke-linejoin="round"
-                      stroke-linecap="round"
-                    />
-                    <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                  </svg>
-                </button>
-              </dd>
-            }
-          </div>
-
-          <div class="dato-row">
-            <dt>Ubicación</dt>
-            @if (estaEditando('ubicacion')) {
-              <dd class="dato-edicion">
-                <input type="text" class="input-edicion" formControlName="ubicacion" />
-                <div class="edicion-acciones">
-                  <button type="button" class="btn-guardar" (click)="guardarCampoSimple('ubicacion')">
-                    Guardar
-                  </button>
-                  <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
-                </div>
-              </dd>
-            } @else {
-              <dd>
-                <span>{{ p.ubicacion }}</span>
-                <button
-                  type="button"
-                  class="btn-editar"
-                  aria-label="Editar ubicación"
-                  (click)="iniciarEdicionCampo('ubicacion')"
-                >
-                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path
-                      d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
-                      stroke="currentColor"
-                      stroke-width="1.6"
-                      stroke-linejoin="round"
-                      stroke-linecap="round"
-                    />
-                    <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                  </svg>
-                </button>
-              </dd>
-            }
-          </div>
-
-          <div class="dato-row">
-            <dt>Dirección</dt>
-            @if (estaEditando('direccion')) {
-              <dd class="dato-edicion">
-                <input type="text" class="input-edicion" formControlName="direccion" />
-                <div class="edicion-acciones">
-                  <button type="button" class="btn-guardar" (click)="guardarCampoSimple('direccion')">
-                    Guardar
-                  </button>
-                  <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
-                </div>
-              </dd>
-            } @else {
-              <dd>
-                <span>{{ p.direccion }}</span>
-                <button
-                  type="button"
-                  class="btn-editar"
-                  aria-label="Editar dirección"
-                  (click)="iniciarEdicionCampo('direccion')"
-                >
-                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path
-                      d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
-                      stroke="currentColor"
-                      stroke-width="1.6"
-                      stroke-linejoin="round"
-                      stroke-linecap="round"
-                    />
-                    <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                  </svg>
-                </button>
-              </dd>
-            }
-          </div>
-
-          <div class="dato-row">
-            <dt>Teléfono</dt>
-            @if (estaEditando('telefono')) {
-              <dd class="dato-edicion">
-                <input
-                  type="tel"
-                  class="input-edicion"
-                  inputmode="tel"
-                  pattern="[0-9\-\s]*"
-                  maxlength="12"
-                  placeholder="351-555-0102"
-                  formControlName="telefono"
-                />
-                <div class="edicion-acciones">
-                  <button type="button" class="btn-guardar" (click)="guardarCampoSimple('telefono')">Guardar</button>
-                  <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
-                </div>
-              </dd>
-            } @else {
-              <dd>
-                <span>{{ p.telefono }}</span>
-                <button
-                  type="button"
-                  class="btn-editar"
-                  aria-label="Editar teléfono"
-                  (click)="iniciarEdicionCampo('telefono')"
-                >
-                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path
-                      d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
-                      stroke="currentColor"
-                      stroke-width="1.6"
-                      stroke-linejoin="round"
-                      stroke-linecap="round"
-                    />
-                    <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                  </svg>
-                </button>
-              </dd>
-            }
-          </div>
+          <app-perfil-info-personal
+            [fechaNacimiento]="p.fechaNacimiento"
+            [ubicacion]="p.ubicacion"
+            [direccion]="p.direccion"
+            [telefono]="p.telefono"
+            [activo]="activoCampo()"
+            (pedirEdicion)="onPedirEdicionCampo($event)"
+            (guardar)="onGuardarCampo($event)"
+            (cancelar)="cancelarEdicion()"
+          />
         </dl>
       </section>
 
@@ -179,7 +43,12 @@
         <div class="beneficiario-section-header">
           <h2 class="section-title">Sobre mí</h2>
           @if (!estaEditando('sobreMi')) {
-            <button type="button" class="btn-editar" aria-label="Editar sobre mí" (click)="iniciarEdicionSobreMi()">
+            <button
+              type="button"
+              class="btn-editar"
+              aria-label="Editar sobre mí"
+              (click)="iniciarEdicionSobreMi()"
+            >
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path
                   d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
@@ -188,7 +57,12 @@
                   stroke-linejoin="round"
                   stroke-linecap="round"
                 />
-                <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                <path
+                  d="M13 6l3 3"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                />
               </svg>
             </button>
           }
@@ -226,20 +100,32 @@
                   </label>
                   <label class="campo-edicion">
                     Detalle
-                    <textarea class="textarea-edicion" rows="3" formControlName="detalle"></textarea>
+                    <textarea
+                      class="textarea-edicion"
+                      rows="3"
+                      formControlName="detalle"
+                    ></textarea>
                   </label>
                   <div class="edicion-acciones">
-                    <button type="button" class="btn-guardar" (click)="guardarEntrada('experiencia', entrada.id)">
+                    <button
+                      type="button"
+                      class="btn-guardar"
+                      (click)="guardarEntrada('experiencia', entrada.id)"
+                    >
                       Guardar
                     </button>
-                    <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
+                    <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">
+                      Cancelar
+                    </button>
                   </div>
                 </div>
               } @else {
                 <div class="beneficiario-entrada-header">
                   <div>
                     <h3 class="entrada-titulo">{{ entrada.titulo }}</h3>
-                    <p class="entrada-organizacion">{{ entrada.organizacion }} · {{ entrada.fecha }}</p>
+                    <p class="entrada-organizacion">
+                      {{ entrada.organizacion }} · {{ entrada.fecha }}
+                    </p>
                   </div>
                   <button
                     type="button"
@@ -255,7 +141,12 @@
                         stroke-linejoin="round"
                         stroke-linecap="round"
                       />
-                      <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                      <path
+                        d="M13 6l3 3"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                      />
                     </svg>
                   </button>
                 </div>
@@ -289,20 +180,32 @@
                   </label>
                   <label class="campo-edicion">
                     Detalle
-                    <textarea class="textarea-edicion" rows="3" formControlName="detalle"></textarea>
+                    <textarea
+                      class="textarea-edicion"
+                      rows="3"
+                      formControlName="detalle"
+                    ></textarea>
                   </label>
                   <div class="edicion-acciones">
-                    <button type="button" class="btn-guardar" (click)="guardarEntrada('educacion', entrada.id)">
+                    <button
+                      type="button"
+                      class="btn-guardar"
+                      (click)="guardarEntrada('educacion', entrada.id)"
+                    >
                       Guardar
                     </button>
-                    <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
+                    <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">
+                      Cancelar
+                    </button>
                   </div>
                 </div>
               } @else {
                 <div class="beneficiario-entrada-header">
                   <div>
                     <h3 class="entrada-titulo">{{ entrada.titulo }}</h3>
-                    <p class="entrada-organizacion">{{ entrada.organizacion }} · {{ entrada.fecha }}</p>
+                    <p class="entrada-organizacion">
+                      {{ entrada.organizacion }} · {{ entrada.fecha }}
+                    </p>
                   </div>
                   <button
                     type="button"
@@ -318,7 +221,12 @@
                         stroke-linejoin="round"
                         stroke-linecap="round"
                       />
-                      <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                      <path
+                        d="M13 6l3 3"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                      />
                     </svg>
                   </button>
                 </div>
@@ -346,7 +254,12 @@
         <div class="beneficiario-section-header">
           <h2 class="section-title">Enlaces</h2>
           @if (!estaEditando('enlaces')) {
-            <button type="button" class="btn-editar" aria-label="Editar enlaces" (click)="iniciarEdicionEnlaces()">
+            <button
+              type="button"
+              class="btn-editar"
+              aria-label="Editar enlaces"
+              (click)="iniciarEdicionEnlaces()"
+            >
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path
                   d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
@@ -355,7 +268,12 @@
                   stroke-linejoin="round"
                   stroke-linecap="round"
                 />
-                <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                <path
+                  d="M13 6l3 3"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                />
               </svg>
             </button>
           }
@@ -383,7 +301,12 @@
             </label>
             <label class="campo-edicion">
               URL de CV
-              <input type="url" class="input-edicion" placeholder="https://..." formControlName="cvUrl" />
+              <input
+                type="url"
+                class="input-edicion"
+                placeholder="https://..."
+                formControlName="cvUrl"
+              />
             </label>
           </div>
           <div class="edicion-acciones">
@@ -399,7 +322,9 @@
               <li><a [href]="p.enlaces.github" target="_blank" rel="noopener">GitHub</a></li>
             }
             @if (p.enlaces.cvUrl) {
-              <li><a [href]="p.enlaces.cvUrl" target="_blank" rel="noopener">Curriculum (CV)</a></li>
+              <li>
+                <a [href]="p.enlaces.cvUrl" target="_blank" rel="noopener">Curriculum (CV)</a>
+              </li>
             }
             @if (!p.enlaces.linkedin && !p.enlaces.github && !p.enlaces.cvUrl) {
               <li class="empty-state">Todavía no agregaste enlaces.</li>

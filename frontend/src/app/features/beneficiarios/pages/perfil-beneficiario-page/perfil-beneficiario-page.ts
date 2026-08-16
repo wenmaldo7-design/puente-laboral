@@ -1,15 +1,13 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   OnInit,
   computed,
   inject,
   signal,
   viewChild,
 } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { DatePipe } from '@angular/common';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Header } from '../../../../shared/ui/header/header';
 import { Footer } from '../../../../shared/ui/footer/footer';
@@ -18,23 +16,25 @@ import {
   PerfilHabilidadesSection,
   SeccionTags,
 } from '../../components/perfil-habilidades-section/perfil-habilidades-section';
+import {
+  CampoSimple,
+  GuardarCampoEvento,
+  PerfilInfoPersonal,
+} from '../../components/perfil-info-personal/perfil-info-personal';
 import { PerfilBeneficiarioService } from '../../services/perfil-beneficiario.service';
-import { EntradaTrayectoria, HabilidadCatalogo, PerfilBeneficiario } from '../../models/perfil-beneficiario.model';
+import {
+  EntradaTrayectoria,
+  HabilidadCatalogo,
+  PerfilBeneficiario,
+} from '../../models/perfil-beneficiario.model';
 
 type TipoTrayectoria = 'experiencia' | 'educacion';
-type CampoSimple = 'fechaNacimiento' | 'ubicacion' | 'direccion' | 'telefono';
-type ClaveEdicion = CampoSimple | 'sobreMi' | 'enlaces' | SeccionTags | `${TipoTrayectoria}:${string}`;
-
-/** Solo dígitos, agrupados como "351-555-0102"; recorta a 10 dígitos. */
-function formatearTelefono(valor: string): string {
-  const digitos = valor.replace(/\D/g, '').slice(0, 10);
-  const grupos = [digitos.slice(0, 3), digitos.slice(3, 6), digitos.slice(6, 10)].filter(Boolean);
-  return grupos.join('-');
-}
+type ClaveEdicion =
+  CampoSimple | 'sobreMi' | 'enlaces' | SeccionTags | `${TipoTrayectoria}:${string}`;
 
 @Component({
   selector: 'app-perfil-beneficiario-page',
-  imports: [DatePipe, ReactiveFormsModule, Header, Footer, PerfilHabilidadesSection],
+  imports: [ReactiveFormsModule, Header, Footer, PerfilHabilidadesSection, PerfilInfoPersonal],
   templateUrl: './perfil-beneficiario-page.html',
   styleUrl: './perfil-beneficiario-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,7 +42,6 @@ function formatearTelefono(valor: string): string {
 export class PerfilBeneficiarioPage implements OnInit {
   private readonly perfilBeneficiarioService = inject(PerfilBeneficiarioService);
   private readonly fb = inject(NonNullableFormBuilder);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly perfil = signal<PerfilBeneficiario | null>(null);
   protected readonly notificacionesNoLeidas = signal(2);
@@ -50,13 +49,6 @@ export class PerfilBeneficiarioPage implements OnInit {
   protected readonly nombreSaludo = computed(() => this.perfil()?.nombre.split(' ')[0] ?? '');
 
   protected readonly edicionActiva = signal<ClaveEdicion | null>(null);
-
-  protected readonly campoSimpleForm = this.fb.group({
-    fechaNacimiento: [''],
-    ubicacion: [''],
-    direccion: [''],
-    telefono: [''],
-  });
 
   protected readonly sobreMiControl = this.fb.control('');
   protected readonly enlacesForm = this.fb.group({
@@ -71,12 +63,18 @@ export class PerfilBeneficiarioPage implements OnInit {
     detalle: [''],
   });
 
-  protected readonly catalogoHabilidades = toSignal(this.perfilBeneficiarioService.getCatalogoHabilidades(), {
-    initialValue: [] as HabilidadCatalogo[],
-  });
-  protected readonly catalogoAreasInteres = toSignal(this.perfilBeneficiarioService.getCatalogoAreasInteres(), {
-    initialValue: [] as string[],
-  });
+  protected readonly catalogoHabilidades = toSignal(
+    this.perfilBeneficiarioService.getCatalogoHabilidades(),
+    {
+      initialValue: [] as HabilidadCatalogo[],
+    },
+  );
+  protected readonly catalogoAreasInteres = toSignal(
+    this.perfilBeneficiarioService.getCatalogoAreasInteres(),
+    {
+      initialValue: [] as string[],
+    },
+  );
 
   /** Qué sección de tags está activa (o null), derivado de `edicionActiva` para pasarlo al hijo. */
   protected readonly activoTags = computed<SeccionTags | null>(() => {
@@ -84,35 +82,26 @@ export class PerfilBeneficiarioPage implements OnInit {
     return activa === 'habilidades' || activa === 'areasInteres' ? activa : null;
   });
 
-  private readonly habilidadesSection = viewChild(PerfilHabilidadesSection);
+  /** Qué campo simple está activo (o null), derivado de `edicionActiva` para pasarlo al hijo. */
+  protected readonly activoCampo = computed<CampoSimple | null>(() => {
+    const activa = this.edicionActiva();
+    return activa === 'fechaNacimiento' ||
+      activa === 'ubicacion' ||
+      activa === 'direccion' ||
+      activa === 'telefono'
+      ? activa
+      : null;
+  });
 
-  constructor() {
-    this.campoSimpleForm.controls.telefono.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((valor) => {
-        const formateado = formatearTelefono(valor);
-        if (formateado !== valor) {
-          this.campoSimpleForm.controls.telefono.setValue(formateado, { emitEvent: false });
-        }
-      });
-  }
+  private readonly habilidadesSection = viewChild(PerfilHabilidadesSection);
+  private readonly infoPersonalSection = viewChild(PerfilInfoPersonal);
 
   ngOnInit(): void {
     this.perfilBeneficiarioService.getPerfil().subscribe((perfil) => {
       this.perfil.set(perfil);
-      this.campoSimpleForm.reset(this.valoresCampoSimple(perfil));
       this.sobreMiControl.setValue(perfil.sobreMi);
       this.enlacesForm.reset(perfil.enlaces);
     });
-  }
-
-  private valoresCampoSimple(perfil: PerfilBeneficiario): Record<CampoSimple, string> {
-    return {
-      fechaNacimiento: perfil.fechaNacimiento,
-      ubicacion: perfil.ubicacion,
-      direccion: perfil.direccion,
-      telefono: perfil.telefono,
-    };
   }
 
   protected claveEntrada(tipo: TipoTrayectoria, id: string): ClaveEdicion {
@@ -126,7 +115,6 @@ export class PerfilBeneficiarioPage implements OnInit {
   protected cancelarEdicion(): void {
     const perfil = this.perfil();
     if (perfil) {
-      this.campoSimpleForm.reset(this.valoresCampoSimple(perfil));
       this.sobreMiControl.reset(perfil.sobreMi);
       this.enlacesForm.reset(perfil.enlaces);
     }
@@ -149,23 +137,15 @@ export class PerfilBeneficiarioPage implements OnInit {
     if (clave === 'habilidades' || clave === 'areasInteres') {
       return this.habilidadesSection()?.hayCambiosSinGuardar() ?? false;
     }
-    if (clave.includes(':')) return this.entradaForm.dirty;
-    return this.campoSimpleForm.controls[clave as CampoSimple].dirty;
-  }
-
-  protected iniciarEdicionCampo(campo: CampoSimple): void {
-    if (!this.puedeAbrirNuevaEdicion()) return;
-    const perfil = this.perfil();
-    if (!perfil) return;
-    this.campoSimpleForm.controls[campo].setValue(perfil[campo]);
-    this.campoSimpleForm.controls[campo].markAsPristine();
-    this.edicionActiva.set(campo);
-  }
-
-  protected guardarCampoSimple(campo: CampoSimple): void {
-    const valor = this.campoSimpleForm.controls[campo].value;
-    this.perfil.update((perfil) => (perfil ? { ...perfil, [campo]: valor } : perfil));
-    this.edicionActiva.set(null);
+    if (
+      clave === 'fechaNacimiento' ||
+      clave === 'ubicacion' ||
+      clave === 'direccion' ||
+      clave === 'telefono'
+    ) {
+      return this.infoPersonalSection()?.hayCambiosSinGuardar() ?? false;
+    }
+    return this.entradaForm.dirty;
   }
 
   protected iniciarEdicionSobreMi(): void {
@@ -215,7 +195,9 @@ export class PerfilBeneficiarioPage implements OnInit {
 
     this.perfil.update((perfil) => {
       if (!perfil) return perfil;
-      const lista = perfil[tipo].map((entrada) => (entrada.id === id ? { ...entrada, ...valor } : entrada));
+      const lista = perfil[tipo].map((entrada) =>
+        entrada.id === id ? { ...entrada, ...valor } : entrada,
+      );
       return { ...perfil, [tipo]: lista };
     });
 
@@ -228,7 +210,19 @@ export class PerfilBeneficiarioPage implements OnInit {
   }
 
   protected onGuardarTags(evento: GuardarTagsEvento): void {
-    this.perfil.update((perfil) => (perfil ? { ...perfil, [evento.seccion]: evento.tags } : perfil));
+    this.perfil.update((perfil) =>
+      perfil ? { ...perfil, [evento.seccion]: evento.tags } : perfil,
+    );
+    this.edicionActiva.set(null);
+  }
+
+  protected onPedirEdicionCampo(campo: CampoSimple): void {
+    if (!this.puedeAbrirNuevaEdicion()) return;
+    this.edicionActiva.set(campo);
+  }
+
+  protected onGuardarCampo(evento: GuardarCampoEvento): void {
+    this.perfil.update((perfil) => (perfil ? { ...perfil, [evento.campo]: evento.valor } : perfil));
     this.edicionActiva.set(null);
   }
 }

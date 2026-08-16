@@ -2,7 +2,11 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { HabilidadCatalogo } from '../../models/perfil-beneficiario.model';
-import { GuardarTagsEvento, PerfilHabilidadesSection, SeccionTags } from './perfil-habilidades-section';
+import {
+  GuardarTagsEvento,
+  PerfilHabilidadesSection,
+  SeccionTags,
+} from './perfil-habilidades-section';
 
 const CATALOGO_HABILIDADES: HabilidadCatalogo[] = [
   { nombre: 'Albañilería', categoria: 'Construcción y oficios' },
@@ -10,7 +14,11 @@ const CATALOGO_HABILIDADES: HabilidadCatalogo[] = [
   { nombre: 'Excel', categoria: 'Administración y oficina' },
 ];
 
-const CATALOGO_AREAS_INTERES: string[] = ['Desarrollo web / Tecnología', 'Mentorías', 'Primer empleo'];
+const CATALOGO_AREAS_INTERES: string[] = [
+  'Desarrollo web / Tecnología',
+  'Mentorías',
+  'Primer empleo',
+];
 
 /**
  * Simula el rol del padre real (PerfilBeneficiarioPage): decide si concede
@@ -66,13 +74,19 @@ describe('PerfilHabilidadesSection', () => {
     expect(compiled.querySelectorAll('.tag-interes').length).toBeGreaterThan(0);
 
     const sections = Array.from(compiled.querySelectorAll('.section'));
-    const seccionHabilidades = sections.find((s) => s.querySelector('.section-title')?.textContent === 'Habilidades');
+    const seccionHabilidades = sections.find(
+      (s) => s.querySelector('.section-title')?.textContent === 'Habilidades',
+    );
     const seccionIntereses = sections.find(
       (s) => s.querySelector('.section-title')?.textContent === 'Áreas de interés',
     );
 
-    expect(seccionHabilidades?.querySelector('.btn-editar[aria-label="Editar habilidades"]')).not.toBeNull();
-    expect(seccionIntereses?.querySelector('.btn-editar[aria-label="Editar áreas de interés"]')).not.toBeNull();
+    expect(
+      seccionHabilidades?.querySelector('.btn-editar[aria-label="Editar habilidades"]'),
+    ).not.toBeNull();
+    expect(
+      seccionIntereses?.querySelector('.btn-editar[aria-label="Editar áreas de interés"]'),
+    ).not.toBeNull();
   });
 
   it('should add a habilidad from the autocomplete dropdown, without allowing free text', () => {
@@ -81,7 +95,9 @@ describe('PerfilHabilidadesSection', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
 
-    (compiled.querySelector('.btn-editar[aria-label="Editar habilidades"]') as HTMLButtonElement).click();
+    (
+      compiled.querySelector('.btn-editar[aria-label="Editar habilidades"]') as HTMLButtonElement
+    ).click();
     fixture.detectChanges();
 
     expect(host.habilidades()).not.toContain('Carnet de conducir');
@@ -110,7 +126,9 @@ describe('PerfilHabilidadesSection', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
 
-    (compiled.querySelector('.btn-editar[aria-label="Editar habilidades"]') as HTMLButtonElement).click();
+    (
+      compiled.querySelector('.btn-editar[aria-label="Editar habilidades"]') as HTMLButtonElement
+    ).click();
     fixture.detectChanges();
 
     const categoriasHabilidades = compiled.querySelectorAll('.tag-dropdown-categoria');
@@ -120,7 +138,11 @@ describe('PerfilHabilidadesSection', () => {
     (compiled.querySelector('.tags-edicion .btn-cancelar') as HTMLButtonElement).click();
     fixture.detectChanges();
 
-    (compiled.querySelector('.btn-editar[aria-label="Editar áreas de interés"]') as HTMLButtonElement).click();
+    (
+      compiled.querySelector(
+        '.btn-editar[aria-label="Editar áreas de interés"]',
+      ) as HTMLButtonElement
+    ).click();
     fixture.detectChanges();
 
     expect(compiled.querySelectorAll('.tag-dropdown-categoria').length).toBe(0);
@@ -135,10 +157,16 @@ describe('PerfilHabilidadesSection', () => {
     const cantidadOriginal = host.areasInteres().length;
     const tagAQuitar = host.areasInteres()[0];
 
-    (compiled.querySelector('.btn-editar[aria-label="Editar áreas de interés"]') as HTMLButtonElement).click();
+    (
+      compiled.querySelector(
+        '.btn-editar[aria-label="Editar áreas de interés"]',
+      ) as HTMLButtonElement
+    ).click();
     fixture.detectChanges();
 
-    (compiled.querySelector(`.tag-quitar[aria-label="Quitar ${tagAQuitar}"]`) as HTMLButtonElement).click();
+    (
+      compiled.querySelector(`.tag-quitar[aria-label="Quitar ${tagAQuitar}"]`) as HTMLButtonElement
+    ).click();
     fixture.detectChanges();
 
     expect(compiled.querySelectorAll('.tags-edicion .tag').length).toBe(cantidadOriginal - 1);
@@ -156,7 +184,9 @@ describe('PerfilHabilidadesSection', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const habilidadesOriginales = [...host.habilidades()];
 
-    (compiled.querySelector('.btn-editar[aria-label="Editar habilidades"]') as HTMLButtonElement).click();
+    (
+      compiled.querySelector('.btn-editar[aria-label="Editar habilidades"]') as HTMLButtonElement
+    ).click();
     fixture.detectChanges();
 
     const buscador = compiled.querySelector('.tag-buscador .input-edicion') as HTMLInputElement;

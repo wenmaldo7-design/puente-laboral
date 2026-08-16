@@ -1,0 +1,151 @@
+<ng-container [formGroup]="camposForm">
+  <div class="dato-row">
+    <dt>Fecha de nacimiento</dt>
+    @if (activo() === 'fechaNacimiento') {
+      <dd class="dato-edicion">
+        <input type="date" class="input-edicion" formControlName="fechaNacimiento" />
+        <div class="edicion-acciones">
+          <button type="button" class="btn-guardar" (click)="onGuardar('fechaNacimiento')">
+            Guardar
+          </button>
+          <button type="button" class="btn-cancelar" (click)="onCancelar()">Cancelar</button>
+        </div>
+      </dd>
+    } @else {
+      <dd>
+        <span>{{ fechaNacimiento() | date: 'dd/MM/yyyy' }}</span>
+        <button
+          type="button"
+          class="btn-editar"
+          aria-label="Editar fecha de nacimiento"
+          (click)="onEditar('fechaNacimiento')"
+        >
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+            />
+            <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+        </button>
+      </dd>
+    }
+  </div>
+
+  <div class="dato-row">
+    <dt>Ubicación</dt>
+    @if (activo() === 'ubicacion') {
+      <dd class="dato-edicion">
+        <input type="text" class="input-edicion" formControlName="ubicacion" />
+        <div class="edicion-acciones">
+          <button type="button" class="btn-guardar" (click)="onGuardar('ubicacion')">
+            Guardar
+          </button>
+          <button type="button" class="btn-cancelar" (click)="onCancelar()">Cancelar</button>
+        </div>
+      </dd>
+    } @else {
+      <dd>
+        <span>{{ ubicacion() }}</span>
+        <button
+          type="button"
+          class="btn-editar"
+          aria-label="Editar ubicación"
+          (click)="onEditar('ubicacion')"
+        >
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+            />
+            <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+        </button>
+      </dd>
+    }
+  </div>
+
+  <div class="dato-row">
+    <dt>Dirección</dt>
+    @if (activo() === 'direccion') {
+      <dd class="dato-edicion">
+        <input type="text" class="input-edicion" formControlName="direccion" />
+        <div class="edicion-acciones">
+          <button type="button" class="btn-guardar" (click)="onGuardar('direccion')">
+            Guardar
+          </button>
+          <button type="button" class="btn-cancelar" (click)="onCancelar()">Cancelar</button>
+        </div>
+      </dd>
+    } @else {
+      <dd>
+        <span>{{ direccion() }}</span>
+        <button
+          type="button"
+          class="btn-editar"
+          aria-label="Editar dirección"
+          (click)="onEditar('direccion')"
+        >
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+            />
+            <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+        </button>
+      </dd>
+    }
+  </div>
+
+  <div class="dato-row">
+    <dt>Teléfono</dt>
+    @if (activo() === 'telefono') {
+      <dd class="dato-edicion">
+        <input
+          type="tel"
+          class="input-edicion"
+          inputmode="tel"
+          pattern="[0-9\-\s]*"
+          maxlength="12"
+          placeholder="351-555-0102"
+          formControlName="telefono"
+        />
+        <div class="edicion-acciones">
+          <button type="button" class="btn-guardar" (click)="onGuardar('telefono')">Guardar</button>
+          <button type="button" class="btn-cancelar" (click)="onCancelar()">Cancelar</button>
+        </div>
+      </dd>
+    } @else {
+      <dd>
+        <span>{{ telefono() }}</span>
+        <button
+          type="button"
+          class="btn-editar"
+          aria-label="Editar teléfono"
+          (click)="onEditar('telefono')"
+        >
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+            />
+            <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+        </button>
+      </dd>
+    }
+  </div>
+</ng-container>
