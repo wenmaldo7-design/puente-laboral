@@ -1,0 +1,144 @@
+<section class="section card">
+  <div class="beneficiario-section-header">
+    <h2 class="section-title">Habilidades</h2>
+    @if (activo() !== 'habilidades') {
+      <button type="button" class="btn-editar" aria-label="Editar habilidades" (click)="onEditar('habilidades')">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linejoin="round"
+            stroke-linecap="round"
+          />
+          <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+        </svg>
+      </button>
+    }
+  </div>
+
+  @if (activo() === 'habilidades') {
+    <div class="tags-edicion">
+      <div class="tags-list">
+        @for (tag of draftTags(); track tag) {
+          <span class="tag tag-habilidad">
+            {{ tag }}
+            <button type="button" class="tag-quitar" aria-label="Quitar {{ tag }}" (click)="quitarTag(tag)">×</button>
+          </span>
+        }
+      </div>
+
+      <div class="tag-buscador">
+        <input
+          type="text"
+          class="input-edicion"
+          placeholder="Buscar en el catálogo de habilidades..."
+          [value]="tagBusqueda()"
+          (input)="onTagBusquedaInput($event)"
+        />
+        @if (opcionesFiltradas().length) {
+          <ul class="tag-dropdown">
+            @for (grupo of opcionesFiltradas(); track grupo.categoria) {
+              @if (grupo.categoria) {
+                <li class="tag-dropdown-categoria">{{ grupo.categoria }}</li>
+              }
+              @for (opcion of grupo.opciones; track opcion) {
+                <li>
+                  <button type="button" class="tag-opcion" (click)="agregarTag(opcion)">{{ opcion }}</button>
+                </li>
+              }
+            }
+          </ul>
+        } @else if (tagBusqueda()) {
+          <p class="empty-state">No hay coincidencias en el catálogo.</p>
+        }
+      </div>
+
+      <div class="edicion-acciones">
+        <button type="button" class="btn-guardar" (click)="onGuardar()">Guardar</button>
+        <button type="button" class="btn-cancelar" (click)="onCancelar()">Cancelar</button>
+      </div>
+    </div>
+  } @else {
+    <div class="tags-list">
+      @for (habilidad of habilidades(); track habilidad) {
+        <span class="tag tag-habilidad">{{ habilidad }}</span>
+      }
+    </div>
+  }
+</section>
+
+<section class="section card">
+  <div class="beneficiario-section-header">
+    <h2 class="section-title">Áreas de interés</h2>
+    @if (activo() !== 'areasInteres') {
+      <button
+        type="button"
+        class="btn-editar"
+        aria-label="Editar áreas de interés"
+        (click)="onEditar('areasInteres')"
+      >
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linejoin="round"
+            stroke-linecap="round"
+          />
+          <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+        </svg>
+      </button>
+    }
+  </div>
+
+  @if (activo() === 'areasInteres') {
+    <div class="tags-edicion">
+      <div class="tags-list">
+        @for (tag of draftTags(); track tag) {
+          <span class="tag tag-interes">
+            {{ tag }}
+            <button type="button" class="tag-quitar" aria-label="Quitar {{ tag }}" (click)="quitarTag(tag)">×</button>
+          </span>
+        }
+      </div>
+
+      <div class="tag-buscador">
+        <input
+          type="text"
+          class="input-edicion"
+          placeholder="Buscar en el catálogo de áreas de interés..."
+          [value]="tagBusqueda()"
+          (input)="onTagBusquedaInput($event)"
+        />
+        @if (opcionesFiltradas().length) {
+          <ul class="tag-dropdown">
+            @for (grupo of opcionesFiltradas(); track grupo.categoria) {
+              @if (grupo.categoria) {
+                <li class="tag-dropdown-categoria">{{ grupo.categoria }}</li>
+              }
+              @for (opcion of grupo.opciones; track opcion) {
+                <li>
+                  <button type="button" class="tag-opcion" (click)="agregarTag(opcion)">{{ opcion }}</button>
+                </li>
+              }
+            }
+          </ul>
+        } @else if (tagBusqueda()) {
+          <p class="empty-state">No hay coincidencias en el catálogo.</p>
+        }
+      </div>
+
+      <div class="edicion-acciones">
+        <button type="button" class="btn-guardar" (click)="onGuardar()">Guardar</button>
+        <button type="button" class="btn-cancelar" (click)="onCancelar()">Cancelar</button>
+      </div>
+    </div>
+  } @else {
+    <div class="tags-list">
+      @for (area of areasInteres(); track area) {
+        <span class="tag tag-interes">{{ area }}</span>
+      }
+    </div>
+  }
+</section>

@@ -1,22 +1,29 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Header } from '../../../../shared/ui/header/header';
 import { Footer } from '../../../../shared/ui/footer/footer';
+import {
+  GuardarTagsEvento,
+  PerfilHabilidadesSection,
+  SeccionTags,
+} from '../../components/perfil-habilidades-section/perfil-habilidades-section';
 import { PerfilBeneficiarioService } from '../../services/perfil-beneficiario.service';
 import { EntradaTrayectoria, HabilidadCatalogo, PerfilBeneficiario } from '../../models/perfil-beneficiario.model';
 
 type TipoTrayectoria = 'experiencia' | 'educacion';
 type CampoSimple = 'fechaNacimiento' | 'ubicacion' | 'direccion' | 'telefono';
-type SeccionTags = 'habilidades' | 'areasInteres';
 type ClaveEdicion = CampoSimple | 'sobreMi' | 'enlaces' | SeccionTags | `${TipoTrayectoria}:${string}`;
-
-/** Grupo de opciones del dropdown de tags. `categoria` es null para catálogos sin agrupar. */
-interface GrupoOpcionesTag {
-  categoria: string | null;
-  opciones: string[];
-}
 
 /** Solo dígitos, agrupados como "351-555-0102"; recorta a 10 dígitos. */
 function formatearTelefono(valor: string): string {
@@ -27,7 +34,7 @@ function formatearTelefono(valor: string): string {
 
 @Component({
   selector: 'app-perfil-beneficiario-page',
-  imports: [DatePipe, ReactiveFormsModule, Header, Footer],
+  imports: [DatePipe, ReactiveFormsModule, Header, Footer, PerfilHabilidadesSection],
   templateUrl: './perfil-beneficiario-page.html',
   styleUrl: './perfil-beneficiario-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -70,40 +77,14 @@ export class PerfilBeneficiarioPage implements OnInit {
   protected readonly catalogoAreasInteres = toSignal(this.perfilBeneficiarioService.getCatalogoAreasInteres(), {
     initialValue: [] as string[],
   });
-  protected readonly draftTags = signal<string[]>([]);
-  protected readonly tagBusqueda = signal('');
-  private readonly tagSeccionEnEdicion = signal<SeccionTags | null>(null);
 
-  /**
-   * Habilidades se agrupa por categoría (son ~95 opciones); Áreas de interés
-   * es una lista chica y queda en un único grupo sin encabezado.
-   */
-  protected readonly opcionesTagsFiltradas = computed<GrupoOpcionesTag[]>(() => {
-    const seccion = this.tagSeccionEnEdicion();
-    if (!seccion) return [];
-
-    const termino = this.tagBusqueda().trim().toLowerCase();
-    const yaSeleccionados = new Set(this.draftTags());
-    const coincide = (nombre: string) =>
-      !yaSeleccionados.has(nombre) && (!termino || nombre.toLowerCase().startsWith(termino));
-
-    if (seccion === 'areasInteres') {
-      const opciones = this.catalogoAreasInteres().filter(coincide);
-      return opciones.length ? [{ categoria: null, opciones }] : [];
-    }
-
-    const grupos: GrupoOpcionesTag[] = [];
-    for (const habilidad of this.catalogoHabilidades()) {
-      if (!coincide(habilidad.nombre)) continue;
-      let grupo = grupos.find((g) => g.categoria === habilidad.categoria);
-      if (!grupo) {
-        grupo = { categoria: habilidad.categoria, opciones: [] };
-        grupos.push(grupo);
-      }
-      grupo.opciones.push(habilidad.nombre);
-    }
-    return grupos;
+  /** Qué sección de tags está activa (o null), derivado de `edicionActiva` para pasarlo al hijo. */
+  protected readonly activoTags = computed<SeccionTags | null>(() => {
+    const activa = this.edicionActiva();
+    return activa === 'habilidades' || activa === 'areasInteres' ? activa : null;
   });
+
+  private readonly habilidadesSection = viewChild(PerfilHabilidadesSection);
 
   constructor() {
     this.campoSimpleForm.controls.telefono.valueChanges
@@ -150,7 +131,6 @@ export class PerfilBeneficiarioPage implements OnInit {
       this.enlacesForm.reset(perfil.enlaces);
     }
     this.edicionActiva.set(null);
-    this.tagSeccionEnEdicion.set(null);
   }
 
   /**
@@ -166,17 +146,11 @@ export class PerfilBeneficiarioPage implements OnInit {
   private hayCambiosSinGuardar(clave: ClaveEdicion): boolean {
     if (clave === 'sobreMi') return this.sobreMiControl.dirty;
     if (clave === 'enlaces') return this.enlacesForm.dirty;
-    if (clave === 'habilidades' || clave === 'areasInteres') return this.hayTagsSinGuardar(clave);
+    if (clave === 'habilidades' || clave === 'areasInteres') {
+      return this.habilidadesSection()?.hayCambiosSinGuardar() ?? false;
+    }
     if (clave.includes(':')) return this.entradaForm.dirty;
     return this.campoSimpleForm.controls[clave as CampoSimple].dirty;
-  }
-
-  private hayTagsSinGuardar(seccion: SeccionTags): boolean {
-    const perfil = this.perfil();
-    if (!perfil) return false;
-    const originales = perfil[seccion];
-    const actuales = this.draftTags();
-    return originales.length !== actuales.length || originales.some((tag, i) => tag !== actuales[i]);
   }
 
   protected iniciarEdicionCampo(campo: CampoSimple): void {
@@ -248,34 +222,13 @@ export class PerfilBeneficiarioPage implements OnInit {
     this.edicionActiva.set(null);
   }
 
-  protected iniciarEdicionTags(seccion: SeccionTags): void {
+  protected onPedirEdicionTags(seccion: SeccionTags): void {
     if (!this.puedeAbrirNuevaEdicion()) return;
-    const perfil = this.perfil();
-    if (!perfil) return;
-    this.tagSeccionEnEdicion.set(seccion);
-    this.draftTags.set([...perfil[seccion]]);
-    this.tagBusqueda.set('');
     this.edicionActiva.set(seccion);
   }
 
-  protected onTagBusquedaInput(event: Event): void {
-    this.tagBusqueda.set((event.target as HTMLInputElement).value);
-  }
-
-  protected agregarTag(opcion: string): void {
-    this.draftTags.update((tags) => (tags.includes(opcion) ? tags : [...tags, opcion]));
-    this.tagBusqueda.set('');
-  }
-
-  protected quitarTag(tag: string): void {
-    this.draftTags.update((tags) => tags.filter((t) => t !== tag));
-  }
-
-  protected guardarTags(): void {
-    const seccion = this.tagSeccionEnEdicion();
-    if (!seccion) return;
-    this.perfil.update((perfil) => (perfil ? { ...perfil, [seccion]: this.draftTags() } : perfil));
+  protected onGuardarTags(evento: GuardarTagsEvento): void {
+    this.perfil.update((perfil) => (perfil ? { ...perfil, [evento.seccion]: evento.tags } : perfil));
     this.edicionActiva.set(null);
-    this.tagSeccionEnEdicion.set(null);
   }
 }
