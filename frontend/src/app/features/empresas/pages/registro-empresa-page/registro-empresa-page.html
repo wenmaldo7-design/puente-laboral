@@ -1,1 +1,153 @@
-<p>registro-empresa-page works!</p>
+<app-auth-card>
+  <button type="button" class="btn-volver" routerLink="/" aria-label="Volver al inicio">
+    <app-icon name="arrow-left" />
+  </button>
+
+  <app-brand-header subtitulo="Solicitud de habilitación de empresa" />
+
+  @if (enviado()) {
+    <div class="confirmacion">
+      <app-icon name="shield-check" />
+      <p>Tu solicitud fue enviada.</p>
+      <p class="confirmacion-detalle">
+        Te vamos a contactar por mail cuando la revisemos.
+      </p>
+      <a routerLink="/" class="link-button">Volver al inicio</a>
+    </div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+      <section class="seccion">
+        <h2 class="seccion-titulo">Datos de la empresa</h2>
+
+        <div class="campo-input" [class.campo-input--error]="form.controls.razon_social.invalid && form.controls.razon_social.touched">
+          <app-icon name="building" class="campo-icono" />
+          <input type="text" formControlName="razon_social" placeholder="Razón social" maxlength="50" (input)="soloLetras($event)" />
+        </div>
+        @if (form.controls.razon_social.pending) {
+          <p class="campo-info">Verificando disponibilidad...</p>
+        } @else if (form.controls.razon_social.touched && form.controls.razon_social.errors) {
+          @if (form.controls.razon_social.errors['duplicado']) {
+            <p class="campo-error">{{ form.controls.razon_social.errors['duplicado'] }}</p>
+          } @else if (form.controls.razon_social.errors['noDisponible']) {
+            <p class="campo-error">Esa razón social ya está registrada.</p>
+          } @else if (form.controls.razon_social.errors['soloEspacios']) {
+            <p class="campo-error">La razón social no puede estar vacía.</p>
+          } @else if (form.controls.razon_social.errors['pattern']) {
+            <p class="campo-error">La razón social solo puede contener letras.</p>
+          } @else {
+            <p class="campo-error">Ingresá la razón social.</p>
+          }
+        }
+
+        <div class="campo-input" [class.campo-input--error]="form.controls.cuit.touched && !!form.controls.cuit.errors">
+          <app-icon name="hash" class="campo-icono" />
+          <input type="text" inputmode="numeric" formControlName="cuit" placeholder="CUIT (11 dígitos)" maxlength="11" (input)="soloNumerosCuit($event)" />
+        </div>
+        @if (form.controls.cuit.pending) {
+          <p class="campo-info">Verificando disponibilidad...</p>
+        } @else if (form.controls.cuit.touched && form.controls.cuit.errors) {
+          @if (form.controls.cuit.errors['duplicado']) {
+            <p class="campo-error">{{ form.controls.cuit.errors['duplicado'] }}</p>
+          } @else if (form.controls.cuit.errors['noDisponible']) {
+            <p class="campo-error">Ese CUIT ya está registrado.</p>
+          } @else {
+            <p class="campo-error">Ingresá un CUIT válido (formato XX-XXXXXXXX-X).</p>
+          }
+        }
+
+        <div class="campo-input" [class.campo-input--error]="form.controls.email_contacto.invalid && form.controls.email_contacto.touched">
+          <app-icon name="mail" class="campo-icono" />
+          <input type="email" formControlName="email_contacto" placeholder="Email de contacto" autocomplete="email" maxlength="50" />
+        </div>
+        @if (form.controls.email_contacto.touched && form.controls.email_contacto.errors) {
+          @if (form.controls.email_contacto.errors['duplicado']) {
+            <p class="campo-error">{{ form.controls.email_contacto.errors['duplicado'] }}</p>
+          } @else {
+            <p class="campo-error">Ingresá un email de contacto válido.</p>
+          }
+        }
+
+        <div class="campo-input" [class.campo-input--error]="form.controls.password.invalid && form.controls.password.touched">
+          <app-icon name="lock" class="campo-icono" />
+          <input
+            [type]="mostrarPassword() ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="Contraseña"
+            autocomplete="new-password"
+            maxlength="50"
+            (input)="verificarCoincidencia()"
+            [attr.aria-invalid]="form.controls.password.invalid && form.controls.password.touched"
+          />
+          <button
+            type="button"
+            class="btn-ojo"
+            (click)="mostrarPassword.set(!mostrarPassword())"
+            [attr.aria-label]="mostrarPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+          >
+            <app-icon [name]="mostrarPassword() ? 'eye-off' : 'eye'" />
+          </button>
+        </div>
+        @if (form.controls.password.invalid && form.controls.password.touched) {
+          <p class="campo-error">
+            Entre 8 y 50 caracteres, con mayúscula, minúscula, número y carácter especial.
+          </p>
+        }
+
+        <div class="campo-input" [class.campo-input--error]="form.controls.confirmarPassword.invalid && form.controls.confirmarPassword.touched">
+          <app-icon name="lock" class="campo-icono" />
+          <input
+            [type]="mostrarPassword() ? 'text' : 'password'"
+            formControlName="confirmarPassword"
+            placeholder="Repetí la contraseña"
+            autocomplete="new-password"
+            (input)="verificarCoincidencia()"
+            [attr.aria-invalid]="form.controls.confirmarPassword.invalid && form.controls.confirmarPassword.touched"
+          />
+        </div>
+        @if (form.controls.confirmarPassword.touched && form.controls.confirmarPassword.errors) {
+          @if (form.controls.confirmarPassword.errors['noCoincide']) {
+            <p class="campo-error">Las contraseñas no coinciden.</p>
+          } @else {
+            <p class="campo-error">Repetí la contraseña.</p>
+          }
+        }
+
+        <div class="campo-input" [class.campo-input--error]="form.controls.telefono_contacto.invalid && form.controls.telefono_contacto.touched">
+          <app-icon name="phone" class="campo-icono" />
+          <input type="tel" formControlName="telefono_contacto" placeholder="Teléfono de contacto (opcional)" autocomplete="tel" maxlength="15" />
+        </div>
+        @if (form.controls.telefono_contacto.invalid && form.controls.telefono_contacto.touched) {
+          <p class="campo-error">Ingresá un teléfono válido.</p>
+        }
+      </section>
+
+      <section class="seccion">
+        <h2 class="seccion-titulo">Descripción y documentación</h2>
+
+        <div class="campo-input" [class.campo-input--error]="form.controls.descripcion.invalid && form.controls.descripcion.touched">
+          <app-icon name="file-text" class="campo-icono" />
+          <input type="text" formControlName="descripcion" placeholder="Descripción de la empresa (opcional)" maxlength="100" />
+        </div>
+        @if (form.controls.descripcion.invalid && form.controls.descripcion.touched) {
+          <p class="campo-error">La descripción no puede superar los 100 caracteres.</p>
+        }
+
+        <div class="campo-input" [class.campo-input--error]="form.controls.documentacion_url.invalid && form.controls.documentacion_url.touched">
+          <app-icon name="link" class="campo-icono" />
+          <input type="url" formControlName="documentacion_url" placeholder="URL de documentación (opcional)" maxlength="300" />
+        </div>
+        @if (form.controls.documentacion_url.invalid && form.controls.documentacion_url.touched) {
+          <p class="campo-error">Ingresá una URL de documentación válida.</p>
+        }
+      </section>
+
+      @if (errorGeneral()) {
+        <p class="form-error" role="alert">{{ errorGeneral() }}</p>
+      }
+
+      <button type="submit" class="btn-primario" [disabled]="enviando()">
+        {{ enviando() ? 'Enviando...' : 'Enviar solicitud' }}
+      </button>
+    </form>
+  }
+</app-auth-card>

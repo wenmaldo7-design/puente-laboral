@@ -1,1 +1,86 @@
-<p>detalle-oferta-page works!</p>
+<div class="beneficiario-page">
+  <app-header [nombre]="nombreBeneficiario()" [notificacionesNoLeidas]="notificacionesNoLeidas()"></app-header>
+
+  <main class="content">
+    <a class="volver" routerLink="/beneficiarios/ofertas-laborales">‹ Volver a Ofertas laborales</a>
+
+    @if (cargando()) {
+      <p class="empty-state">Cargando oferta laboral...</p>
+    } @else if (error()) {
+      <p class="error-state">{{ error() }}</p>
+    } @else if (oferta(); as o) {
+      <article class="detalle-card">
+        @if (o.match_porcentaje > 0) {
+          <span class="match-badge">{{ o.match_porcentaje }}% match</span>
+        }
+
+        <h1 class="detalle-titulo">{{ o.titulo }}</h1>
+        <p class="detalle-empresa">{{ o.empresa }}</p>
+
+        <div class="detalle-datos">
+          <span class="modalidad-badge" [class.virtual]="o.modalidad === 'virtual'">
+            {{ o.modalidad === 'virtual' ? 'Virtual' : 'Presencial' }}
+          </span>
+          <span class="detalle-area">{{ o.area }}</span>
+          @if (o.tipo_contrato) {
+            <span class="detalle-tipo-contrato">{{ o.tipo_contrato }}</span>
+          }
+        </div>
+
+        @if (o.descripcion) {
+          <p class="detalle-descripcion">{{ o.descripcion }}</p>
+        }
+
+        @if (o.habilidades.length) {
+          <div class="habilidades-row">
+            @for (habilidad of o.habilidades; track habilidad) {
+              <span class="habilidad-chip">{{ habilidad }}</span>
+            }
+          </div>
+        }
+
+        <dl class="detalle-info">
+          @if (o.salario !== null) {
+            <div class="info-item">
+              <dt>Salario</dt>
+              <dd>{{ o.salario | number: '1.0-0' }}</dd>
+            </div>
+          }
+          @if (o.vacantes !== null) {
+            <div class="info-item">
+              <dt>Cupo</dt>
+              <dd>{{ o.postulantes_actuales }}/{{ o.vacantes }} postulantes</dd>
+            </div>
+          }
+          @if (o.fecha_limite) {
+            <div class="info-item">
+              <dt>Fecha límite</dt>
+              <dd>{{ o.fecha_limite }}</dd>
+            </div>
+          }
+        </dl>
+
+        @if (postulacionExitosa()) {
+          <div class="postulacion-confirmada">
+            <p>¡Postulación enviada! La empresa va a poder ver tu perfil.</p>
+          </div>
+        } @else if (o.puede_postularse) {
+          @if (errorPostulacion()) {
+            <p class="error-state">{{ errorPostulacion() }}</p>
+          }
+          <button type="button" class="btn-postularme" [disabled]="postulando()" (click)="postularme()">
+            {{ postulando() ? 'Enviando...' : 'Postularme' }}
+          </button>
+        } @else {
+          <div class="no-disponible">
+            <p>{{ mensajeNoDisponible() }}</p>
+          </div>
+        }
+      </article>
+    } @else {
+      <p class="empty-state">No encontramos esta oferta laboral.</p>
+    }
+  </main>
+
+  <app-footer></app-footer>
+</div>

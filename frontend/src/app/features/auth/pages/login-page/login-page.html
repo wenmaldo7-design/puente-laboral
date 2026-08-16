@@ -1,4 +1,8 @@
 <app-auth-card [mostrarFooter]="true">
+  <button type="button" class="btn-volver" routerLink="/" aria-label="Volver al inicio">
+    <app-icon name="arrow-left" />
+  </button>
+
   <app-brand-header subtitulo="PORTAL DE ACCESO" />
 
   <div class="rol-tabs" role="tablist">
@@ -64,8 +68,15 @@
       ¿Olvidaste tu contraseña?
     </button>
     <hr class="divider" />
-    <p class="link-secundario">
-      ¿Eres beneficiario nuevo? <a routerLink="/auth/register">Crear cuenta</a>
-    </p>
+    @if (rolActivo() === 'empresa') {
+      <p class="link-secundario">
+        ¿Tu empresa todavía no está habilitada?
+        <a routerLink="/empresas/registro">Solicitar habilitación</a>
+      </p>
+    } @else {
+      <p class="link-secundario">
+        ¿Eres beneficiario nuevo? <a routerLink="/auth/register">Crear cuenta</a>
+      </p>
+    }
   </div>
 </app-auth-card>

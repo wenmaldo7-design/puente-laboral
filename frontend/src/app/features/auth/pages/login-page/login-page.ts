@@ -15,6 +15,13 @@ interface RolTab {
   disponible: boolean;
 }
 
+/** Destino post-login por rol: cada uno tiene su propio home. */
+const RUTA_POST_LOGIN: Record<RolLogin, string> = {
+  beneficiario: '/beneficiarios/perfil',
+  empresa: '/empresas/perfil',
+  administrador: '/empresas/solicitudes',
+};
+
 @Component({
   selector: 'app-login-page',
   imports: [ReactiveFormsModule, RouterLink, AuthCard, BrandHeader, Icon],
@@ -26,13 +33,14 @@ export class LoginPage {
   private readonly auth = inject(Auth);
   private readonly router = inject(Router);
 
-  // Solo "beneficiario" tiene backend hoy. Admin/Empresa quedan visibles
-  // (fieles al diseño) pero deshabilitados hasta que se desarrollen esos
-  // módulos de auth.
+  // Los 3 roles loguean contra el mismo endpoint, pero la pestaña elegida
+  // viaja en el body: el backend resuelve el rol real por el email (ver
+  // AuthService.validateUsuario) y rechaza si no coincide con esta pestaña,
+  // así unas credenciales de beneficiario no sirven para entrar por "Empresa".
   readonly roles: RolTab[] = [
-    { id: 'administrador', label: 'Administrador', icono: 'shield-check', disponible: false },
+    { id: 'administrador', label: 'Administrador', icono: 'shield-check', disponible: true },
     { id: 'beneficiario', label: 'Beneficiario', icono: 'user', disponible: true },
-    { id: 'empresa', label: 'Empresa', icono: 'building', disponible: false },
+    { id: 'empresa', label: 'Empresa', icono: 'building', disponible: true },
   ];
 
   readonly rolActivo = signal<RolLogin>('beneficiario');
@@ -61,8 +69,14 @@ export class LoginPage {
     this.errorMensaje.set(null);
 
     try {
-      await this.auth.login(this.form.getRawValue());
-      await this.router.navigateByUrl('/');
+      const { email, password } = this.form.getRawValue();
+      await this.auth.login({
+        email: email.trim().toLowerCase(),
+        password,
+        rol: this.rolActivo(),
+      });
+      const rol = this.auth.sesion()?.rol ?? this.rolActivo();
+      await this.router.navigateByUrl(RUTA_POST_LOGIN[rol]);
     } catch {
       this.errorMensaje.set('Email o contraseña incorrectos.');
     } finally {

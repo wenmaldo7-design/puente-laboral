@@ -1,0 +1,190 @@
+<div class="page">
+  <header class="header">
+    <a routerLink="/empresas/home" class="brand" aria-label="Ir al Inicio de Empresas">
+      <svg class="brand-icon" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <circle cx="33" cy="7" r="3" fill="#f2b93b" />
+        <rect x="4" y="24" width="6" height="12" rx="1" fill="#185fa5" />
+        <rect x="13" y="18" width="6" height="18" rx="1" fill="#185fa5" />
+        <rect x="22" y="12" width="6" height="24" rx="1" fill="#185fa5" />
+        <circle cx="7" cy="20" r="2.5" fill="#042c53" />
+        <circle cx="16" cy="14" r="2.5" fill="#042c53" />
+        <circle cx="25" cy="8" r="2.5" fill="#042c53" />
+      </svg>
+      <div class="brand-text">
+        <span class="brand-name">Puente Laboral</span>
+        <span class="brand-role">Portal Empresas</span>
+      </div>
+    </a>
+
+    <div class="header-actions">
+      <a routerLink="/empresas/perfil" class="header-user" aria-label="Ir al Perfil de la Empresa">
+        <span class="avatar-sm">{{ avatarIniciales() }}</span>
+        <span class="header-greeting">{{ nombreEmpresa() }}</span>
+      </a>
+      <button type="button" class="btn-logout" (click)="cerrarSesion()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-icon" aria-hidden="true">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        <span>Cerrar sesión</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="content">
+    <div class="content-header">
+      <div>
+        <h1 class="main-title">Panel de Empresa</h1>
+        <p class="subtitle">Gestioná tus oportunidades y conectá con el talento de la comunidad</p>
+      </div>
+      <div class="content-header-actions">
+        <a routerLink="/empresas/ofertas-laborales/publicar" class="btn-primary">
+          <svg viewBox="0 0 20 20" fill="currentColor" class="btn-icon-svg" aria-hidden="true">
+            <path d="M10 5a1 1 0 0 1 1 1v3h3a1 1 0 1 1 0 2h-3v3a1 1 0 1 1-2 0v-3H6a1 1 0 1 1 0-2h3V6a1 1 0 0 1 1-1Z" />
+          </svg>
+          Crear oferta laboral
+        </a>
+      </div>
+    </div>
+
+    @if (error()) {
+      <div class="empty-state" role="alert">
+        <p>{{ error() }}</p>
+      </div>
+    } @else {
+      <section class="metrics-row" aria-label="Resumen de impacto y postulaciones">
+        @for (metrica of metricas(); track metrica.id) {
+          <div class="metric-card">
+            <div class="metric-top">
+              <span class="metric-valor">{{ metrica.valor }}</span>
+            </div>
+            <span class="metric-etiqueta">{{ metrica.etiqueta }}</span>
+          </div>
+        }
+      </section>
+
+      <div class="toolbar">
+        <div class="search-bar">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" stroke="#185FA5" stroke-width="1.6" />
+            <path d="m20 20-3.2-3.2" stroke="#185FA5" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+          <input
+            type="search"
+            class="search-input"
+            placeholder="Buscar por título de publicación..."
+            aria-label="Buscar oportunidades publicadas"
+            [value]="terminoBusqueda()"
+            (input)="onBusquedaInput($event)"
+          />
+        </div>
+
+        <div class="filter-chips" role="group" aria-label="Filtros de oportunidades">
+          @for (filtro of filtros; track filtro.id) {
+            <button
+              type="button"
+              class="chip"
+              [class.chip-active]="filtroActivo() === filtro.id"
+              (click)="seleccionarFiltro(filtro.id)"
+            >
+              {{ filtro.etiqueta }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <section class="section">
+        <div class="section-heading">
+          <h2 class="section-title">Oportunidades Publicadas</h2>
+          <span class="section-counter">{{ oportunidadesFiltradas().length }} resultados</span>
+        </div>
+
+        @if (cargando()) {
+          <div class="empty-state">
+            <p>Cargando oportunidades...</p>
+          </div>
+        } @else if (oportunidadesFiltradas().length) {
+          <div class="oportunidades-grid">
+            @for (op of oportunidadesFiltradas(); track op.id) {
+              <article class="oportunidad-card">
+                <div class="card-header">
+                  <span class="tipo-tag tipo-empleo">{{ etiquetaTipo(op.tipoServicio) }}</span>
+                  <span class="estado-pill estado-{{ op.estado }}">{{ op.estado }}</span>
+                </div>
+                <h3 class="oportunidad-titulo">{{ op.titulo }}</h3>
+                @if (op.modalidad) {
+                  <p class="oportunidad-ubicacion">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-icon" aria-hidden="true">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                      <circle cx="12" cy="10" r="3" />
+                    </svg>
+                    <span>{{ op.modalidad === 'virtual' ? 'Virtual' : 'Presencial' }}</span>
+                  </p>
+                }
+
+                <div class="card-footer">
+                  <div class="postulaciones-badge">
+                    <strong>{{ op.postulacionesCount }}</strong> postulaciones
+                    @if (op.nuevasPostulacionesCount > 0) {
+                      <span class="nuevas-tag">+{{ op.nuevasPostulacionesCount }} pendientes</span>
+                    }
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <p>No se encontraron publicaciones con los filtros seleccionados.</p>
+          </div>
+        }
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <h2 class="section-title">Postulantes Recientes</h2>
+          <span class="section-hint">Últimas personas interesadas en tus vacantes</span>
+        </div>
+
+        @if (postulantesRecientes().length) {
+          <div class="postulantes-list">
+            @for (postulante of postulantesRecientes(); track postulante.id) {
+              <div class="postulante-card">
+                <div class="postulante-main">
+                  <div class="avatar" aria-hidden="true">{{ postulante.avatarIniciales }}</div>
+                  <div class="postulante-info">
+                    <h4 class="postulante-nombre">{{ postulante.nombre }}</h4>
+                    <p class="postulante-vacante">{{ postulante.oportunidadTitulo }}</p>
+                  </div>
+                </div>
+                <div class="postulante-meta">
+                  <span class="match-score">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-icon" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10" />
+                      <circle cx="12" cy="12" r="6" />
+                      <circle cx="12" cy="12" r="2" />
+                    </svg>
+                    <span>{{ postulante.matchPorcentaje }}% match</span>
+                  </span>
+                  <span class="postulante-estado estado-{{ postulante.estado }}">{{ postulante.estado }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="empty-state">No hay postulantes recientes para mostrar.</p>
+        }
+      </section>
+    }
+  </main>
+
+  <footer class="footer">
+    <span>© 2026 Puente Laboral. Todos los derechos reservados.</span>
+    <div class="footer-links">
+      <a href="#">Términos y condiciones</a>
+      <a href="#">Política de privacidad</a>
+      <a href="#">Soporte a Empresas</a>
+    </div>
+  </footer>
+</div>

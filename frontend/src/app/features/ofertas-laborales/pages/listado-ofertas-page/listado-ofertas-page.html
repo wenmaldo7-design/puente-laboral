@@ -1,1 +1,71 @@
-<p>listado-ofertas-page works!</p>
+<div class="beneficiario-page">
+  <app-header [nombre]="nombreBeneficiario()" [notificacionesNoLeidas]="notificacionesNoLeidas()"></app-header>
+
+  <main class="content">
+    <h1 class="main-title">Ofertas laborales</h1>
+
+    <div class="search-bar">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" stroke="#185FA5" stroke-width="1.6" />
+        <path d="m20 20-3.2-3.2" stroke="#185FA5" stroke-width="1.6" stroke-linecap="round" />
+      </svg>
+      <input
+        type="search"
+        placeholder="Buscar ofertas por título o empresa..."
+        aria-label="Buscar ofertas por título o empresa..."
+        [value]="terminoBusqueda()"
+        (input)="onBusquedaInput($event)"
+      />
+    </div>
+
+    <div class="filters-row" aria-label="Filtrar por modalidad">
+      @for (filtro of filtros; track filtro.id) {
+        <button
+          type="button"
+          class="filter-pill"
+          [class.active]="filtroActivo() === filtro.id"
+          [attr.aria-pressed]="filtroActivo() === filtro.id"
+          (click)="seleccionarFiltro(filtro.id)"
+        >
+          {{ filtro.etiqueta }}
+        </button>
+      }
+    </div>
+
+    @if (cargando()) {
+      <p class="empty-state">Cargando ofertas laborales...</p>
+    } @else if (error()) {
+      <p class="error-state">{{ error() }}</p>
+    } @else if (ofertasFiltradas().length) {
+      <div class="ofertas-grid">
+        @for (oferta of ofertasFiltradas(); track oferta.id_servicio) {
+          <article class="oferta-card">
+            <div class="oferta-badges">
+              @if (oferta.match_porcentaje > 0) {
+                <span class="match-badge">{{ oferta.match_porcentaje }}% match</span>
+              }
+              @if (etiquetaEstado(oferta); as etiqueta) {
+                <span class="estado-badge">{{ etiqueta }}</span>
+              }
+            </div>
+            <h2 class="oferta-titulo">{{ oferta.titulo }}</h2>
+            <p class="oferta-empresa">{{ oferta.empresa }}</p>
+            <div class="oferta-datos">
+              <span class="modalidad-badge" [class.virtual]="oferta.modalidad === 'virtual'">
+                {{ oferta.modalidad === 'virtual' ? 'Virtual' : 'Presencial' }}
+              </span>
+              @if (oferta.vacantes !== null) {
+                <span class="oferta-cupo">{{ oferta.postulantes_actuales }}/{{ oferta.vacantes }} postulantes</span>
+              }
+            </div>
+            <a class="btn-detalle" [routerLink]="[oferta.id_servicio]">Ver detalle</a>
+          </article>
+        }
+      </div>
+    } @else {
+      <p class="empty-state">No encontramos ofertas laborales para tu búsqueda.</p>
+    }
+  </main>
+
+  <app-footer></app-footer>
+</div>

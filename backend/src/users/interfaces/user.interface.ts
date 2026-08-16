@@ -1,3 +1,14 @@
+import { Prisma } from '@prisma/client';
+
+/**
+ * USUARIO con sus 3 relaciones de rol incluidas. Como cada usuario tiene
+ * a lo sumo una fila poblada (beneficiarios/empresas/administradores),
+ * esto alcanza para resolver el rol real sin duplicar la query por rol.
+ */
+export type UsuarioConRoles = Prisma.usuariosGetPayload<{
+  include: { beneficiarios: true; empresas: true; administradores: true };
+}>;
+
 /**
  * Representacion "limpia" de un beneficiario para exponer en las
  * respuestas HTTP. Nunca debe incluir password_hash.

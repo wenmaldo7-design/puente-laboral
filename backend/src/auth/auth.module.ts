@@ -7,10 +7,16 @@ import { AuthService } from './auth.service';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { UsersModule } from '../users/users.module';
+import { MailModule } from '../mail/mail.module';
+import { EmpresasHabilitacionController } from './empresas/empresas-habilitacion.controller';
+import { EmpresasHabilitacionService } from './empresas/empresas-habilitacion.service';
+import { EmpresaAuthController } from './empresas/empresa-auth.controller';
+import { EmpresaAuthService } from './empresas/empresa-auth.service';
 
 @Module({
   imports: [
     UsersModule,
+    MailModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -29,7 +35,17 @@ import { UsersModule } from '../users/users.module';
       }),
     }),
   ],
-  controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  controllers: [
+    AuthController,
+    EmpresasHabilitacionController,
+    EmpresaAuthController,
+  ],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    EmpresasHabilitacionService,
+    EmpresaAuthService,
+  ],
 })
 export class AuthModule {}

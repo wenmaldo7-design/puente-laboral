@@ -6,6 +6,23 @@ form {
   flex-direction: column;
 }
 
+.btn-volver {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: none;
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+}
+
+.btn-volver app-icon {
+  width: 20px;
+  height: 20px;
+}
+
 .campo-input {
   position: relative;
   display: flex;
@@ -44,6 +61,11 @@ form {
   outline: 2px solid var(--color-primary);
   outline-offset: 1px;
   border-color: var(--color-primary);
+}
+
+.campo-input--error input,
+.campo-input--error.campo-input--prefijo {
+  border-color: var(--color-error);
 }
 
 .btn-ojo {

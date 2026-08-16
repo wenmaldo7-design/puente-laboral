@@ -1,22 +1,5 @@
 @import '../auth-form.css';
 
-.btn-volver {
-  position: absolute;
-  top: 0;
-  left: 0;
-  border: none;
-  background: none;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  padding: 0.25rem;
-  display: flex;
-}
-
-.btn-volver app-icon {
-  width: 20px;
-  height: 20px;
-}
-
 .seccion {
   margin-bottom: 1.5rem;
 }

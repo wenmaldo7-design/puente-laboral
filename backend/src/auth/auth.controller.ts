@@ -31,13 +31,9 @@ export class AuthController {
     @Req() req: AuthRequest,
     @Res({ passthrough: true }) res: Response,
   ) {
-    // req.user aca es el objeto Usuario+Beneficiario que devolvio
-    // AuthService.validateBeneficiario (via LocalStrategy)
-    const usuario = req.user as unknown as {
-      id_usuario: number;
-      email: string;
-    };
-    this.authService.issueTokenCookie(usuario, res);
+    // req.user aca ya es el JwtPayload que devolvio AuthService.validateUsuario
+    // (via LocalStrategy), con el rol real del usuario que se loguea.
+    this.authService.issueTokenCookie(req.user, res);
     return { message: 'Login exitoso' };
   }
 

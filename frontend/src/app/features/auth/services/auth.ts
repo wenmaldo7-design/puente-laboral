@@ -42,9 +42,18 @@ export class Auth {
     await this.cargarSesion();
   }
 
+  /**
+   * Limpia el estado local pase lo que pase con el POST: si la cookie ya
+   * expiró o la red falla, igual queremos que el front deje de creerse
+   * logueado (si no, guestGuard/roleGuard dejan al usuario sin poder
+   * navegar a ningun lado).
+   */
   async logout(): Promise<void> {
-    await firstValueFrom(this.http.post(`${this.baseUrl}/logout`, {}));
-    this.sesionState.set(null);
+    try {
+      await firstValueFrom(this.http.post(`${this.baseUrl}/logout`, {}));
+    } finally {
+      this.sesionState.set(null);
+    }
   }
 
   /**

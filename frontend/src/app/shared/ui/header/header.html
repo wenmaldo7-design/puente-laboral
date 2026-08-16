@@ -1,0 +1,38 @@
+<header class="app-header">
+  <div class="app-header-brand">
+    <img class="app-header-logo" src="/logo.png" alt="Puente Laboral" width="677" height="369" />
+  </div>
+
+  <nav class="app-header-nav" aria-label="Navegación principal">
+    <a routerLink="/beneficiarios" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
+    <a routerLink="/beneficiarios/ofertas-laborales" routerLinkActive="active">Ofertas laborales</a>
+    <a routerLink="/beneficiarios/mentorias" routerLinkActive="active">Mentorías</a>
+    <a routerLink="/beneficiarios/perfil" routerLinkActive="active">Mi perfil</a>
+  </nav>
+
+  <div class="app-header-actions">
+    <button type="button" class="app-header-btn-icon" aria-label="Notificaciones">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path
+          d="M12 3a6 6 0 0 0-6 6v3.2c0 .5-.18.99-.5 1.38L4 15.5c-.7.85-.1 2.1 1 2.1h14c1.1 0 1.7-1.25 1-2.1l-1.5-1.92c-.32-.4-.5-.89-.5-1.38V9a6 6 0 0 0-6-6Z"
+          stroke="#185FA5"
+          stroke-width="1.6"
+          stroke-linejoin="round"
+        />
+        <path d="M9.5 19a2.5 2.5 0 0 0 5 0" stroke="#185FA5" stroke-width="1.6" stroke-linecap="round" />
+      </svg>
+      @if (notificacionesNoLeidas() > 0) {
+        <span class="app-header-badge-count">{{ notificacionesNoLeidas() }}</span>
+      }
+    </button>
+    <span class="app-header-greeting">Hola, {{ nombre() }}</span>
+    <button type="button" class="app-header-btn-logout" (click)="cerrarSesion()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+        <polyline points="16 17 21 12 16 7" />
+        <line x1="21" y1="12" x2="9" y2="12" />
+      </svg>
+      <span>Cerrar sesión</span>
+    </button>
+  </div>
+</header>

@@ -1,1 +1,35 @@
-<p>mis-postulaciones-page works!</p>
+<div class="beneficiario-page">
+  <app-header [nombre]="nombreBeneficiario()" [notificacionesNoLeidas]="notificacionesNoLeidas()"></app-header>
+
+  <main class="content">
+    <a class="volver" routerLink="/beneficiarios/ofertas-laborales">‹ Volver a Ofertas laborales</a>
+    <h1 class="main-title">Mis postulaciones</h1>
+
+    @if (cargando()) {
+      <p class="empty-state">Cargando tus postulaciones...</p>
+    } @else if (error()) {
+      <p class="error-state">{{ error() }}</p>
+    } @else if (postulaciones().length) {
+      <ul class="postulaciones-list">
+        @for (postulacion of postulaciones(); track postulacion.id_postulacion) {
+          <li class="postulacion-card">
+            <div class="postulacion-info">
+              <a class="postulacion-titulo" [routerLink]="['/beneficiarios/ofertas-laborales', postulacion.id_servicio]">
+                {{ postulacion.titulo_oferta }}
+              </a>
+              <p class="postulacion-empresa">{{ postulacion.empresa }}</p>
+              <p class="postulacion-fecha">Postulado el {{ postulacion.fecha_postulacion }}</p>
+            </div>
+            <span class="estado-badge" [class.pendiente]="postulacion.estado_postulacion === 'pendiente'">
+              {{ postulacion.estado_postulacion }}
+            </span>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="empty-state">Todavía no te postulaste a ninguna oferta laboral.</p>
+    }
+  </main>
+
+  <app-footer></app-footer>
+</div>

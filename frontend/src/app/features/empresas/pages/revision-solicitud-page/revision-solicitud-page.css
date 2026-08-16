@@ -1,0 +1,114 @@
+@import '../panel-admin.css';
+
+h1 {
+  margin: 0 0 1.5rem;
+  font-size: 1.4rem;
+}
+
+.detalle {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 0.75rem 1rem;
+  padding: 1.25rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  margin-bottom: 1.5rem;
+}
+
+.detalle dt {
+  color: var(--color-text-subtle);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.detalle dd {
+  margin: 0;
+  color: var(--color-text);
+  word-break: break-word;
+}
+
+.detalle dd a {
+  color: var(--color-primary);
+}
+
+.acciones {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.campo-error {
+  color: var(--color-error);
+  font-size: 0.8rem;
+  margin: 0.3rem 0 0;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 10;
+}
+
+.modal {
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.3);
+}
+
+.modal h2 {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+}
+
+.modal label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  color: var(--color-text-muted);
+}
+
+.modal textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  color: var(--color-text);
+  resize: vertical;
+}
+
+.modal textarea:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+  border-color: var(--color-primary);
+}
+
+.modal-acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.modal-acciones button[type='button'] {
+  padding: 0.65rem 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  cursor: pointer;
+}
+
+.modal-acciones button[type='button']:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

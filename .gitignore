@@ -8,4 +8,18 @@ npm-debug.log*
 # Secrets / local artifacts — nunca deben commitearse
 .env
 .env.*
+!.env.example
 cookies.txt
+
+# Checkouts de otras ramas usados solo como referencia para integrar (ver DbSCRIPT.md / sesión de integración)
+/puente-laboral-main/
+/puente-laboral-feat-homePerfilBeneficiario/
+/puente-laboral-feat-homePerfilOrganizacion/
+/IntegrarFrontEnd/
+
+# Herramientas de asistencia / cache local — no son parte del proyecto
+.claude/
+.codebase-memory/
+
+# Notas locales de la sesión de integración (script de referencia, no es una migración real)
+/DbSCRIPT.md

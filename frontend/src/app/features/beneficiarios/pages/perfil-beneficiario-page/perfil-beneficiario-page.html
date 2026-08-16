@@ -1,0 +1,420 @@
+<div class="beneficiario-page">
+  <app-header [nombre]="nombreSaludo()" [notificacionesNoLeidas]="notificacionesNoLeidas()"></app-header>
+
+  <main class="content">
+    @if (perfil(); as p) {
+      <section class="profile-header-card">
+        <div class="profile-header-top">
+          <div class="avatar" aria-hidden="true">{{ p.avatarIniciales }}</div>
+          <div class="profile-header-info">
+            <h1 class="profile-nombre">{{ p.nombre }}</h1>
+          </div>
+        </div>
+
+        <dl class="profile-datos">
+          <div class="dato-row">
+            <dt>Email</dt>
+            <dd>{{ p.email }}</dd>
+          </div>
+
+          <div class="dato-row">
+            <dt>DNI</dt>
+            <dd>{{ p.dni }}</dd>
+          </div>
+
+          <div class="dato-row">
+            <dt>Fecha de nacimiento</dt>
+            @if (estaEditando('fechaNacimiento')) {
+              <dd class="dato-edicion">
+                <input
+                  type="date"
+                  class="input-edicion"
+                  [value]="draftCampoSimple()"
+                  (input)="onDraftCampoSimpleInput($event)"
+                />
+                <div class="edicion-acciones">
+                  <button type="button" class="btn-guardar" [disabled]="guardando()" (click)="guardarCampoSimple()">
+                    {{ guardando() ? 'Guardando...' : 'Guardar' }}
+                  </button>
+                  <button type="button" class="btn-cancelar" [disabled]="guardando()" (click)="cancelarEdicion()">Cancelar</button>
+                </div>
+                @if (errorGuardado()) {
+                  <p class="campo-error" role="alert">{{ errorGuardado() }}</p>
+                }
+              </dd>
+            } @else {
+              <dd>
+                <span>{{ p.fechaNacimiento ? (p.fechaNacimiento | date: 'dd/MM/yyyy') : 'No especificada' }}</span>
+                <button
+                  type="button"
+                  class="btn-editar"
+                  aria-label="Editar fecha de nacimiento"
+                  (click)="iniciarEdicionCampo('fechaNacimiento')"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linejoin="round"
+                      stroke-linecap="round"
+                    />
+                    <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                  </svg>
+                </button>
+              </dd>
+            }
+          </div>
+
+          <div class="dato-row">
+            <dt>Ubicación</dt>
+            <dd>
+              <span>{{ p.ubicacion || 'No especificada' }}</span>
+            </dd>
+          </div>
+
+          <div class="dato-row">
+            <dt>Dirección</dt>
+            @if (estaEditando('direccion')) {
+              <dd class="dato-edicion">
+                <input
+                  type="text"
+                  class="input-edicion"
+                  [value]="draftCampoSimple()"
+                  (input)="onDraftCampoSimpleInput($event)"
+                />
+                <div class="edicion-acciones">
+                  <button type="button" class="btn-guardar" [disabled]="guardando()" (click)="guardarCampoSimple()">
+                    {{ guardando() ? 'Guardando...' : 'Guardar' }}
+                  </button>
+                  <button type="button" class="btn-cancelar" [disabled]="guardando()" (click)="cancelarEdicion()">Cancelar</button>
+                </div>
+                @if (errorGuardado()) {
+                  <p class="campo-error" role="alert">{{ errorGuardado() }}</p>
+                }
+              </dd>
+            } @else {
+              <dd>
+                <span>{{ p.direccion || 'No especificada' }}</span>
+                <button
+                  type="button"
+                  class="btn-editar"
+                  aria-label="Editar dirección"
+                  (click)="iniciarEdicionCampo('direccion')"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linejoin="round"
+                      stroke-linecap="round"
+                    />
+                    <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                  </svg>
+                </button>
+              </dd>
+            }
+          </div>
+
+          <div class="dato-row">
+            <dt>Teléfono</dt>
+            @if (estaEditando('telefono')) {
+              <dd class="dato-edicion">
+                <input
+                  type="tel"
+                  class="input-edicion"
+                  inputmode="tel"
+                  pattern="[0-9\-\s]*"
+                  maxlength="12"
+                  placeholder="351-555-0102"
+                  [value]="draftCampoSimple()"
+                  (input)="onDraftTelefonoInput($event)"
+                />
+                <div class="edicion-acciones">
+                  <button type="button" class="btn-guardar" [disabled]="guardando()" (click)="guardarCampoSimple()">
+                    {{ guardando() ? 'Guardando...' : 'Guardar' }}
+                  </button>
+                  <button type="button" class="btn-cancelar" [disabled]="guardando()" (click)="cancelarEdicion()">Cancelar</button>
+                </div>
+                @if (errorGuardado()) {
+                  <p class="campo-error" role="alert">{{ errorGuardado() }}</p>
+                }
+              </dd>
+            } @else {
+              <dd>
+                <span>{{ p.telefono || 'No especificado' }}</span>
+                <button
+                  type="button"
+                  class="btn-editar"
+                  aria-label="Editar teléfono"
+                  (click)="iniciarEdicionCampo('telefono')"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linejoin="round"
+                      stroke-linecap="round"
+                    />
+                    <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                  </svg>
+                </button>
+              </dd>
+            }
+          </div>
+        </dl>
+      </section>
+
+      <section class="section card">
+        <div class="beneficiario-section-header">
+          <h2 class="section-title">Habilidades</h2>
+          @if (!estaEditando('habilidades')) {
+            <button
+              type="button"
+              class="btn-editar"
+              aria-label="Editar habilidades"
+              (click)="iniciarEdicionTags('habilidades')"
+            >
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linejoin="round"
+                  stroke-linecap="round"
+                />
+                <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+              </svg>
+            </button>
+          }
+        </div>
+
+        @if (estaEditando('habilidades')) {
+          <div class="tags-edicion">
+            <div class="tags-list">
+              @for (tag of draftTags(); track tag) {
+                <span class="tag tag-habilidad">
+                  {{ tag }}
+                  <button type="button" class="tag-quitar" aria-label="Quitar {{ tag }}" (click)="quitarTag(tag)">
+                    ×
+                  </button>
+                </span>
+              }
+            </div>
+
+            <div class="tag-buscador">
+              <input
+                type="text"
+                class="input-edicion"
+                placeholder="Buscar en el catálogo de habilidades..."
+                [value]="tagBusqueda()"
+                (input)="onTagBusquedaInput($event)"
+              />
+              @if (opcionesTagsFiltradas().length) {
+                <ul class="tag-dropdown">
+                  @for (grupo of opcionesTagsFiltradas(); track grupo.categoria) {
+                    @if (grupo.categoria) {
+                      <li class="tag-dropdown-categoria">{{ grupo.categoria }}</li>
+                    }
+                    @for (opcion of grupo.opciones; track opcion) {
+                      <li>
+                        <button type="button" class="tag-opcion" (click)="agregarTag(opcion)">{{ opcion }}</button>
+                      </li>
+                    }
+                  }
+                </ul>
+              } @else if (tagBusqueda()) {
+                <p class="empty-state">No hay coincidencias en el catálogo.</p>
+              }
+            </div>
+
+            <div class="edicion-acciones">
+              <button type="button" class="btn-guardar" [disabled]="guardando()" (click)="guardarTags()">
+                {{ guardando() ? 'Guardando...' : 'Guardar' }}
+              </button>
+              <button type="button" class="btn-cancelar" [disabled]="guardando()" (click)="cancelarEdicion()">Cancelar</button>
+            </div>
+            @if (errorGuardado()) {
+              <p class="campo-error" role="alert">{{ errorGuardado() }}</p>
+            }
+          </div>
+        } @else {
+          <div class="tags-list">
+            @for (habilidad of p.habilidades; track habilidad) {
+              <span class="tag tag-habilidad">{{ habilidad }}</span>
+            } @empty {
+              <p class="empty-state">Todavía no cargaste habilidades.</p>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="section card">
+        <div class="beneficiario-section-header">
+          <h2 class="section-title">Áreas de interés</h2>
+          @if (!estaEditando('areasInteres')) {
+            <button
+              type="button"
+              class="btn-editar"
+              aria-label="Editar áreas de interés"
+              (click)="iniciarEdicionTags('areasInteres')"
+            >
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linejoin="round"
+                  stroke-linecap="round"
+                />
+                <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+              </svg>
+            </button>
+          }
+        </div>
+
+        @if (estaEditando('areasInteres')) {
+          <div class="tags-edicion">
+            <div class="tags-list">
+              @for (tag of draftTags(); track tag) {
+                <span class="tag tag-interes">
+                  {{ tag }}
+                  <button type="button" class="tag-quitar" aria-label="Quitar {{ tag }}" (click)="quitarTag(tag)">
+                    ×
+                  </button>
+                </span>
+              }
+            </div>
+
+            <div class="tag-buscador">
+              <input
+                type="text"
+                class="input-edicion"
+                placeholder="Buscar en el catálogo de áreas de interés..."
+                [value]="tagBusqueda()"
+                (input)="onTagBusquedaInput($event)"
+              />
+              @if (opcionesTagsFiltradas().length) {
+                <ul class="tag-dropdown">
+                  @for (grupo of opcionesTagsFiltradas(); track grupo.categoria) {
+                    @if (grupo.categoria) {
+                      <li class="tag-dropdown-categoria">{{ grupo.categoria }}</li>
+                    }
+                    @for (opcion of grupo.opciones; track opcion) {
+                      <li>
+                        <button type="button" class="tag-opcion" (click)="agregarTag(opcion)">{{ opcion }}</button>
+                      </li>
+                    }
+                  }
+                </ul>
+              } @else if (tagBusqueda()) {
+                <p class="empty-state">No hay coincidencias en el catálogo.</p>
+              }
+            </div>
+
+            <div class="edicion-acciones">
+              <button type="button" class="btn-guardar" [disabled]="guardando()" (click)="guardarTags()">
+                {{ guardando() ? 'Guardando...' : 'Guardar' }}
+              </button>
+              <button type="button" class="btn-cancelar" [disabled]="guardando()" (click)="cancelarEdicion()">Cancelar</button>
+            </div>
+            @if (errorGuardado()) {
+              <p class="campo-error" role="alert">{{ errorGuardado() }}</p>
+            }
+          </div>
+        } @else {
+          <div class="tags-list">
+            @for (area of p.areasInteres; track area) {
+              <span class="tag tag-interes">{{ area }}</span>
+            } @empty {
+              <p class="empty-state">Todavía no cargaste áreas de interés.</p>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="section card">
+        <div class="beneficiario-section-header">
+          <h2 class="section-title">Enlaces</h2>
+          @if (!estaEditando('enlaces')) {
+            <button type="button" class="btn-editar" aria-label="Editar enlaces" (click)="iniciarEdicionEnlaces()">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linejoin="round"
+                  stroke-linecap="round"
+                />
+                <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+              </svg>
+            </button>
+          }
+        </div>
+
+        @if (estaEditando('enlaces')) {
+          <div class="enlaces-edicion">
+            <label class="campo-edicion">
+              LinkedIn
+              <input
+                type="url"
+                class="input-edicion"
+                placeholder="https://linkedin.com/in/tu-usuario"
+                [value]="draftEnlaces().linkedin"
+                (input)="onDraftEnlacesInput('linkedin', $event)"
+              />
+            </label>
+            <label class="campo-edicion">
+              GitHub
+              <input
+                type="url"
+                class="input-edicion"
+                placeholder="https://github.com/tu-usuario"
+                [value]="draftEnlaces().github"
+                (input)="onDraftEnlacesInput('github', $event)"
+              />
+            </label>
+            <label class="campo-edicion">
+              URL de CV
+              <input
+                type="url"
+                class="input-edicion"
+                placeholder="https://..."
+                [value]="draftEnlaces().cvUrl"
+                (input)="onDraftEnlacesInput('cvUrl', $event)"
+              />
+            </label>
+          </div>
+          <div class="edicion-acciones">
+            <button type="button" class="btn-guardar" [disabled]="guardando()" (click)="guardarEnlaces()">
+              {{ guardando() ? 'Guardando...' : 'Guardar' }}
+            </button>
+            <button type="button" class="btn-cancelar" [disabled]="guardando()" (click)="cancelarEdicion()">Cancelar</button>
+          </div>
+          @if (errorGuardado()) {
+            <p class="campo-error" role="alert">{{ errorGuardado() }}</p>
+          }
+        } @else {
+          <ul class="enlaces-list">
+            @if (p.enlaces.linkedin) {
+              <li><a [href]="p.enlaces.linkedin" target="_blank" rel="noopener">LinkedIn</a></li>
+            }
+            @if (p.enlaces.github) {
+              <li><a [href]="p.enlaces.github" target="_blank" rel="noopener">GitHub</a></li>
+            }
+            @if (p.enlaces.cvUrl) {
+              <li><a [href]="p.enlaces.cvUrl" target="_blank" rel="noopener">Curriculum (CV)</a></li>
+            }
+            @if (!p.enlaces.linkedin && !p.enlaces.github && !p.enlaces.cvUrl) {
+              <li class="empty-state">Todavía no agregaste enlaces.</li>
+            }
+          </ul>
+        }
+      </section>
+    }
+  </main>
+
+  <app-footer></app-footer>
+</div>

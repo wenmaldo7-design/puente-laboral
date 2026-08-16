@@ -8,9 +8,9 @@ datasource db {
 
 model administradores {
   id_usuario                        Int                                 @id
-  nombre                             String                              @db.VarChar(100)
-  apellido                           String                              @db.VarChar(100)
-  usuarios                          usuarios                           @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+  nombre                            String                              @db.VarChar(100)
+  apellido                          String                              @db.VarChar(100)
+  usuarios                          usuarios                            @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
   solicitudes_habilitacion_empresas solicitudes_habilitacion_empresas[]
 }
 
@@ -30,8 +30,8 @@ model beneficiarios {
   telefono                     String?                        @db.VarChar(50)
   direccion                    String?                        @db.VarChar(200)
   id_ciudad                    Int?
-  linkedin                     String?                        @db.VarChar(300)
-  github                       String?                        @db.VarChar(300)
+  linkedin                     String?                        @unique(map: "uq_beneficiarios_linkedin") @db.VarChar(300)
+  github                       String?                        @unique(map: "uq_beneficiarios_github") @db.VarChar(300)
   cv_url                       String?                        @db.VarChar(300)
   ciudades                     ciudades?                      @relation(fields: [id_ciudad], references: [id_ciudad], onDelete: NoAction, onUpdate: NoAction)
   usuarios                     usuarios                       @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
@@ -127,7 +127,7 @@ model discapacidades {
 
 model empresas {
   id_usuario                        Int                                @id
-  razon_social                      String                             @db.VarChar(150)
+  razon_social                      String                             @unique(map: "uq_empresas_razon_social") @db.VarChar(150)
   cuit                              String                             @unique(map: "uq_empresas_cuit") @db.VarChar(20)
   descripcion                       String?
   sitio_web                         String?                            @db.VarChar(300)
@@ -138,6 +138,7 @@ model empresas {
   id_solicitud                      Int?
   solicitudes_habilitacion_empresas solicitudes_habilitacion_empresas? @relation(fields: [id_solicitud], references: [id_solicitud], onDelete: NoAction, onUpdate: NoAction)
   usuarios                          usuarios                           @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+  notificaciones                    notificaciones[]
   profesionales                     profesionales[]
   servicios                         servicios[]
 }
@@ -231,9 +232,13 @@ model niveles_habilidad {
   beneficiarios_habilidades beneficiarios_habilidades[]
 }
 
+/// Exactamente uno de id_usuario_beneficiario / id_usuario_empresa debe estar
+/// poblado (chk_notificaciones_destinatario). Este check constraint requiere
+/// setup manual de migracion. Visit https://pris.ly/d/check-constraints para mas info.
 model notificaciones {
   id_notificacion         Int                  @id @default(autoincrement())
-  id_usuario_beneficiario Int
+  id_usuario_beneficiario Int?
+  id_usuario_empresa      Int?
   id_servicio             Int?
   id_tipo_notificacion    Int
   mensaje                 String
@@ -241,9 +246,11 @@ model notificaciones {
   leida                   Boolean              @default(false)
   servicios               servicios?           @relation(fields: [id_servicio], references: [id_servicio], onDelete: Cascade, onUpdate: NoAction)
   tipos_notificaciones    tipos_notificaciones @relation(fields: [id_tipo_notificacion], references: [id_tipo_notificacion], onDelete: NoAction, onUpdate: NoAction)
-  beneficiarios           beneficiarios        @relation(fields: [id_usuario_beneficiario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+  beneficiarios           beneficiarios?       @relation(fields: [id_usuario_beneficiario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+  empresas                empresas?            @relation(fields: [id_usuario_empresa], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([id_usuario_beneficiario], map: "idx_notificaciones_beneficiario")
+  @@index([id_usuario_empresa], map: "idx_notificaciones_empresa")
 }
 
 model ofertas_habilidades {
@@ -282,6 +289,7 @@ model postulaciones_laborales {
   beneficiarios           beneficiarios         @relation(fields: [id_usuario_beneficiario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
   seguimientos            seguimientos[]
 
+  @@unique([id_usuario_beneficiario, id_servicio], map: "uq_postulacion_beneficiario_servicio")
   @@index([id_usuario_beneficiario], map: "idx_postulaciones_beneficiario")
 }
 
@@ -326,22 +334,22 @@ model seguimientos {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model servicios {
-  id_servicio                   Int                            @id @default(autoincrement())
+  id_servicio                   Int                           @id @default(autoincrement())
   id_usuario_empresa            Int
   id_area                       Int
-  tipo_servicio                 String                         @db.VarChar(20)
-  titulo                        String                         @db.VarChar(150)
+  tipo_servicio                 String                        @db.VarChar(20)
+  titulo                        String                        @db.VarChar(150)
   descripcion                   String?
-  fecha_publicacion             DateTime                       @default(dbgenerated("CURRENT_DATE")) @db.Date
+  fecha_publicacion             DateTime                      @default(dbgenerated("CURRENT_DATE")) @db.Date
   id_estado_publicacion         Int
   cursos                        cursos?
   mentorias                     mentorias?
   notificaciones                notificaciones[]
   ofertas_laborales             ofertas_laborales?
   seguimientos                  seguimientos[]
-  areas_interes                 areas_interes                  @relation(fields: [id_area], references: [id_area], onDelete: NoAction, onUpdate: NoAction)
-  estados_publicacion_servicios estados_publicacion_servicios  @relation(fields: [id_estado_publicacion], references: [id_estado_publicacion], onDelete: NoAction, onUpdate: NoAction)
-  empresas                      empresas                       @relation(fields: [id_usuario_empresa], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+  areas_interes                 areas_interes                 @relation(fields: [id_area], references: [id_area], onDelete: NoAction, onUpdate: NoAction)
+  estados_publicacion_servicios estados_publicacion_servicios @relation(fields: [id_estado_publicacion], references: [id_estado_publicacion], onDelete: NoAction, onUpdate: NoAction)
+  empresas                      empresas                      @relation(fields: [id_usuario_empresa], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
   servicios_discapacidades      servicios_discapacidades[]
 
   @@index([id_area], map: "idx_servicios_area")
@@ -366,6 +374,7 @@ model solicitudes_habilitacion_empresas {
   telefono_contacto   String?             @db.VarChar(50)
   descripcion         String?
   documentacion_url   String?             @db.VarChar(300)
+  password_hash       String              @db.VarChar(255)
   fecha_solicitud     DateTime            @default(dbgenerated("CURRENT_DATE")) @db.Date
   fecha_revision      DateTime?           @db.Date
   motivo_rechazo      String?

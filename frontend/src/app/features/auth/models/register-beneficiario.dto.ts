@@ -11,4 +11,5 @@ export interface RegisterBeneficiarioDto {
   id_ciudad?: number;
   linkedin?: string;
   github?: string;
+  cv_url?: string;
 }

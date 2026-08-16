@@ -1,0 +1,114 @@
+<main class="panel">
+  <a routerLink="/empresas/solicitudes" class="link-volver">← Volver al listado</a>
+
+  @if (cargando()) {
+    <p class="estado-info">Cargando...</p>
+  } @else if (!solicitud()) {
+    <p class="estado-error" role="alert">{{ error() }}</p>
+  } @else if (solicitud(); as s) {
+    <h1>{{ s.razon_social }}</h1>
+
+    <dl class="detalle">
+      <dt>CUIT</dt>
+      <dd>{{ s.cuit }}</dd>
+
+      <dt>Email de contacto</dt>
+      <dd>{{ s.email_contacto }}</dd>
+
+      <dt>Teléfono de contacto</dt>
+      <dd>{{ s.telefono_contacto || '—' }}</dd>
+
+      <dt>Descripción</dt>
+      <dd>{{ s.descripcion || '—' }}</dd>
+
+      <dt>Documentación</dt>
+      <dd>
+        @if (s.documentacion_url) {
+          <a [href]="s.documentacion_url" target="_blank" rel="noopener">Ver documentación</a>
+        } @else {
+          —
+        }
+      </dd>
+
+      <dt>Fecha de solicitud</dt>
+      <dd>{{ s.fecha_solicitud | date: 'dd/MM/yyyy' }}</dd>
+
+      <dt>Estado</dt>
+      <dd>{{ s.estado }}</dd>
+
+      @if (s.fecha_revision) {
+        <dt>Fecha de revisión</dt>
+        <dd>{{ s.fecha_revision | date: 'dd/MM/yyyy' }}</dd>
+      }
+
+      @if (s.motivo_rechazo) {
+        <dt>Motivo de rechazo</dt>
+        <dd>{{ s.motivo_rechazo }}</dd>
+      }
+    </dl>
+
+    @if (mensajeExito()) {
+      <p class="estado-exito" role="status">{{ mensajeExito() }}</p>
+    } @else if (error()) {
+      <p class="estado-error" role="alert">{{ error() }}</p>
+    }
+
+    @if (s.estado === EstadoSolicitud.PENDIENTE && !mensajeExito()) {
+      <div class="acciones">
+        <button
+          type="button"
+          class="btn-exito"
+          [disabled]="procesando()"
+          (click)="aprobar()"
+        >
+          {{ procesando() ? 'Procesando...' : 'Aprobar' }}
+        </button>
+        <button
+          type="button"
+          class="btn-peligro"
+          [disabled]="procesando()"
+          (click)="abrirModalRechazo()"
+        >
+          Rechazar
+        </button>
+      </div>
+    }
+  }
+
+  @if (mostrarModalRechazo()) {
+    <div class="modal-overlay">
+      <div
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-rechazo-titulo"
+        (keydown.escape)="cerrarModalRechazo()"
+      >
+        <h2 id="modal-rechazo-titulo">Rechazar solicitud</h2>
+        <form [formGroup]="formRechazo" (ngSubmit)="confirmarRechazo()">
+          <label for="motivo_rechazo">Motivo del rechazo</label>
+          <textarea
+            id="motivo_rechazo"
+            formControlName="motivo_rechazo"
+            rows="4"
+          ></textarea>
+          @if (formRechazo.controls.motivo_rechazo.invalid && formRechazo.controls.motivo_rechazo.touched) {
+            <p class="campo-error">El motivo es obligatorio.</p>
+          }
+          <div class="modal-acciones">
+            <button
+              type="button"
+              (click)="cerrarModalRechazo()"
+              [disabled]="procesando()"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="btn-peligro" [disabled]="procesando()">
+              {{ procesando() ? 'Rechazando...' : 'Confirmar rechazo' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</main>

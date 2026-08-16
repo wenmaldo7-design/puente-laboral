@@ -1,3 +1,7 @@
 node_modules
 dist
 npm-debug.log
+
+# Secrets: nunca deben terminar dentro de la imagen (docker-compose los inyecta en runtime)
+.env
+.env.*
