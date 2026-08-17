@@ -62,7 +62,6 @@ export class RegisterBeneficiarioPage {
       ],
     ],
     confirmarPassword: ['', [Validators.required]],
-    // Datos personales
     nombre: [
       '',
       [Validators.required, Validators.maxLength(25), Validators.pattern(SOLO_LETRAS)],
@@ -73,7 +72,6 @@ export class RegisterBeneficiarioPage {
     ],
     dni: ['', [Validators.required, Validators.pattern(/^[0-9]{1,8}$/)]],
     fechaNacimiento: ['', [fechaNoFutura]],
-    // Contacto y ubicacion
     telefono: [
       '',
       [Validators.maxLength(15), Validators.pattern(TELEFONO_CARACTERES_VALIDOS)],
@@ -87,7 +85,6 @@ export class RegisterBeneficiarioPage {
     // ciudades, asi que este campo queda cargado en el form pero NO se
     // envia al backend hasta que se construya ese catalogo.
     ciudad: [''],
-    // Perfil profesional
     githubUsuario: [
       '',
       [Validators.maxLength(39), Validators.pattern(GITHUB_USUARIO_VALIDO)],

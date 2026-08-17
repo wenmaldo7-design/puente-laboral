@@ -23,7 +23,8 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     // rol: la pestaña que el usuario eligió en el login-page. Es opcional
     // (passport-local no lo extrae solo) porque llega en el body crudo,
     // no vía un DTO con ValidationPipe.
-    const rolEsperado = req.body?.rol as RolUsuario | undefined;
+    const body = req.body as { rol?: RolUsuario } | undefined;
+    const rolEsperado = body?.rol;
     // Vale para cualquier rol; si las credenciales son invalidas o el rol
     // real no coincide con la pestaña elegida, authService lanza
     // UnauthorizedException.

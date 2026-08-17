@@ -1,13 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { InscripcionMentoria } from '../models/inscripcion-mentoria.model';
-
-declare global {
-  interface Window {
-    __env?: { apiUrl?: string };
-  }
-}
 
 /**
  * El backend todavía no tiene el endpoint de inscripciones a mentorías.
@@ -17,21 +10,13 @@ declare global {
  */
 @Injectable({ providedIn: 'root' })
 export class InscripcionesMentorias {
-  constructor(private readonly http: HttpClient) {}
-
-  private get apiUrl(): string {
-    return window.__env?.apiUrl ?? 'http://localhost:3000';
-  }
-
   private readonly inscripciones = new Map<string, InscripcionMentoria>();
 
   getInscripcionPorMentoria(mentoriaId: string): Observable<InscripcionMentoria | undefined> {
-    // return this.http.get<InscripcionMentoria | undefined>(`${this.apiUrl}/mentorias/${mentoriaId}/inscripcion`);
     return of(this.inscripciones.get(mentoriaId));
   }
 
   inscribirse(mentoriaId: string): Observable<InscripcionMentoria> {
-    // return this.http.post<InscripcionMentoria>(`${this.apiUrl}/mentorias/${mentoriaId}/inscripciones`, {});
     const inscripcion: InscripcionMentoria = {
       id: `insc-${mentoriaId}`,
       mentoriaId,
@@ -43,7 +28,6 @@ export class InscripcionesMentorias {
   }
 
   darDeBaja(mentoriaId: string): Observable<InscripcionMentoria> {
-    // return this.http.patch<InscripcionMentoria>(`${this.apiUrl}/mentorias/${mentoriaId}/inscripcion`, { estado: 'cancelada' });
     const existente = this.inscripciones.get(mentoriaId);
     const inscripcion: InscripcionMentoria = {
       id: existente?.id ?? `insc-${mentoriaId}`,

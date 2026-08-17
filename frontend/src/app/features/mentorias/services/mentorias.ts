@@ -1,13 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { Mentoria } from '../models/mentoria.model';
-
-declare global {
-  interface Window {
-    __env?: { apiUrl?: string };
-  }
-}
 
 const MOCK_MENTORIAS: Mentoria[] = [
   {
@@ -78,19 +71,11 @@ const MOCK_MENTORIAS: Mentoria[] = [
  */
 @Injectable({ providedIn: 'root' })
 export class Mentorias {
-  constructor(private readonly http: HttpClient) {}
-
-  private get apiUrl(): string {
-    return window.__env?.apiUrl ?? 'http://localhost:3000';
-  }
-
   getMentorias(): Observable<Mentoria[]> {
-    // return this.http.get<Mentoria[]>(`${this.apiUrl}/mentorias`);
     return of(MOCK_MENTORIAS);
   }
 
   getMentoriaPorId(id: string): Observable<Mentoria | undefined> {
-    // return this.http.get<Mentoria>(`${this.apiUrl}/mentorias/${id}`);
     return of(MOCK_MENTORIAS.find((mentoria) => mentoria.id === id));
   }
 }

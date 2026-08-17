@@ -19,7 +19,7 @@ import { OfertasLaboralesModule } from './ofertas-laborales/ofertas-laborales.mo
     BeneficiariosModule,
     OfertasLaboralesModule,
   ],
-  controllers: [AppController], // health check original, intacto
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
