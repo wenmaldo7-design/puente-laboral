@@ -2,12 +2,15 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Header } from '../../../../shared/ui/header/header';
 import { Footer } from '../../../../shared/ui/footer/footer';
 import { extraerMensajeDeError } from '../../../../core/http/api-error';
 import { OfertasLaborales } from '../../services/ofertas-laborales';
 import { Postulaciones } from '../../services/postulaciones';
 import { MENSAJE_NO_DISPONIBLE, OfertaLaboralBeneficiario } from '../../models/postulacion.model';
+import { PerfilBeneficiarioService } from '../../../beneficiarios/services/perfil-beneficiario.service';
+import { PerfilBeneficiario } from '../../../beneficiarios/models/perfil-beneficiario.model';
 
 @Component({
   selector: 'app-detalle-oferta-page',
@@ -17,7 +20,12 @@ import { MENSAJE_NO_DISPONIBLE, OfertaLaboralBeneficiario } from '../../models/p
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DetalleOfertaPage implements OnInit {
-  protected readonly nombreBeneficiario = signal('Camila');
+  private readonly perfilBeneficiarioService = inject(PerfilBeneficiarioService);
+  protected readonly perfil = toSignal<PerfilBeneficiario | null>(
+    this.perfilBeneficiarioService.getPerfil(),
+    { initialValue: null },
+  );
+  protected readonly nombreBeneficiario = computed(() => this.perfil()?.nombre.split(' ')[0] ?? '');
   protected readonly notificacionesNoLeidas = signal(2);
 
   protected readonly oferta = signal<OfertaLaboralBeneficiario | null>(null);

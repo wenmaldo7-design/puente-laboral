@@ -1,5 +1,4 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Header } from '../../../../shared/ui/header/header';
 import { Footer } from '../../../../shared/ui/footer/footer';
@@ -10,20 +9,22 @@ import {
   HabilidadCatalogo,
   PerfilBeneficiario,
 } from '../../models/perfil-beneficiario.model';
+import {
+  CampoSimple,
+  GuardarCampoEvento,
+  PerfilInfoPersonal,
+} from '../../components/perfil-info-personal/perfil-info-personal';
+import {
+  GuardarTagsEvento,
+  PerfilHabilidadesSection,
+  SeccionTags,
+} from '../../components/perfil-habilidades-section/perfil-habilidades-section';
 
-type CampoSimple = 'fechaNacimiento' | 'direccion' | 'telefono';
-type SeccionTags = 'habilidades' | 'areasInteres';
 type ClaveEdicion = CampoSimple | 'enlaces' | SeccionTags;
-
-/** Grupo de opciones del dropdown de tags. `categoria` es null para catálogos sin agrupar. */
-interface GrupoOpcionesTag {
-  categoria: string | null;
-  opciones: string[];
-}
 
 @Component({
   selector: 'app-perfil-beneficiario-page',
-  imports: [DatePipe, Header, Footer],
+  imports: [Header, Footer, PerfilInfoPersonal, PerfilHabilidadesSection],
   templateUrl: './perfil-beneficiario-page.html',
   styleUrl: './perfil-beneficiario-page.css',
 })
@@ -37,48 +38,23 @@ export class PerfilBeneficiarioPage implements OnInit {
   protected readonly guardando = signal(false);
   protected readonly errorGuardado = signal<string | null>(null);
 
-  protected readonly draftCampoSimple = signal('');
+  /** Subconjuntos tipados de `edicionActiva`, para pasarle a cada hijo solo lo que le corresponde. */
+  protected readonly campoSimpleActivo = computed<CampoSimple | null>(() => {
+    const clave = this.edicionActiva();
+    return clave === 'fechaNacimiento' || clave === 'direccion' || clave === 'telefono' ? clave : null;
+  });
+
+  protected readonly seccionTagsActiva = computed<SeccionTags | null>(() => {
+    const clave = this.edicionActiva();
+    return clave === 'habilidades' || clave === 'areasInteres' ? clave : null;
+  });
+
   protected readonly draftEnlaces = signal<EnlacesPerfil>({ linkedin: '', github: '', cvUrl: '' });
 
   protected readonly catalogoHabilidades = signal<HabilidadCatalogo[]>([]);
   protected readonly catalogoAreasInteres = signal<string[]>([]);
-  protected readonly draftTags = signal<string[]>([]);
-  protected readonly tagBusqueda = signal('');
-  private readonly tagSeccionEnEdicion = signal<SeccionTags | null>(null);
-
-  /**
-   * Habilidades se agrupa por categoría (son ~95 opciones); Áreas de interés
-   * es una lista chica y queda en un único grupo sin encabezado.
-   */
-  protected readonly opcionesTagsFiltradas = computed<GrupoOpcionesTag[]>(() => {
-    const seccion = this.tagSeccionEnEdicion();
-    if (!seccion) return [];
-
-    const termino = this.tagBusqueda().trim().toLowerCase();
-    const yaSeleccionados = new Set(this.draftTags());
-    const coincide = (nombre: string) =>
-      !yaSeleccionados.has(nombre) && (!termino || nombre.toLowerCase().startsWith(termino));
-
-    if (seccion === 'areasInteres') {
-      const opciones = this.catalogoAreasInteres().filter(coincide);
-      return opciones.length ? [{ categoria: null, opciones }] : [];
-    }
-
-    const grupos: GrupoOpcionesTag[] = [];
-    for (const habilidad of this.catalogoHabilidades()) {
-      if (!coincide(habilidad.nombre)) continue;
-      let grupo = grupos.find((g) => g.categoria === habilidad.categoria);
-      if (!grupo) {
-        grupo = { categoria: habilidad.categoria, opciones: [] };
-        grupos.push(grupo);
-      }
-      grupo.opciones.push(habilidad.nombre);
-    }
-    return grupos;
-  });
 
   private readonly perfilBeneficiarioService = inject(PerfilBeneficiarioService);
-  private campoSimpleEnEdicion: CampoSimple | null = null;
 
   ngOnInit(): void {
     this.perfilBeneficiarioService.getPerfil().subscribe((perfil) => this.perfil.set(perfil));
@@ -93,47 +69,20 @@ export class PerfilBeneficiarioPage implements OnInit {
   protected cancelarEdicion(): void {
     this.edicionActiva.set(null);
     this.errorGuardado.set(null);
-    this.campoSimpleEnEdicion = null;
-    this.tagSeccionEnEdicion.set(null);
   }
 
-  protected iniciarEdicionCampo(campo: CampoSimple): void {
-    const perfil = this.perfil();
-    if (!perfil) return;
-    this.campoSimpleEnEdicion = campo;
-    this.draftCampoSimple.set(perfil[campo]);
+  protected onPedirEdicionCampo(campo: CampoSimple): void {
     this.errorGuardado.set(null);
     this.edicionActiva.set(campo);
   }
 
-  protected onDraftCampoSimpleInput(event: Event): void {
-    this.draftCampoSimple.set((event.target as HTMLInputElement).value);
-  }
-
-  /** Enmascara el teléfono a medida que se escribe: solo dígitos, agrupados como "351-555-0102". */
-  protected onDraftTelefonoInput(event: Event): void {
-    const inputEl = event.target as HTMLInputElement;
-    const digitos = inputEl.value.replace(/\D/g, '').slice(0, 10);
-    const grupos = [digitos.slice(0, 3), digitos.slice(3, 6), digitos.slice(6, 10)].filter(Boolean);
-    const formateado = grupos.join('-');
-    // Se refleja de inmediato en el input nativo: si el valor enmascarado no
-    // cambia respecto del anterior (p. ej. se tipeó un carácter inválido),
-    // el binding de Angular no vuelve a pisar el DOM por sí solo.
-    inputEl.value = formateado;
-    this.draftCampoSimple.set(formateado);
-  }
-
-  protected guardarCampoSimple(): void {
-    const campo = this.campoSimpleEnEdicion;
-    if (!campo) return;
-
-    const valor = this.draftCampoSimple();
+  protected onGuardarCampo(evento: GuardarCampoEvento): void {
     const payload =
-      campo === 'fechaNacimiento'
-        ? { fechaNacimiento: valor }
-        : campo === 'direccion'
-          ? { direccion: valor }
-          : { telefono: valor };
+      evento.campo === 'fechaNacimiento'
+        ? { fechaNacimiento: evento.valor }
+        : evento.campo === 'direccion'
+          ? { direccion: evento.valor }
+          : { telefono: evento.valor };
 
     this.guardando.set(true);
     this.errorGuardado.set(null);
@@ -142,7 +91,6 @@ export class PerfilBeneficiarioPage implements OnInit {
         this.perfil.set(perfil);
         this.guardando.set(false);
         this.edicionActiva.set(null);
-        this.campoSimpleEnEdicion = null;
       },
       error: (err: unknown) => {
         this.guardando.set(false);
@@ -182,46 +130,24 @@ export class PerfilBeneficiarioPage implements OnInit {
     });
   }
 
-  protected iniciarEdicionTags(seccion: SeccionTags): void {
-    const perfil = this.perfil();
-    if (!perfil) return;
-    this.tagSeccionEnEdicion.set(seccion);
-    this.draftTags.set([...perfil[seccion]]);
-    this.tagBusqueda.set('');
+  protected onPedirEdicionTags(seccion: SeccionTags): void {
     this.errorGuardado.set(null);
     this.edicionActiva.set(seccion);
   }
 
-  protected onTagBusquedaInput(event: Event): void {
-    this.tagBusqueda.set((event.target as HTMLInputElement).value);
-  }
-
-  protected agregarTag(opcion: string): void {
-    this.draftTags.update((tags) => (tags.includes(opcion) ? tags : [...tags, opcion]));
-    this.tagBusqueda.set('');
-  }
-
-  protected quitarTag(tag: string): void {
-    this.draftTags.update((tags) => tags.filter((t) => t !== tag));
-  }
-
-  protected guardarTags(): void {
-    const seccion = this.tagSeccionEnEdicion();
-    if (!seccion) return;
-
+  protected onGuardarTags(evento: GuardarTagsEvento): void {
     this.guardando.set(true);
     this.errorGuardado.set(null);
     const guardar$ =
-      seccion === 'habilidades'
-        ? this.perfilBeneficiarioService.actualizarHabilidades(this.draftTags())
-        : this.perfilBeneficiarioService.actualizarAreasInteres(this.draftTags());
+      evento.seccion === 'habilidades'
+        ? this.perfilBeneficiarioService.actualizarHabilidades(evento.tags)
+        : this.perfilBeneficiarioService.actualizarAreasInteres(evento.tags);
 
     guardar$.subscribe({
       next: (perfil) => {
         this.perfil.set(perfil);
         this.guardando.set(false);
         this.edicionActiva.set(null);
-        this.tagSeccionEnEdicion.set(null);
       },
       error: (err: unknown) => {
         this.guardando.set(false);

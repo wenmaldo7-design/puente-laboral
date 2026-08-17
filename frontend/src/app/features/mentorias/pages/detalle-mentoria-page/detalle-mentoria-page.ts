@@ -1,11 +1,14 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Header } from '../../../../shared/ui/header/header';
 import { Footer } from '../../../../shared/ui/footer/footer';
 import { Mentorias } from '../../services/mentorias';
 import { InscripcionesMentorias } from '../../services/inscripciones-mentorias';
 import { Mentoria } from '../../models/mentoria.model';
 import { InscripcionMentoria } from '../../models/inscripcion-mentoria.model';
+import { PerfilBeneficiarioService } from '../../../beneficiarios/services/perfil-beneficiario.service';
+import { PerfilBeneficiario } from '../../../beneficiarios/models/perfil-beneficiario.model';
 
 @Component({
   selector: 'app-detalle-mentoria-page',
@@ -15,7 +18,12 @@ import { InscripcionMentoria } from '../../models/inscripcion-mentoria.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DetalleMentoriaPage implements OnInit {
-  protected readonly nombreBeneficiario = signal('Camila');
+  private readonly perfilBeneficiarioService = inject(PerfilBeneficiarioService);
+  protected readonly perfil = toSignal<PerfilBeneficiario | null>(
+    this.perfilBeneficiarioService.getPerfil(),
+    { initialValue: null },
+  );
+  protected readonly nombreBeneficiario = computed(() => this.perfil()?.nombre.split(' ')[0] ?? '');
   protected readonly notificacionesNoLeidas = signal(2);
 
   protected readonly mentoria = signal<Mentoria | null>(null);

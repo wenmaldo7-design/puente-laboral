@@ -1,11 +1,14 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Header } from '../../../../shared/ui/header/header';
 import { Footer } from '../../../../shared/ui/footer/footer';
 import { extraerMensajeDeError } from '../../../../core/http/api-error';
 import { OfertasLaborales } from '../../services/ofertas-laborales';
 import { MENSAJE_NO_DISPONIBLE, OfertaLaboralBeneficiario } from '../../models/postulacion.model';
+import { PerfilBeneficiarioService } from '../../../beneficiarios/services/perfil-beneficiario.service';
+import { PerfilBeneficiario } from '../../../beneficiarios/models/perfil-beneficiario.model';
 
 type ModalidadFiltro = 'todas' | 'virtual' | 'presencial';
 
@@ -28,7 +31,12 @@ const FILTROS_MODALIDAD: FiltroModalidad[] = [
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ListadoOfertasPage implements OnInit {
-  protected readonly nombreBeneficiario = signal('Camila');
+  private readonly perfilBeneficiarioService = inject(PerfilBeneficiarioService);
+  protected readonly perfil = toSignal<PerfilBeneficiario | null>(
+    this.perfilBeneficiarioService.getPerfil(),
+    { initialValue: null },
+  );
+  protected readonly nombreBeneficiario = computed(() => this.perfil()?.nombre.split(' ')[0] ?? '');
   protected readonly notificacionesNoLeidas = signal(2);
 
   protected readonly ofertas = signal<OfertaLaboralBeneficiario[]>([]);
