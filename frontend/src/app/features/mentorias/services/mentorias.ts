@@ -1,6 +1,13 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { Mentoria } from '../models/mentoria.model';
+
+declare global {
+  interface Window {
+    __env?: { apiUrl?: string };
+  }
+}
 
 const MOCK_MENTORIAS: Mentoria[] = [
   {
@@ -61,6 +68,89 @@ const MOCK_MENTORIAS: Mentoria[] = [
     linkOCanal: 'https://meet.google.com/xyz-uvwx-rst',
     matchPorcentaje: 88,
   },
+  {
+    id: 'ment-6',
+    titulo: 'Primeros auxilios básicos',
+    descripcion:
+      'Técnicas esenciales de primeros auxilios para actuar con seguridad ante emergencias cotidianas, en el trabajo o el hogar.',
+    mentorNombre: 'Rosa Medina',
+    mentorIniciales: 'RM',
+    fecha: '2026-09-01',
+    horaInicio: '09:00',
+    modalidad: 'presencial',
+  },
+  {
+    id: 'ment-7',
+    titulo: 'Introducción a la carpintería',
+    descripcion:
+      'Nociones básicas de carpintería: uso seguro de herramientas manuales, medición y armado de piezas simples.',
+    mentorNombre: 'Jorge Paz',
+    mentorIniciales: 'JP',
+    fecha: '2026-09-03',
+    horaInicio: '15:00',
+    modalidad: 'presencial',
+    matchPorcentaje: 81,
+  },
+  {
+    id: 'ment-8',
+    titulo: 'Cocina para eventos',
+    descripcion:
+      'Técnicas de cocina para catering y eventos: organización de la producción, presentación de platos y manejo de cantidades.',
+    mentorNombre: 'Marisol Vega',
+    mentorIniciales: 'MV',
+    fecha: '2026-09-05',
+    horaInicio: '14:00',
+    modalidad: 'presencial',
+  },
+  {
+    id: 'ment-9',
+    titulo: 'Nociones de costura y arreglos textiles',
+    descripcion:
+      'Costura básica y arreglos textiles: uso de la máquina de coser, ajustes de prendas y reparaciones simples.',
+    mentorNombre: 'Elena Duarte',
+    mentorIniciales: 'ED',
+    fecha: '2026-09-08',
+    horaInicio: '18:00',
+    modalidad: 'virtual',
+    linkOCanal: 'https://meet.google.com/tex-tile-023',
+    matchPorcentaje: 90,
+  },
+  {
+    id: 'ment-10',
+    titulo: 'Manejo de herramientas de jardinería',
+    descripcion:
+      'Uso y mantenimiento de herramientas de jardinería, poda básica y cuidado de espacios verdes.',
+    mentorNombre: 'Norma Acosta',
+    mentorIniciales: 'NA',
+    fecha: '2026-09-10',
+    horaInicio: '10:00',
+    modalidad: 'presencial',
+    matchPorcentaje: 75,
+  },
+  {
+    id: 'ment-11',
+    titulo: 'Inglés básico para el mundo laboral',
+    descripcion:
+      'Vocabulario y frases clave en inglés para entrevistas laborales y tareas cotidianas de trabajo.',
+    mentorNombre: 'Pablo Cabrera',
+    mentorIniciales: 'PC',
+    fecha: '2026-09-12',
+    horaInicio: '19:00',
+    modalidad: 'virtual',
+    linkOCanal: 'https://zoom.us/j/987654321',
+  },
+  {
+    id: 'ment-12',
+    titulo: 'Mecánica básica del automóvil',
+    descripcion:
+      'Introducción a la mecánica automotriz: chequeos básicos, mantenimiento preventivo y detección de fallas simples.',
+    mentorNombre: 'Ariel Sosa',
+    mentorIniciales: 'AS',
+    fecha: '2026-09-15',
+    horaInicio: '16:30',
+    modalidad: 'presencial',
+    matchPorcentaje: 83,
+  },
 ];
 
 /**
@@ -71,11 +161,19 @@ const MOCK_MENTORIAS: Mentoria[] = [
  */
 @Injectable({ providedIn: 'root' })
 export class Mentorias {
+  constructor(private readonly http: HttpClient) {}
+
+  private get apiUrl(): string {
+    return window.__env?.apiUrl ?? 'http://localhost:3000';
+  }
+
   getMentorias(): Observable<Mentoria[]> {
+    // return this.http.get<Mentoria[]>(`${this.apiUrl}/mentorias`);
     return of(MOCK_MENTORIAS);
   }
 
   getMentoriaPorId(id: string): Observable<Mentoria | undefined> {
+    // return this.http.get<Mentoria>(`${this.apiUrl}/mentorias/${id}`);
     return of(MOCK_MENTORIAS.find((mentoria) => mentoria.id === id));
   }
 }

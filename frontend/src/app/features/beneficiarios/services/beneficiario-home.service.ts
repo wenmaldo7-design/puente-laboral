@@ -1,10 +1,17 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import {
   ActualizacionPostulacion,
   MetricaResumen,
   Oportunidad,
 } from '../models/beneficiario-home.model';
+
+declare global {
+  interface Window {
+    __env?: { apiUrl?: string };
+  }
+}
 
 const MOCK_METRICAS: MetricaResumen[] = [
   { etiqueta: 'Postulaciones', valor: 8 },
@@ -58,15 +65,24 @@ const MOCK_ACTUALIZACIONES: ActualizacionPostulacion[] = [
  */
 @Injectable({ providedIn: 'root' })
 export class BeneficiarioHomeService {
+  constructor(private readonly http: HttpClient) {}
+
+  private get apiUrl(): string {
+    return window.__env?.apiUrl ?? 'http://localhost:3000';
+  }
+
   getMetricas(): Observable<MetricaResumen[]> {
+    // return this.http.get<MetricaResumen[]>(`${this.apiUrl}/beneficiarios/me/metricas`);
     return of(MOCK_METRICAS);
   }
 
   getOportunidadesRecomendadas(): Observable<Oportunidad[]> {
+    // return this.http.get<Oportunidad[]>(`${this.apiUrl}/beneficiarios/me/oportunidades-recomendadas`);
     return of(MOCK_OPORTUNIDADES);
   }
 
   getUltimasActualizaciones(): Observable<ActualizacionPostulacion[]> {
+    // return this.http.get<ActualizacionPostulacion[]>(`${this.apiUrl}/beneficiarios/me/actualizaciones`);
     return of(MOCK_ACTUALIZACIONES);
   }
 }

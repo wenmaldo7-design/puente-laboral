@@ -1,4 +1,5 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Header } from '../../../../shared/ui/header/header';
 import { Footer } from '../../../../shared/ui/footer/footer';
 import { BeneficiarioHomeService } from '../../services/beneficiario-home.service';
@@ -15,12 +16,21 @@ import {
   imports: [Header, Footer],
   templateUrl: './home-beneficiario-page.html',
   styleUrl: './home-beneficiario-page.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomeBeneficiarioPage implements OnInit {
+export class HomeBeneficiarioPage {
+  private readonly beneficiarioHomeService = inject(BeneficiarioHomeService);
+
   protected readonly nombreBeneficiario = signal('Camila');
-  protected readonly metricas = signal<MetricaResumen[]>([]);
-  protected readonly oportunidades = signal<Oportunidad[]>([]);
-  protected readonly actualizaciones = signal<ActualizacionPostulacion[]>([]);
+  protected readonly metricas = toSignal(this.beneficiarioHomeService.getMetricas(), {
+    initialValue: [] as MetricaResumen[],
+  });
+  protected readonly oportunidades = toSignal(this.beneficiarioHomeService.getOportunidadesRecomendadas(), {
+    initialValue: [] as Oportunidad[],
+  });
+  protected readonly actualizaciones = toSignal(this.beneficiarioHomeService.getUltimasActualizaciones(), {
+    initialValue: [] as ActualizacionPostulacion[],
+  });
 
   protected readonly notificacionesNoLeidas = computed(
     () => this.metricas().find((metrica) => metrica.etiqueta === 'Notificaciones')?.valor ?? 0,
@@ -44,18 +54,6 @@ export class HomeBeneficiarioPage implements OnInit {
       return coincideFiltro && coincideBusqueda;
     });
   });
-
-  private readonly beneficiarioHomeService = inject(BeneficiarioHomeService);
-
-  ngOnInit(): void {
-    this.beneficiarioHomeService.getMetricas().subscribe((metricas) => this.metricas.set(metricas));
-    this.beneficiarioHomeService
-      .getOportunidadesRecomendadas()
-      .subscribe((oportunidades) => this.oportunidades.set(oportunidades));
-    this.beneficiarioHomeService
-      .getUltimasActualizaciones()
-      .subscribe((actualizaciones) => this.actualizaciones.set(actualizaciones));
-  }
 
   protected seleccionarFiltro(id: FiltroOportunidad['id']): void {
     this.filtroActivo.set(id);
