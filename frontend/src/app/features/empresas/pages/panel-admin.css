@@ -1,0 +1,113 @@
+/* Estilos compartidos por las páginas de admin de empresas
+   (solicitudes-pendientes-page, revision-solicitud-page). */
+
+.panel {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.panel-header h1 {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.link-volver {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  border: none;
+  background: none;
+  padding: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.estado-info,
+.estado-error,
+.estado-exito {
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+}
+
+.estado-info {
+  color: var(--color-text-muted);
+}
+
+.estado-error {
+  color: var(--color-error);
+  background: #fef2f2;
+}
+
+.estado-exito {
+  color: #15803d;
+  background: #f0fdf4;
+}
+
+.btn-primario {
+  padding: 0.65rem 1.25rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-primario:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+}
+
+.btn-primario:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-exito {
+  padding: 0.65rem 1.25rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-success);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-exito:hover:not(:disabled) {
+  background: var(--color-success-dark);
+}
+
+.btn-exito:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-peligro {
+  padding: 0.65rem 1.25rem;
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-error);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-peligro:hover:not(:disabled) {
+  background: #fef2f2;
+}
+
+.btn-peligro:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

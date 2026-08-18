@@ -1,0 +1,135 @@
+<div class="beneficiario-page">
+  <app-header [nombre]="nombreSaludo()" [notificacionesNoLeidas]="notificacionesNoLeidas()"></app-header>
+
+  <main class="content">
+    @if (perfil(); as p) {
+      <section class="profile-header-card">
+        <div class="profile-header-top">
+          <div class="avatar" aria-hidden="true">{{ p.avatarIniciales }}</div>
+          <div class="profile-header-info">
+            <h1 class="profile-nombre">{{ p.nombre }}</h1>
+          </div>
+        </div>
+
+        <dl class="profile-datos">
+          <div class="dato-row">
+            <dt>Email</dt>
+            <dd>{{ p.email }}</dd>
+          </div>
+
+          <div class="dato-row">
+            <dt>DNI</dt>
+            <dd>{{ p.dni }}</dd>
+          </div>
+
+          <app-perfil-info-personal
+            [fechaNacimiento]="p.fechaNacimiento"
+            [ubicacion]="p.ubicacion"
+            [direccion]="p.direccion"
+            [telefono]="p.telefono"
+            [activo]="campoSimpleActivo()"
+            [guardando]="guardando()"
+            [error]="errorGuardado()"
+            (pedirEdicion)="onPedirEdicionCampo($event)"
+            (guardar)="onGuardarCampo($event)"
+            (cancelar)="cancelarEdicion()"
+          ></app-perfil-info-personal>
+        </dl>
+      </section>
+
+      <app-perfil-habilidades-section
+        [habilidades]="p.habilidades"
+        [areasInteres]="p.areasInteres"
+        [catalogoHabilidades]="catalogoHabilidades()"
+        [catalogoAreasInteres]="catalogoAreasInteres()"
+        [activo]="seccionTagsActiva()"
+        [guardando]="guardando()"
+        [error]="errorGuardado()"
+        (pedirEdicion)="onPedirEdicionTags($event)"
+        (guardar)="onGuardarTags($event)"
+        (cancelar)="cancelarEdicion()"
+      ></app-perfil-habilidades-section>
+
+      <section class="section card">
+        <div class="beneficiario-section-header">
+          <h2 class="section-title">Enlaces</h2>
+          @if (!estaEditando('enlaces')) {
+            <button type="button" class="btn-editar" aria-label="Editar enlaces" (click)="iniciarEdicionEnlaces()">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M4 20h4L18.5 9.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linejoin="round"
+                  stroke-linecap="round"
+                />
+                <path d="M13 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+              </svg>
+            </button>
+          }
+        </div>
+
+        @if (estaEditando('enlaces')) {
+          <div class="enlaces-edicion">
+            <label class="campo-edicion">
+              LinkedIn
+              <input
+                type="url"
+                class="input-edicion"
+                placeholder="https://linkedin.com/in/tu-usuario"
+                [value]="draftEnlaces().linkedin"
+                (input)="onDraftEnlacesInput('linkedin', $event)"
+              />
+            </label>
+            <label class="campo-edicion">
+              GitHub
+              <input
+                type="url"
+                class="input-edicion"
+                placeholder="https://github.com/tu-usuario"
+                [value]="draftEnlaces().github"
+                (input)="onDraftEnlacesInput('github', $event)"
+              />
+            </label>
+            <label class="campo-edicion">
+              URL de CV
+              <input
+                type="url"
+                class="input-edicion"
+                placeholder="https://..."
+                [value]="draftEnlaces().cvUrl"
+                (input)="onDraftEnlacesInput('cvUrl', $event)"
+              />
+            </label>
+          </div>
+          <div class="edicion-acciones">
+            <button type="button" class="btn-guardar" [disabled]="guardando()" (click)="guardarEnlaces()">
+              {{ guardando() ? 'Guardando...' : 'Guardar' }}
+            </button>
+            <button type="button" class="btn-cancelar" [disabled]="guardando()" (click)="cancelarEdicion()">Cancelar</button>
+          </div>
+          @if (errorGuardado()) {
+            <p class="campo-error" role="alert">{{ errorGuardado() }}</p>
+          }
+        } @else {
+          <ul class="enlaces-list">
+            @if (p.enlaces.linkedin) {
+              <li><a [href]="p.enlaces.linkedin" target="_blank" rel="noopener">LinkedIn</a></li>
+            }
+            @if (p.enlaces.github) {
+              <li><a [href]="p.enlaces.github" target="_blank" rel="noopener">GitHub</a></li>
+            }
+            @if (p.enlaces.cvUrl) {
+              <li><a [href]="p.enlaces.cvUrl" target="_blank" rel="noopener">Curriculum (CV)</a></li>
+            }
+            @if (!p.enlaces.linkedin && !p.enlaces.github && !p.enlaces.cvUrl) {
+              <li class="empty-state">Todavía no agregaste enlaces.</li>
+            }
+          </ul>
+        }
+      </section>
+    }
+  </main>
+
+  <app-footer></app-footer>
+</div>

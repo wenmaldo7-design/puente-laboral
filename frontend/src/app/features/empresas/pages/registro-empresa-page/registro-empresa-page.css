@@ -1,0 +1,175 @@
+.btn-volver {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: none;
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+}
+
+.btn-volver app-icon {
+  width: 20px;
+  height: 20px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+.seccion {
+  margin-bottom: 1.5rem;
+}
+
+.seccion:last-of-type {
+  margin-bottom: 1.25rem;
+}
+
+.seccion-titulo {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+  margin: 0 0 0.85rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.campo-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-top: 0.65rem;
+}
+
+.seccion > .campo-input:first-of-type {
+  margin-top: 0;
+}
+
+.campo-icono {
+  position: absolute;
+  left: 14px;
+  width: 18px;
+  height: 18px;
+  color: var(--color-text-subtle);
+  pointer-events: none;
+}
+
+.campo-input input {
+  width: 100%;
+  padding: 0.85rem 1rem 0.85rem 2.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+
+.campo-input input::placeholder {
+  color: #9ca3af;
+}
+
+.campo-input input:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+  border-color: var(--color-primary);
+}
+
+.campo-input--error input {
+  border-color: var(--color-error);
+}
+
+.btn-ojo {
+  position: absolute;
+  right: 12px;
+  border: none;
+  background: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--color-text-subtle);
+  display: flex;
+}
+
+.btn-ojo app-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.campo-error,
+.form-error {
+  color: var(--color-error);
+  font-size: 0.8rem;
+  margin: 0.3rem 0 0;
+}
+
+.campo-info {
+  color: var(--color-text-subtle);
+  font-size: 0.8rem;
+  margin: 0.3rem 0 0;
+}
+
+.btn-primario {
+  margin-top: 0.85rem;
+  width: 100%;
+  padding: 0.9rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 10px 20px -10px rgba(25, 118, 210, 0.6);
+  transition: background 0.15s ease;
+}
+
+.btn-primario:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+}
+
+.btn-primario:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.confirmacion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.5rem;
+  padding: 1rem 0 0.5rem;
+}
+
+.confirmacion app-icon {
+  width: 40px;
+  height: 40px;
+  color: var(--color-primary);
+  margin-bottom: 0.5rem;
+}
+
+.confirmacion p {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.confirmacion-detalle {
+  font-weight: 400 !important;
+  color: var(--color-text-muted) !important;
+}
+
+.confirmacion .link-button {
+  margin-top: 1rem;
+  border: none;
+  background: none;
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: none;
+}

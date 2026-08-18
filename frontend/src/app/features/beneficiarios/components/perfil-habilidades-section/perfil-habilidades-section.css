@@ -1,0 +1,195 @@
+/*
+ * Los tokens de color (--card, --text, --border, --accent, --text-2,
+ * --skill-bg, --skill-text, --interes-bg, --interes-text) los define
+ * :host en perfil-beneficiario-page.css y se heredan hasta acá.
+ */
+
+:host {
+  display: contents;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px rgba(4, 44, 83, 0.06);
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.beneficiario-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.btn-editar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem;
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.btn-editar svg {
+  width: 15px;
+  height: 15px;
+}
+
+.input-edicion {
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.85rem;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--bg);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.edicion-acciones {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.btn-guardar {
+  background: var(--accent);
+  color: #ffffff;
+  border: none;
+  border-radius: 0.4rem;
+  padding: 0.45rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-cancelar {
+  background: transparent;
+  color: var(--text-2);
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  padding: 0.45rem 1rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.btn-guardar:disabled,
+.btn-cancelar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.campo-error {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  color: #dc2626;
+}
+
+.empty-state {
+  font-size: 0.85rem;
+  color: var(--text-2);
+}
+
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.tag-habilidad {
+  background: var(--skill-bg);
+  color: var(--skill-text);
+}
+
+.tag-interes {
+  background: var(--interes-bg);
+  color: var(--interes-text);
+}
+
+.tag-quitar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.tag-quitar:hover {
+  opacity: 1;
+}
+
+.tags-edicion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tag-buscador {
+  position: relative;
+}
+
+.tag-dropdown {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--card);
+  max-height: 260px;
+  overflow-y: auto;
+  box-shadow: 0 4px 10px rgba(4, 44, 83, 0.08);
+}
+
+.tag-dropdown-categoria {
+  padding: 0.5rem 0.6rem 0.2rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-2);
+}
+
+.tag-opcion {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.tag-opcion:hover {
+  background: var(--bg);
+}

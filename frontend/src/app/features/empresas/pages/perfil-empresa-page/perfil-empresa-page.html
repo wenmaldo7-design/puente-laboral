@@ -1,0 +1,199 @@
+<div class="page">
+  <header class="header">
+    <a routerLink="/empresas/home" class="brand" aria-label="Ir al Inicio de Empresas">
+      <svg class="brand-icon" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <circle cx="33" cy="7" r="3" fill="#f2b93b" />
+        <rect x="4" y="24" width="6" height="12" rx="1" fill="#185fa5" />
+        <rect x="13" y="18" width="6" height="18" rx="1" fill="#185fa5" />
+        <rect x="22" y="12" width="6" height="24" rx="1" fill="#185fa5" />
+        <circle cx="7" cy="20" r="2.5" fill="#042c53" />
+        <circle cx="16" cy="14" r="2.5" fill="#042c53" />
+        <circle cx="25" cy="8" r="2.5" fill="#042c53" />
+      </svg>
+      <div class="brand-text">
+        <span class="brand-name">Puente Laboral</span>
+        <span class="brand-role">Portal Empresas</span>
+      </div>
+    </a>
+
+    <div class="header-actions">
+      <button type="button" class="btn-icon" aria-label="Notificaciones">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M12 3a6 6 0 0 0-6 6v3.2c0 .5-.18.99-.5 1.38L4 15.5c-.7.85-.1 2.1 1 2.1h14c1.1 0 1.7-1.25 1-2.1l-1.5-1.92c-.32-.4-.5-.89-.5-1.38V9a6 6 0 0 0-6-6Z"
+            stroke="#185FA5" stroke-width="1.6" stroke-linejoin="round" />
+          <path d="M9.5 19a2.5 2.5 0 0 0 5 0" stroke="#185FA5" stroke-width="1.6" stroke-linecap="round" />
+        </svg>
+        <span class="badge-count">12</span>
+      </button>
+      <a routerLink="/empresas/perfil" class="header-user" aria-label="Ir al Perfil de la Empresa">
+        <span class="avatar-sm">{{ perfil()?.avatarIniciales ?? 'E' }}</span>
+        <span class="header-greeting">{{ perfil()?.razonSocial }}</span>
+      </a>
+      <button type="button" class="btn-logout" (click)="cerrarSesion()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-icon" aria-hidden="true">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        <span>Cerrar sesión</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="content">
+    @if (perfil(); as p) {
+    <section class="profile-header-card">
+      <div class="profile-header-top">
+        <div class="avatar-lg" aria-hidden="true">{{ p.avatarIniciales }}</div>
+        <div class="profile-header-info">
+          <div class="title-verified-row">
+            <h1 class="profile-nombre">{{ p.razonSocial }}</h1>
+            @if (p.verificada) {
+            <span class="verified-badge">
+              <svg viewBox="0 0 20 20" fill="currentColor" class="badge-icon" aria-hidden="true">
+                <path fill-rule="evenodd"
+                  d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z"
+                  clip-rule="evenodd" />
+              </svg>
+              Empresa Verificada
+            </span>
+            }
+          </div>
+          <p class="profile-razon">CUIT {{ p.cuit }}</p>
+          @if (p.verificada && p.fechaHabilitacion) {
+            <div class="profile-sector-row">
+              <span class="meta-item">Habilitada desde {{ p.fechaHabilitacion | date: 'dd/MM/yyyy' }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+
+    <div class="profile-grid">
+      <!-- 1. Información General (solo lectura: razón social/cuit no se editan desde acá) -->
+      <section class="section-card">
+        <div class="section-card-header">
+          <h2 class="section-card-title">Información de la Empresa</h2>
+        </div>
+
+        <dl class="data-list">
+          <div class="data-item">
+            <dt>Razón social</dt>
+            <dd>{{ p.razonSocial }}</dd>
+          </div>
+          <div class="data-item">
+            <dt>CUIT</dt>
+            <dd>{{ p.cuit }}</dd>
+          </div>
+          <div class="data-item">
+            <dt>Email institucional</dt>
+            <dd>{{ p.emailInstitucional }}</dd>
+          </div>
+          <div class="data-item">
+            <dt>Estado</dt>
+            <dd>{{ p.verificada ? 'Habilitada' : 'Pendiente de habilitación' }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <!-- 2. Sobre Nosotros -->
+      <section class="section-card full-width">
+        <div class="section-card-header">
+          <h2 class="section-card-title">Sobre la Empresa</h2>
+          @if (edicionActiva() !== 'sobreNosotros') {
+          <button type="button" class="btn-edit" (click)="iniciarEdicion('sobreNosotros')"
+            aria-label="Editar descripción sobre la empresa">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" class="btn-edit-icon" aria-hidden="true">
+              <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+            </svg>
+            <span>Editar</span>
+          </button>
+          }
+        </div>
+
+        @if (edicionActiva() === 'sobreNosotros') {
+        <form (submit)="$event.preventDefault(); guardarEdicion('sobreNosotros')" class="edit-form">
+          <div class="form-group">
+            <label for="sobreNosotros">Misión, cultura y compromiso social</label>
+            <textarea id="sobreNosotros" rows="4" class="form-control" [value]="draftSobreNosotros()"
+              (input)="onDraftSobreNosotrosInput($event)" [disabled]="guardando()"></textarea>
+          </div>
+          @if (errorGuardado()) {
+            <p class="campo-error" role="alert">{{ errorGuardado() }}</p>
+          }
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" [disabled]="guardando()" (click)="cancelarEdicion()">Cancelar</button>
+            <button type="submit" class="btn-save" [disabled]="guardando()">
+              {{ guardando() ? 'Guardando...' : 'Guardar cambios' }}
+            </button>
+          </div>
+        </form>
+        } @else {
+        <p class="about-text">{{ p.sobreNosotros || 'Todavía no agregaste una descripción.' }}</p>
+        }
+      </section>
+
+      <!-- 3. Sitio web -->
+      <section class="section-card full-width">
+        <div class="section-card-header">
+          <h2 class="section-card-title">Sitio Web</h2>
+          @if (edicionActiva() !== 'sitioWeb') {
+          <button type="button" class="btn-edit" (click)="iniciarEdicion('sitioWeb')" aria-label="Editar sitio web">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" class="btn-edit-icon" aria-hidden="true">
+              <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+            </svg>
+            <span>Editar</span>
+          </button>
+          }
+        </div>
+
+        @if (edicionActiva() === 'sitioWeb') {
+        <form (submit)="$event.preventDefault(); guardarEdicion('sitioWeb')" class="edit-form">
+          <div class="form-group">
+            <label for="sitioWeb">Sitio Web Oficial</label>
+            <input id="sitioWeb" type="url" class="form-control" placeholder="https://tuempresa.com"
+              [value]="draftSitioWeb()" (input)="onDraftSitioWebInput($event)" [disabled]="guardando()" />
+          </div>
+          @if (errorGuardado()) {
+            <p class="campo-error" role="alert">{{ errorGuardado() }}</p>
+          }
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" [disabled]="guardando()" (click)="cancelarEdicion()">Cancelar</button>
+            <button type="submit" class="btn-save" [disabled]="guardando()">
+              {{ guardando() ? 'Guardando...' : 'Guardar cambios' }}
+            </button>
+          </div>
+        </form>
+        } @else {
+        <div class="links-list">
+          @if (p.sitioWeb) {
+          <a [href]="p.sitioWeb" target="_blank" rel="noopener noreferrer" class="link-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" class="link-icon" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="2" y1="12" x2="22" y2="12" />
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+            </svg>
+            <span>{{ p.sitioWeb }}</span>
+          </a>
+          } @else {
+          <p class="empty-state">Todavía no agregaste un sitio web.</p>
+          }
+        </div>
+        }
+      </section>
+    </div>
+    }
+  </main>
+
+  <footer class="footer">
+    <span>© 2026 Puente Laboral. Todos los derechos reservados.</span>
+    <div class="footer-links">
+      <a href="#">Términos y condiciones</a>
+      <a href="#">Política de privacidad</a>
+    </div>
+  </footer>
+</div>

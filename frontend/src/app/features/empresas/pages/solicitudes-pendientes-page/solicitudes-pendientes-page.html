@@ -1,0 +1,66 @@
+<main class="panel">
+  <header class="panel-header">
+    <h1>Solicitudes pendientes</h1>
+    <button type="button" class="link-volver" (click)="cerrarSesion()">Cerrar sesión</button>
+  </header>
+
+  @if (cargando()) {
+    <p class="estado-info">Cargando...</p>
+  } @else if (error()) {
+    <p class="estado-error" role="alert">{{ error() }}</p>
+  } @else if (items().length === 0) {
+    <p class="estado-info">No hay solicitudes pendientes.</p>
+  } @else {
+    <div class="tabla-wrapper">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Razón social</th>
+            <th>CUIT</th>
+            <th>Email de contacto</th>
+            <th>Fecha de solicitud</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of items(); track item.id_solicitud) {
+            <tr>
+              <td>{{ item.razon_social }}</td>
+              <td>{{ item.cuit }}</td>
+              <td>{{ item.email_contacto }}</td>
+              <td>{{ item.fecha_solicitud | date: 'dd/MM/yyyy' }}</td>
+              <td>
+                <a
+                  [routerLink]="['/empresas/solicitudes', item.id_solicitud]"
+                  class="link-revisar"
+                >
+                  Revisar
+                </a>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalPaginas() > 1) {
+      <div class="paginado">
+        <button
+          type="button"
+          (click)="cambiarPagina(pagina() - 1)"
+          [disabled]="pagina() === 1"
+        >
+          Anterior
+        </button>
+        <span>Página {{ pagina() }} de {{ totalPaginas() }}</span>
+        <button
+          type="button"
+          (click)="cambiarPagina(pagina() + 1)"
+          [disabled]="pagina() === totalPaginas()"
+        >
+          Siguiente
+        </button>
+      </div>
+    }
+  }
+</main>

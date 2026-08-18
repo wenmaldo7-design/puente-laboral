@@ -1,0 +1,184 @@
+<div class="page">
+  <header class="header">
+    <a class="brand" routerLink="/empresas/home">
+      <img class="brand-logo" src="/logo.png" alt="Puente Laboral" width="677" height="369" />
+    </a>
+    <a class="link-volver" routerLink="/empresas/home">‹ Volver al panel</a>
+  </header>
+
+  <main class="content">
+    @if (enviado()) {
+      <div class="confirmacion">
+        <h1 class="main-title">¡Oferta publicada!</h1>
+        <p class="subtitle">Tu oferta laboral ya está activa y visible para los beneficiarios.</p>
+        <button type="button" class="btn-submit" (click)="volverAlHome()">Volver al panel</button>
+      </div>
+    } @else {
+      <h1 class="main-title">Crear oferta laboral</h1>
+      <p class="subtitle">Completá los datos de la publicación.</p>
+
+      <form [formGroup]="form" (ngSubmit)="enviar()" novalidate class="oferta-form">
+        @if (errorGeneral()) {
+          <div class="alert-error" role="alert">{{ errorGeneral() }}</div>
+        }
+
+        <div class="form-group">
+          <label for="ofTitulo">Título <span class="required">*</span></label>
+          <input
+            id="ofTitulo"
+            type="text"
+            class="form-control"
+            formControlName="titulo"
+            maxlength="150"
+            placeholder="Ej: Desarrollador/a Trainee Frontend"
+          />
+          @if (form.controls.titulo.invalid && form.controls.titulo.touched) {
+            <p class="form-error">El título es obligatorio.</p>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="ofDescripcion">Descripción (opcional)</label>
+          <textarea
+            id="ofDescripcion"
+            class="form-control form-textarea"
+            rows="3"
+            formControlName="descripcion"
+            placeholder="Detalle del puesto, requisitos, objetivos de inclusión..."
+          ></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="ofArea">Área <span class="required">*</span></label>
+            <select id="ofArea" class="form-control form-select" formControlName="area">
+              <option value="" disabled>Seleccioná un área</option>
+              @for (area of areas(); track area) {
+                <option [value]="area">{{ area }}</option>
+              }
+            </select>
+            @if (form.controls.area.invalid && form.controls.area.touched) {
+              <p class="form-error">Seleccioná un área.</p>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="ofTipoContrato">Tipo de contrato (opcional)</label>
+            <select id="ofTipoContrato" class="form-control form-select" formControlName="tipo_contrato">
+              <option value="">Sin especificar</option>
+              @for (tipo of tiposContrato(); track tipo) {
+                <option [value]="tipo">{{ tipo }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="ofModalidad">Modalidad <span class="required">*</span></label>
+            <select id="ofModalidad" class="form-control form-select" formControlName="modalidad">
+              <option value="" disabled>Seleccioná una modalidad</option>
+              <option value="virtual">Virtual</option>
+              <option value="presencial">Presencial</option>
+            </select>
+            @if (form.controls.modalidad.invalid && form.controls.modalidad.touched) {
+              <p class="form-error">Seleccioná una modalidad.</p>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="ofVacantes">Vacantes <span class="required">*</span></label>
+            <input
+              id="ofVacantes"
+              type="number"
+              class="form-control"
+              formControlName="vacantes"
+              min="1"
+              step="1"
+              placeholder="Ej: 2"
+            />
+            @if (form.controls.vacantes.invalid && form.controls.vacantes.touched) {
+              <p class="form-error">Ingresá una cantidad de vacantes válida (entero positivo).</p>
+            }
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="ofSalario">Salario (opcional)</label>
+            <input
+              id="ofSalario"
+              type="number"
+              class="form-control"
+              formControlName="salario"
+              min="0.01"
+              step="0.01"
+              placeholder="Ej: 450000"
+            />
+            @if (form.controls.salario.invalid && form.controls.salario.touched) {
+              <p class="form-error">El salario debe ser un número positivo.</p>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="ofFechaLimite">Fecha límite <span class="required">*</span></label>
+            <input
+              id="ofFechaLimite"
+              type="date"
+              class="form-control"
+              formControlName="fecha_limite"
+              [min]="minFechaLimite"
+            />
+            @if (form.controls.fecha_limite.invalid && form.controls.fecha_limite.touched) {
+              <p class="form-error">Elegí una fecha límite que no sea pasada.</p>
+            }
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Habilidades requeridas (opcional)</label>
+          <input
+            type="search"
+            class="form-control"
+            placeholder="Buscar habilidad..."
+            [value]="filtroHabilidad()"
+            (input)="onFiltroHabilidadInput($event)"
+          />
+
+          @if (form.controls.habilidades.value.length) {
+            <div class="habilidades-chips">
+              @for (nombre of form.controls.habilidades.value; track nombre) {
+                <span class="chip-seleccionado">
+                  {{ nombre }}
+                  <button type="button" aria-label="Quitar {{ nombre }}" (click)="toggleHabilidad(nombre)">×</button>
+                </span>
+              }
+            </div>
+          }
+
+          <div class="habilidades-lista" role="group" aria-label="Habilidades disponibles">
+            @for (nombre of habilidadesFiltradas(); track nombre) {
+              <label class="habilidad-opcion">
+                <input
+                  type="checkbox"
+                  [checked]="estaSeleccionada(nombre)"
+                  (change)="toggleHabilidad(nombre)"
+                />
+                {{ nombre }}
+              </label>
+            } @empty {
+              <p class="empty-state">No encontramos habilidades para tu búsqueda.</p>
+            }
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <a routerLink="/empresas/home" class="btn-cancel">Cancelar</a>
+          <button type="submit" class="btn-submit" [disabled]="enviando()">
+            {{ enviando() ? 'Publicando...' : 'Publicar oferta' }}
+          </button>
+        </div>
+      </form>
+    }
+  </main>
+</div>

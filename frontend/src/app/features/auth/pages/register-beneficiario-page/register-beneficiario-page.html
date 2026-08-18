@@ -1,0 +1,170 @@
+<app-auth-card>
+  <button type="button" class="btn-volver" routerLink="/auth/login" aria-label="Volver al login">
+    <app-icon name="arrow-left" />
+  </button>
+
+  <app-brand-header subtitulo="Registro de Beneficiario" />
+
+  <form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+    <section class="seccion">
+      <h2 class="seccion-titulo">Datos de acceso</h2>
+
+      <div class="campo-input" [class.campo-input--error]="form.controls.email.invalid && form.controls.email.touched">
+        <app-icon name="mail" class="campo-icono" />
+        <input
+          type="email"
+          formControlName="email"
+          placeholder="Email"
+          autocomplete="email"
+          maxlength="150"
+          [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched"
+        />
+      </div>
+      @if (form.controls.email.invalid && form.controls.email.touched) {
+        <p class="campo-error">Ingresá un email válido.</p>
+      }
+
+      <div class="campo-input" [class.campo-input--error]="form.controls.password.invalid && form.controls.password.touched">
+        <app-icon name="lock" class="campo-icono" />
+        <input
+          [type]="mostrarPassword() ? 'text' : 'password'"
+          formControlName="password"
+          placeholder="Contraseña"
+          autocomplete="new-password"
+          maxlength="50"
+          (input)="verificarCoincidencia()"
+          [attr.aria-invalid]="form.controls.password.invalid && form.controls.password.touched"
+        />
+        <button
+          type="button"
+          class="btn-ojo"
+          (click)="mostrarPassword.set(!mostrarPassword())"
+          [attr.aria-label]="mostrarPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+        >
+          <app-icon [name]="mostrarPassword() ? 'eye-off' : 'eye'" />
+        </button>
+      </div>
+      @if (form.controls.password.invalid && form.controls.password.touched) {
+        <p class="campo-error">
+          Entre 8 y 50 caracteres, con mayúscula, minúscula, número y carácter especial.
+        </p>
+      }
+
+      <div class="campo-input" [class.campo-input--error]="form.controls.confirmarPassword.invalid && form.controls.confirmarPassword.touched">
+        <app-icon name="lock" class="campo-icono" />
+        <input
+          [type]="mostrarPassword() ? 'text' : 'password'"
+          formControlName="confirmarPassword"
+          placeholder="Repetí la contraseña"
+          autocomplete="new-password"
+          (input)="verificarCoincidencia()"
+          [attr.aria-invalid]="form.controls.confirmarPassword.invalid && form.controls.confirmarPassword.touched"
+        />
+      </div>
+      @if (form.controls.confirmarPassword.touched && form.controls.confirmarPassword.errors) {
+        @if (form.controls.confirmarPassword.errors['noCoincide']) {
+          <p class="campo-error">Las contraseñas no coinciden.</p>
+        } @else {
+          <p class="campo-error">Repetí la contraseña.</p>
+        }
+      }
+    </section>
+
+    <section class="seccion">
+      <h2 class="seccion-titulo">Datos personales</h2>
+
+      <div class="campos-grid-2">
+        <div class="campo-input" [class.campo-input--error]="form.controls.nombre.invalid && form.controls.nombre.touched">
+          <app-icon name="user" class="campo-icono" />
+          <input type="text" formControlName="nombre" placeholder="Nombres" autocomplete="given-name" maxlength="25" />
+        </div>
+        <div class="campo-input" [class.campo-input--error]="form.controls.apellido.invalid && form.controls.apellido.touched">
+          <app-icon name="user" class="campo-icono" />
+          <input type="text" formControlName="apellido" placeholder="Apellidos" autocomplete="family-name" maxlength="25" />
+        </div>
+      </div>
+      @if ((form.controls.nombre.invalid && form.controls.nombre.touched) || (form.controls.apellido.invalid && form.controls.apellido.touched)) {
+        <p class="campo-error">Nombre y apellido son obligatorios y solo pueden contener letras.</p>
+      }
+
+      <div class="campos-grid-2">
+        <div class="campo-input" [class.campo-input--error]="form.controls.dni.invalid && form.controls.dni.touched">
+          <app-icon name="hash" class="campo-icono" />
+          <input type="text" inputmode="numeric" formControlName="dni" placeholder="DNI" maxlength="8" />
+        </div>
+        <div class="campo-input" [class.campo-input--error]="form.controls.fechaNacimiento.invalid && form.controls.fechaNacimiento.touched">
+          <app-icon name="calendar" class="campo-icono" />
+          <input type="date" formControlName="fechaNacimiento" [attr.max]="fechaMaxima" />
+        </div>
+      </div>
+      @if (form.controls.dni.invalid && form.controls.dni.touched) {
+        <p class="campo-error">Ingresá un DNI válido (solo números, máximo 8 dígitos).</p>
+      }
+      @if (form.controls.fechaNacimiento.invalid && form.controls.fechaNacimiento.touched) {
+        <p class="campo-error">La fecha de nacimiento no puede ser futura.</p>
+      }
+    </section>
+
+    <section class="seccion">
+      <h2 class="seccion-titulo">Contacto y ubicación</h2>
+
+      <div class="campo-input" [class.campo-input--error]="form.controls.telefono.invalid && form.controls.telefono.touched">
+        <app-icon name="phone" class="campo-icono" />
+        <input type="tel" formControlName="telefono" placeholder="Teléfono" autocomplete="tel" maxlength="15" />
+      </div>
+      @if (form.controls.telefono.invalid && form.controls.telefono.touched) {
+        <p class="campo-error">Ingresá un teléfono válido.</p>
+      }
+
+      <div class="campo-input" [class.campo-input--error]="form.controls.direccion.invalid && form.controls.direccion.touched">
+        <app-icon name="map-pin" class="campo-icono" />
+        <input type="text" formControlName="direccion" placeholder="Dirección" autocomplete="street-address" maxlength="50" />
+      </div>
+      @if (form.controls.direccion.invalid && form.controls.direccion.touched) {
+        <p class="campo-error">La dirección no puede contener caracteres especiales.</p>
+      }
+
+      <div class="campo-input">
+        <app-icon name="building" class="campo-icono" />
+        <input type="text" formControlName="ciudad" placeholder="Ciudad" />
+      </div>
+    </section>
+
+    <section class="seccion">
+      <h2 class="seccion-titulo">Perfil profesional</h2>
+
+      <div class="campo-input campo-input--prefijo" [class.campo-input--error]="form.controls.githubUsuario.invalid && form.controls.githubUsuario.touched">
+        <app-icon name="github" class="campo-icono" />
+        <span class="campo-prefijo">github.com/</span>
+        <input type="text" formControlName="githubUsuario" placeholder="usuario" maxlength="39" />
+      </div>
+      @if (form.controls.githubUsuario.invalid && form.controls.githubUsuario.touched) {
+        <p class="campo-error">Usuario de GitHub inválido.</p>
+      }
+
+      <div class="campo-input" [class.campo-input--error]="form.controls.linkedin.invalid && form.controls.linkedin.touched">
+        <app-icon name="link" class="campo-icono" />
+        <input type="url" formControlName="linkedin" placeholder="URL de LinkedIn" maxlength="300" />
+      </div>
+      @if (form.controls.linkedin.invalid && form.controls.linkedin.touched) {
+        <p class="campo-error">Ingresá una URL de LinkedIn válida.</p>
+      }
+
+      <div class="campo-input" [class.campo-input--error]="form.controls.cvUrl.invalid && form.controls.cvUrl.touched">
+        <app-icon name="link" class="campo-icono" />
+        <input type="url" formControlName="cvUrl" placeholder="URL de CV o portafolio" maxlength="300" />
+      </div>
+      @if (form.controls.cvUrl.invalid && form.controls.cvUrl.touched) {
+        <p class="campo-error">Ingresá una URL de CV válida.</p>
+      }
+    </section>
+
+    @if (errorMensaje()) {
+      <p class="form-error" role="alert">{{ errorMensaje() }}</p>
+    }
+
+    <button type="submit" class="btn-primario" [disabled]="enviando()">
+      {{ enviando() ? 'Creando cuenta...' : 'Registrarse' }}
+    </button>
+  </form>
+</app-auth-card>
