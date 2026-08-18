@@ -11,7 +11,7 @@
   </nav>
 
   <div class="app-header-actions">
-    <button type="button" class="app-header-btn-icon" aria-label="Notificaciones">
+    <a routerLink="/notificaciones" class="app-header-btn-icon" aria-label="Notificaciones">
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path
           d="M12 3a6 6 0 0 0-6 6v3.2c0 .5-.18.99-.5 1.38L4 15.5c-.7.85-.1 2.1 1 2.1h14c1.1 0 1.7-1.25 1-2.1l-1.5-1.92c-.32-.4-.5-.89-.5-1.38V9a6 6 0 0 0-6-6Z"
@@ -24,7 +24,7 @@
       @if (notificacionesNoLeidas() > 0) {
         <span class="app-header-badge-count">{{ notificacionesNoLeidas() }}</span>
       }
-    </button>
+    </a>
     <span class="app-header-greeting">Hola, {{ nombre() }}</span>
     <button type="button" class="app-header-btn-logout" (click)="cerrarSesion()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

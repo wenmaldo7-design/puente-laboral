@@ -20,7 +20,14 @@ export class BandejaNotificacionesPage implements OnInit {
   private readonly notificacionesService = inject(Notificaciones);
   private readonly auth = inject(Auth);
 
-  protected readonly nombre = computed(() => this.auth.sesion()?.email ?? '');
+  /**
+   * La sesión solo trae el email (no el nombre real) y esta página sirve
+   * tanto a beneficiarios como a empresas, así que no hay un servicio de
+   * perfil único del que sacar el nombre. Se usa el segmento antes del
+   * '@' como aproximación, para no romper la consistencia visual del saludo
+   * del header con el resto de las páginas.
+   */
+  protected readonly nombre = computed(() => this.auth.sesion()?.email.split('@')[0] ?? '');
   protected readonly notificacionesNoLeidas = this.notificacionesService.contadorNoLeidas;
 
   protected readonly notificaciones = signal<Notificacion[]>([]);
