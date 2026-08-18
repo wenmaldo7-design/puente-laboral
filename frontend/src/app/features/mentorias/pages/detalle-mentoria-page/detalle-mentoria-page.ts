@@ -9,6 +9,7 @@ import { Mentoria } from '../../models/mentoria.model';
 import { InscripcionMentoria } from '../../models/inscripcion-mentoria.model';
 import { PerfilBeneficiarioService } from '../../../beneficiarios/services/perfil-beneficiario.service';
 import { PerfilBeneficiario } from '../../../beneficiarios/models/perfil-beneficiario.model';
+import { Notificaciones } from '../../../notificaciones/services/notificaciones';
 
 @Component({
   selector: 'app-detalle-mentoria-page',
@@ -24,7 +25,8 @@ export class DetalleMentoriaPage implements OnInit {
     { initialValue: null },
   );
   protected readonly nombreBeneficiario = computed(() => this.perfil()?.nombre.split(' ')[0] ?? '');
-  protected readonly notificacionesNoLeidas = signal(2);
+  private readonly notificacionesService = inject(Notificaciones);
+  protected readonly notificacionesNoLeidas = this.notificacionesService.contadorNoLeidas;
 
   protected readonly mentoria = signal<Mentoria | null>(null);
   protected readonly cargando = signal(true);
@@ -39,6 +41,8 @@ export class DetalleMentoriaPage implements OnInit {
   private readonly inscripcionesService = inject(InscripcionesMentorias);
 
   ngOnInit(): void {
+    this.notificacionesService.refrescarContador();
+
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
       this.cargando.set(false);
