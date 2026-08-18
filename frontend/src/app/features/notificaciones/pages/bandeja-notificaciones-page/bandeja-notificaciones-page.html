@@ -1,1 +1,31 @@
-<p>bandeja-notificaciones-page works!</p>
+<div class="beneficiario-page">
+  <app-header [nombre]="nombre()" [notificacionesNoLeidas]="notificacionesNoLeidas()"></app-header>
+
+  <main class="content">
+    <div class="bandeja-header">
+      <h1 class="main-title">Notificaciones</h1>
+      @if (hayNoLeidas()) {
+        <button type="button" class="btn-marcar-todas" (click)="marcarTodasLeidas()">
+          Marcar todas como leídas
+        </button>
+      }
+    </div>
+
+    @if (notificaciones().length) {
+      <ul class="notificaciones-list">
+        @for (n of notificaciones(); track n.id) {
+          <li class="notificacion-item" [class.no-leida]="!n.leida">
+            <button type="button" class="notificacion-btn" [disabled]="n.leida" (click)="onClickNotificacion(n)">
+              <p class="notificacion-mensaje">{{ n.mensaje }}</p>
+              <span class="notificacion-fecha">{{ formatearFecha(n.fechaEnvio) }}</span>
+            </button>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="empty-state">Todavía no tenés notificaciones.</p>
+    }
+  </main>
+
+  <app-footer></app-footer>
+</div>
