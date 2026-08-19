@@ -112,7 +112,7 @@ export class AdminReportsService {
     worksheet.getRow(1).font = { bold: true };
 
     const buffer = await workbook.xlsx.writeBuffer();
-    return buffer as Buffer;
+    return buffer as unknown as Buffer;
   }
 
   async exportPdf(timeRange: TimeRange = 'all'): Promise<Buffer> {
