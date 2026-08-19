@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+import * as ExcelJS from 'exceljs';
+import PDFDocument from 'pdfkit';
 
 export type TimeRange = '30d' | '1y' | 'all';
 
@@ -87,5 +89,58 @@ export class AdminReportsService {
       totalAcceptedCandidates,
       averageMatchPercentage: averageMatchPercentage !== null ? Math.round(averageMatchPercentage * 100) / 100 : null,
     };
+  }
+
+  async exportExcel(timeRange: TimeRange = 'all'): Promise<Buffer> {
+    const metrics = await this.getMetrics(timeRange);
+    
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Reporte de Metricas');
+
+    worksheet.columns = [
+      { header: 'Metrica', key: 'metric', width: 40 },
+      { header: 'Valor', key: 'value', width: 20 },
+    ];
+
+    const timeRangeLabel = timeRange === '30d' ? 'Ultimos 30 dias' : timeRange === '1y' ? 'Ultimo ano' : 'Toda la vida';
+
+    worksheet.addRow({ metric: 'Periodo', value: timeRangeLabel });
+    worksheet.addRow({ metric: 'Total de Ofertas Laborales Activas', value: metrics.totalActiveJobOffers });
+    worksheet.addRow({ metric: 'Total de Candidatos Aceptados', value: metrics.totalAcceptedCandidates });
+    worksheet.addRow({ metric: 'Porcentaje Promedio de Match', value: metrics.averageMatchPercentage !== null ? `${metrics.averageMatchPercentage}%` : 'N/A' });
+
+    worksheet.getRow(1).font = { bold: true };
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    return buffer as Buffer;
+  }
+
+  async exportPdf(timeRange: TimeRange = 'all'): Promise<Buffer> {
+    const metrics = await this.getMetrics(timeRange);
+    const timeRangeLabel = timeRange === '30d' ? 'Ultimos 30 dias' : timeRange === '1y' ? 'Ultimo ano' : 'Toda la vida';
+
+    return new Promise((resolve, reject) => {
+      const doc = new PDFDocument();
+      const buffers: Buffer[] = [];
+
+      doc.on('data', buffers.push.bind(buffers));
+      doc.on('end', () => {
+        resolve(Buffer.concat(buffers));
+      });
+      doc.on('error', reject);
+
+      doc.fontSize(20).text('Reporte de Metricas del Dashboard', { align: 'center' });
+      doc.moveDown();
+      doc.fontSize(14).text(`Periodo: ${timeRangeLabel}`);
+      doc.moveDown();
+
+      doc.fontSize(12).text(`Total de Ofertas Laborales Activas: ${metrics.totalActiveJobOffers}`);
+      doc.moveDown(0.5);
+      doc.text(`Total de Candidatos Aceptados: ${metrics.totalAcceptedCandidates}`);
+      doc.moveDown(0.5);
+      doc.text(`Porcentaje Promedio de Match: ${metrics.averageMatchPercentage !== null ? `${metrics.averageMatchPercentage}%` : 'N/A'}`);
+
+      doc.end();
+    });
   }
 }
