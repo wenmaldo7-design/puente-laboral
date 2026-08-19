@@ -37,14 +37,14 @@ Chain strategy: pending
 - [x] 2.6 `backend/src/admin-reports/admin-reports.controller.ts`: Expose GET `/admin-reports/export/excel` and `/admin-reports/export/pdf`.
 
 ## Phase 3: Frontend Integration
-- [ ] 3.1 `frontend/src/app/features/admin/services/admin-reports.service.ts`: Create Angular service to consume backend metric and export endpoints.
-- [ ] 3.2 `frontend/src/app/features/auth/pages/login-page/login-page.ts`: Update post-login redirect for `administrador` role to route to `/admin/dashboard`.
-- [ ] 3.3 `frontend/src/app/features/admin/admin.routes.ts`: Create routing module and wire it into the main app routes.
-- [ ] 3.4 `frontend/src/app/features/admin/pages/dashboard-page/dashboard-page.ts`: Create component logic (fetch metrics, handle 30 days/1 year/all time filters, trigger file downloads).
-- [ ] 3.5 `frontend/src/app/features/admin/pages/dashboard-page/dashboard-page.html`: Create template UI with filter buttons, metrics display, and "Todavía no hay datos" empty states.
+- [x] 3.1 `frontend/src/app/features/admin/services/admin-reports.service.ts`: Create Angular service to consume backend metric and export endpoints.
+- [x] 3.2 `frontend/src/app/features/auth/pages/login-page/login-page.ts`: Update post-login redirect for `administrador` role to route to `/admin/dashboard`.
+- [x] 3.3 `frontend/src/app/features/admin/admin.routes.ts`: Create routing module and wire it into the main app routes.
+- [x] 3.4 `frontend/src/app/features/admin/pages/dashboard-page/dashboard-page.ts`: Create component logic (fetch metrics, handle 30 days/1 year/all time filters, trigger file downloads).
+- [x] 3.5 `frontend/src/app/features/admin/pages/dashboard-page/dashboard-page.html`: Create template UI with filter buttons, metrics display, and "Todavía no hay datos" empty states.
 
 ## Phase 4: Testing
 - [x] 4.1 `backend/src/admin-reports/admin-reports.service.spec.ts`: Unit test metrics calculation logic and math operations.
 - [x] 4.2 `backend/src/admin-reports/admin-reports.controller.spec.ts`: Test export endpoints for correct response types.
-- [ ] 4.3 `frontend/src/app/features/admin/pages/dashboard-page/dashboard-page.spec.ts`: Test component UI logic, empty states display, and routing.
+- [x] 4.3 `frontend/src/app/features/admin/pages/dashboard-page/dashboard-page.spec.ts`: Test component UI logic, empty states display, and routing.
 </Tasks: admin-reportes-dashboard>

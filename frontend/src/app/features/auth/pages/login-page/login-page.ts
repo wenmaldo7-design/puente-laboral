@@ -19,7 +19,7 @@ interface RolTab {
 const RUTA_POST_LOGIN: Record<RolLogin, string> = {
   beneficiario: '/beneficiarios/perfil',
   empresa: '/empresas/perfil',
-  administrador: '/empresas/solicitudes',
+  administrador: '/admin/dashboard',
 };
 
 @Component({

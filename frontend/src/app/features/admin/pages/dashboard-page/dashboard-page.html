@@ -1,0 +1,97 @@
+<div class="container mx-auto p-6 max-w-6xl">
+  <header class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Dashboard de Inserción Laboral</h1>
+      <p class="text-gray-500 mt-1">Métricas clave de rendimiento de la plataforma</p>
+    </div>
+    
+    <div class="flex gap-2">
+      <button 
+        (click)="exportExcel()" 
+        class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors shadow-sm flex items-center gap-2"
+        [disabled]="loading()">
+        Exportar Excel
+      </button>
+      <button 
+        (click)="exportPdf()" 
+        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm flex items-center gap-2"
+        [disabled]="loading()">
+        Exportar PDF
+      </button>
+    </div>
+  </header>
+
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-8">
+    <div class="flex flex-wrap gap-2">
+      <button 
+        (click)="setTimeRange('30d')" 
+        [class]="timeRange() === '30d' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+        class="px-4 py-2 rounded-md font-medium transition-colors">
+        Últimos 30 días
+      </button>
+      <button 
+        (click)="setTimeRange('1y')" 
+        [class]="timeRange() === '1y' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+        class="px-4 py-2 rounded-md font-medium transition-colors">
+        Último Año
+      </button>
+      <button 
+        (click)="setTimeRange('all')" 
+        [class]="timeRange() === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+        class="px-4 py-2 rounded-md font-medium transition-colors">
+        Toda la vida
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="error()" class="bg-red-50 text-red-600 p-4 rounded-md mb-8">
+    {{ error() }}
+  </div>
+
+  <div *ngIf="loading()" class="grid grid-cols-1 md:grid-cols-3 gap-6 animate-pulse">
+    <div class="bg-gray-100 h-32 rounded-xl"></div>
+    <div class="bg-gray-100 h-32 rounded-xl"></div>
+    <div class="bg-gray-100 h-32 rounded-xl"></div>
+  </div>
+
+  <div *ngIf="!loading() && metrics()" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Ofertas Activas -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col h-full">
+      <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Ofertas Laborales Activas</h3>
+      <div class="flex-grow flex items-center justify-center py-4">
+        <ng-container *ngIf="metrics()!.totalActiveJobOffers > 0; else noOffers">
+          <span class="text-4xl font-bold text-gray-900" data-testid="metric-active-jobs">{{ metrics()!.totalActiveJobOffers }}</span>
+        </ng-container>
+        <ng-template #noOffers>
+          <span class="text-gray-400 italic text-sm">Todavía no hay datos</span>
+        </ng-template>
+      </div>
+    </div>
+
+    <!-- Candidatos Aceptados -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col h-full">
+      <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Candidatos Aceptados</h3>
+      <div class="flex-grow flex items-center justify-center py-4">
+        <ng-container *ngIf="metrics()!.totalAcceptedCandidates > 0; else noCandidates">
+          <span class="text-4xl font-bold text-gray-900" data-testid="metric-accepted-candidates">{{ metrics()!.totalAcceptedCandidates }}</span>
+        </ng-container>
+        <ng-template #noCandidates>
+          <span class="text-gray-400 italic text-sm">Todavía no hay datos</span>
+        </ng-template>
+      </div>
+    </div>
+
+    <!-- Match Promedio -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col h-full">
+      <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Porcentaje de Match Promedio</h3>
+      <div class="flex-grow flex items-center justify-center py-4">
+        <ng-container *ngIf="metrics()!.averageMatchPercentage !== null; else noMatch">
+          <span class="text-4xl font-bold text-gray-900" data-testid="metric-match-percentage">{{ metrics()!.averageMatchPercentage }}%</span>
+        </ng-container>
+        <ng-template #noMatch>
+          <span class="text-gray-400 italic text-sm">Todavía no hay datos</span>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>
