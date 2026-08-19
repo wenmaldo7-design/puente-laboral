@@ -1,6 +1,8 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminReportsService, AdminMetricsResponse, TimeRange } from '../../services/admin-reports.service';
+import { Auth } from '../../../auth/services/auth';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -11,6 +13,8 @@ import { AdminReportsService, AdminMetricsResponse, TimeRange } from '../../serv
 })
 export class DashboardPage implements OnInit {
   private readonly reportsService = inject(AdminReportsService);
+  private readonly auth = inject(Auth);
+  private readonly router = inject(Router);
 
   readonly timeRange = signal<TimeRange>('30d');
   readonly metrics = signal<AdminMetricsResponse | null>(null);
@@ -67,5 +71,10 @@ export class DashboardPage implements OnInit {
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
+  }
+
+  async cerrarSesion(): Promise<void> {
+    await this.auth.logout();
+    await this.router.navigateByUrl('/');
   }
 }
