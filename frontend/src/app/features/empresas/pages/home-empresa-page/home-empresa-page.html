@@ -107,7 +107,7 @@
         } @else if (oportunidadesFiltradas().length) {
           <div class="oportunidades-grid">
             @for (op of oportunidadesFiltradas(); track op.id) {
-              <article class="oportunidad-card">
+              <article class="oportunidad-card" style="cursor: pointer;" [routerLink]="['/empresas/ofertas-laborales', op.id, 'candidatos']">
                 <div class="card-header">
                   <span class="tipo-tag tipo-empleo">{{ etiquetaTipo(op.tipoServicio) }}</span>
                   <span class="estado-pill estado-{{ op.estado }}">{{ op.estado }}</span>
@@ -167,7 +167,18 @@
                     </svg>
                     <span>{{ postulante.matchPorcentaje }}% match</span>
                   </span>
-                  <span class="postulante-estado estado-{{ postulante.estado }}">{{ postulante.estado }}</span>
+                  <select
+                    class="postulante-estado estado-{{ postulante.estado }}"
+                    [value]="postulante.estado"
+                    (change)="onCambioEstado(postulante.id, $event)"
+                    aria-label="Estado de la postulación"
+                  >
+                    <option value="pendiente">Pendiente</option>
+                    <option value="en_proceso">En proceso</option>
+                    <option value="entrevistado">Entrevistado</option>
+                    <option value="aceptada">Aceptada</option>
+                    <option value="rechazada">Rechazada</option>
+                  </select>
                 </div>
               </div>
             }

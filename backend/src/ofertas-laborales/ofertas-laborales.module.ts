@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { NotificacionesModule } from '../notificaciones/notificaciones.module';
 import { EmpresasDashboardController } from './empresas-dashboard.controller';
 import { EmpresasDashboardService } from './empresas-dashboard.service';
 import { OfertasLaboralesBeneficiarioController } from './ofertas-laborales-beneficiario.controller';
@@ -9,6 +10,7 @@ import { PostulacionesController } from './postulaciones.controller';
 import { PostulacionesService } from './postulaciones.service';
 
 @Module({
+  imports: [NotificacionesModule],
   controllers: [
     OfertasLaboralesController,
     OfertasLaboralesBeneficiarioController,

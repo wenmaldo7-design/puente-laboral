@@ -63,7 +63,7 @@ const ESTADOS_PUBLICACION_SERVICIOS: readonly string[] = ['activa', 'pausada', '
  * al crear una postulación; aceptada/rechazada quedan listas para cuando
  * la empresa pueda revisar postulaciones (todavía no implementado).
  */
-const ESTADOS_POSTULACIONES: readonly string[] = ['pendiente', 'aceptada', 'rechazada'];
+const ESTADOS_POSTULACIONES: readonly string[] = ['pendiente', 'en_proceso', 'entrevistado', 'aceptada', 'rechazada'];
 
 /** TIPOS_CONTRATO tampoco tenía seed: catálogo estándar para ofertas laborales. */
 const TIPOS_CONTRATO: readonly string[] = [

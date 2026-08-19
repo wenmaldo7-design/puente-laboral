@@ -22,7 +22,9 @@ export interface OportunidadPublicada {
   fechaPublicacion: string;
 }
 
-/** estado espeja el nombre real de ESTADOS_POSTULACIONES (pendiente/aceptada/rechazada), sin inventar estados intermedios. */
+export type EstadoPostulacion = 'pendiente' | 'en_proceso' | 'entrevistado' | 'aceptada' | 'rechazada';
+
+/** estado espeja el nombre real de ESTADOS_POSTULACIONES (pendiente/en_proceso/entrevistado/aceptada/rechazada), sin inventar estados intermedios. */
 export interface PostulanteReciente {
   id: number;
   nombre: string;
