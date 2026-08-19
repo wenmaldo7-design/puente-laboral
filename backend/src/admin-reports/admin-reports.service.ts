@@ -48,21 +48,19 @@ export class AdminReportsService {
       postulationsWhere.fecha_postulacion = { gte: fromDate };
     }
 
-    const totalAcceptedCandidates = await this.prisma.postulaciones_laborales.count({
-      where: postulationsWhere,
-    });
-
     const acceptedPostulations = await this.prisma.postulaciones_laborales.findMany({
       where: postulationsWhere,
-      include: {
+      select: {
         ofertas_laborales: {
-          include: { ofertas_habilidades: true },
+          select: { ofertas_habilidades: { select: { id_habilidad: true } } },
         },
         beneficiarios: {
-          include: { beneficiarios_habilidades: true },
+          select: { beneficiarios_habilidades: { select: { id_habilidad: true } } },
         },
       }
     });
+
+    const totalAcceptedCandidates = acceptedPostulations.length;
 
     let totalMatchPercentage = 0;
     let matchCount = 0;
@@ -95,16 +93,16 @@ export class AdminReportsService {
     const metrics = await this.getMetrics(timeRange);
     
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Reporte de Metricas');
+    const worksheet = workbook.addWorksheet('Reporte de Métricas');
 
     worksheet.columns = [
-      { header: 'Metrica', key: 'metric', width: 40 },
+      { header: 'Métrica', key: 'metric', width: 40 },
       { header: 'Valor', key: 'value', width: 20 },
     ];
 
-    const timeRangeLabel = timeRange === '30d' ? 'Ultimos 30 dias' : timeRange === '1y' ? 'Ultimo ano' : 'Toda la vida';
+    const timeRangeLabel = timeRange === '30d' ? 'Últimos 30 días' : timeRange === '1y' ? 'Último año' : 'Toda la vida';
 
-    worksheet.addRow({ metric: 'Periodo', value: timeRangeLabel });
+    worksheet.addRow({ metric: 'Período', value: timeRangeLabel });
     worksheet.addRow({ metric: 'Total de Ofertas Laborales Activas', value: metrics.totalActiveJobOffers });
     worksheet.addRow({ metric: 'Total de Candidatos Aceptados', value: metrics.totalAcceptedCandidates });
     worksheet.addRow({ metric: 'Porcentaje Promedio de Match', value: metrics.averageMatchPercentage !== null ? `${metrics.averageMatchPercentage}%` : 'N/A' });
@@ -117,7 +115,7 @@ export class AdminReportsService {
 
   async exportPdf(timeRange: TimeRange = 'all'): Promise<Buffer> {
     const metrics = await this.getMetrics(timeRange);
-    const timeRangeLabel = timeRange === '30d' ? 'Ultimos 30 dias' : timeRange === '1y' ? 'Ultimo ano' : 'Toda la vida';
+    const timeRangeLabel = timeRange === '30d' ? 'Últimos 30 días' : timeRange === '1y' ? 'Último año' : 'Toda la vida';
 
     return new Promise((resolve, reject) => {
       const doc = new PDFDocument();
@@ -129,9 +127,9 @@ export class AdminReportsService {
       });
       doc.on('error', reject);
 
-      doc.fontSize(20).text('Reporte de Metricas del Dashboard', { align: 'center' });
+      doc.fontSize(20).text('Reporte de Métricas del Dashboard', { align: 'center' });
       doc.moveDown();
-      doc.fontSize(14).text(`Periodo: ${timeRangeLabel}`);
+      doc.fontSize(14).text(`Período: ${timeRangeLabel}`);
       doc.moveDown();
 
       doc.fontSize(12).text(`Total de Ofertas Laborales Activas: ${metrics.totalActiveJobOffers}`);

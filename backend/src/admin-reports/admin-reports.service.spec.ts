@@ -71,7 +71,7 @@ describe('AdminReportsService', () => {
       const result = await service.getMetrics('all');
 
       expect(result.totalActiveJobOffers).toBe(10);
-      expect(result.totalAcceptedCandidates).toBe(5);
+      expect(result.totalAcceptedCandidates).toBe(3);
       // Math:
       // P1: overlap 1 of 2 -> 50%
       // P2: overlap 1 of 1 -> 100%
@@ -111,6 +111,26 @@ describe('AdminReportsService', () => {
 
       const result = await service.getMetrics('all');
       expect(result.averageMatchPercentage).toBeNull();
+    });
+  });
+
+  describe('exports', () => {
+    it('should generate an Excel buffer', async () => {
+      (prisma.servicios.count as jest.Mock).mockResolvedValue(10);
+      (prisma.postulaciones_laborales.findMany as jest.Mock).mockResolvedValue([]);
+      
+      const buffer = await service.exportExcel('all');
+      expect(Buffer.isBuffer(buffer)).toBe(true);
+      expect(buffer.length).toBeGreaterThan(0);
+    });
+
+    it('should generate a PDF buffer', async () => {
+      (prisma.servicios.count as jest.Mock).mockResolvedValue(10);
+      (prisma.postulaciones_laborales.findMany as jest.Mock).mockResolvedValue([]);
+      
+      const buffer = await service.exportPdf('all');
+      expect(Buffer.isBuffer(buffer)).toBe(true);
+      expect(buffer.toString('utf8', 0, 4)).toBe('%PDF');
     });
   });
 });

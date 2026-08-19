@@ -137,25 +137,41 @@ async function main(): Promise<void> {
   const adminEmail = process.env.DEFAULT_ADMIN_EMAIL || 'admin@puentelaboral.com';
   const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'admin123';
 
-  const adminExists = await prisma.usuarios.findUnique({
-    where: { email: adminEmail }
-  });
+  if (process.env.NODE_ENV === 'production' && !process.env.DEFAULT_ADMIN_PASSWORD) {
+    console.warn('WARNING: Cannot use default admin password in production. Skipping admin seed.');
+  } else {
+    // Buscar usuario ignorando mayúsculas/minúsculas o usando findFirst con filter
+    const adminUser = await prisma.usuarios.findFirst({
+      where: { email: { equals: adminEmail, mode: 'insensitive' } },
+      include: { administradores: true }
+    });
 
-  if (!adminExists) {
-    const passwordHash = await bcrypt.hash(adminPassword, 10);
-    await prisma.usuarios.create({
-      data: {
-        email: adminEmail,
-        password_hash: passwordHash,
-        administradores: {
-          create: {
-            nombre: 'Admin',
-            apellido: 'Sistema',
+    if (!adminUser) {
+      const passwordHash = await bcrypt.hash(adminPassword, 10);
+      await prisma.usuarios.create({
+        data: {
+          email: adminEmail,
+          password_hash: passwordHash,
+          administradores: {
+            create: {
+              nombre: 'Admin',
+              apellido: 'Sistema',
+            }
           }
         }
-      }
-    });
-    console.log(`Default admin user created with email: ${adminEmail}`);
+      });
+      console.log(`Default admin user created with email: ${adminEmail}`);
+    } else if (!adminUser.administradores) {
+      // Si el usuario existe pero no tiene rol de admin, crearlo
+      await prisma.administradores.create({
+        data: {
+          id_usuario: adminUser.id,
+          nombre: 'Admin',
+          apellido: 'Sistema',
+        }
+      });
+      console.log(`Granted admin role to existing user: ${adminEmail}`);
+    }
   }
 
   await prisma.$disconnect();

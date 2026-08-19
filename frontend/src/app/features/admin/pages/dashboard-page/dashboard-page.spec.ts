@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DashboardPage } from './dashboard-page';
-import { AdminReportsService, AdminMetricsResponse } from '../../services/admin-reports.service';
+import { AdminReportsService } from '../../services/admin-reports.service';
 import { By } from '@angular/platform-browser';
 
 describe('DashboardPage', () => {
@@ -21,7 +21,7 @@ describe('DashboardPage', () => {
       exportPdf: async () => new Blob()
     };
     
-    // Create spys on the mock object
+    // Create spies on the mock object
     vi.spyOn(mockAdminReportsService, 'getMetrics');
     vi.spyOn(mockAdminReportsService, 'exportExcel');
     vi.spyOn(mockAdminReportsService, 'exportPdf');
@@ -78,14 +78,16 @@ describe('DashboardPage', () => {
   });
 
   it('should call exportExcel when clicking excel export button', () => {
-    const button = fixture.debugElement.query(By.css('button.bg-green-600'));
-    button.triggerEventHandler('click', null);
+    const buttons = fixture.debugElement.queryAll(By.css('button'));
+    const excelButton = buttons.find(b => b.nativeElement.textContent.trim() === 'Exportar Excel');
+    excelButton!.triggerEventHandler('click', null);
     expect(mockAdminReportsService.exportExcel).toHaveBeenCalledWith('30d');
   });
 
   it('should call exportPdf when clicking pdf export button', () => {
-    const button = fixture.debugElement.query(By.css('button.bg-red-600'));
-    button.triggerEventHandler('click', null);
+    const buttons = fixture.debugElement.queryAll(By.css('button'));
+    const pdfButton = buttons.find(b => b.nativeElement.textContent.trim() === 'Exportar PDF');
+    pdfButton!.triggerEventHandler('click', null);
     expect(mockAdminReportsService.exportPdf).toHaveBeenCalledWith('30d');
   });
 
@@ -97,4 +99,3 @@ describe('DashboardPage', () => {
     expect(mockAdminReportsService.getMetrics).toHaveBeenCalledWith('1y');
   });
 });
-

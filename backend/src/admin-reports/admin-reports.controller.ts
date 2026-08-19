@@ -18,7 +18,7 @@ export class AdminReportsController {
   }
 
   @Get('export/excel')
-  async exportExcel(@Query('timeRange') timeRange: string, @Res() res: Response) {
+  async exportExcel(@Query('timeRange') timeRange: string | undefined, @Res() res: Response) {
     const validRange = ['30d', '1y', 'all'].includes(timeRange as string) ? (timeRange as TimeRange) : 'all';
     const buffer = await this.adminReportsService.exportExcel(validRange);
     
@@ -32,7 +32,7 @@ export class AdminReportsController {
   }
 
   @Get('export/pdf')
-  async exportPdf(@Query('timeRange') timeRange: string, @Res() res: Response) {
+  async exportPdf(@Query('timeRange') timeRange: string | undefined, @Res() res: Response) {
     const validRange = ['30d', '1y', 'all'].includes(timeRange as string) ? (timeRange as TimeRange) : 'all';
     const buffer = await this.adminReportsService.exportPdf(validRange);
     

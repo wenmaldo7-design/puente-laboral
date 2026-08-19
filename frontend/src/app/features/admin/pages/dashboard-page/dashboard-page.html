@@ -44,19 +44,19 @@
     <div class="flex flex-wrap gap-2">
       <button 
         (click)="setTimeRange('30d')" 
-        [class]="timeRange() === '30d' ? 'bg-[#185fa5] text-white' : 'bg-white text-gray-700 hover:bg-[#e6f1fb]'"
+        [ngClass]="timeRange() === '30d' ? 'bg-[#185fa5] text-white' : 'bg-white text-gray-700 hover:bg-[#e6f1fb]'"
         class="px-4 py-2 rounded-md font-medium transition-colors">
         Últimos 30 días
       </button>
       <button 
         (click)="setTimeRange('1y')" 
-        [class]="timeRange() === '1y' ? 'bg-[#185fa5] text-white' : 'bg-white text-gray-700 hover:bg-[#e6f1fb]'"
+        [ngClass]="timeRange() === '1y' ? 'bg-[#185fa5] text-white' : 'bg-white text-gray-700 hover:bg-[#e6f1fb]'"
         class="px-4 py-2 rounded-md font-medium transition-colors">
         Último Año
       </button>
       <button 
         (click)="setTimeRange('all')" 
-        [class]="timeRange() === 'all' ? 'bg-[#185fa5] text-white' : 'bg-white text-gray-700 hover:bg-[#e6f1fb]'"
+        [ngClass]="timeRange() === 'all' ? 'bg-[#185fa5] text-white' : 'bg-white text-gray-700 hover:bg-[#e6f1fb]'"
         class="px-4 py-2 rounded-md font-medium transition-colors">
         Toda la vida
       </button>
@@ -115,5 +115,6 @@
   </div>
 </div>
 </div>
+
 
 
