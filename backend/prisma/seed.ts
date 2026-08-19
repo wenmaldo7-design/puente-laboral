@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
+import * as bcrypt from 'bcrypt';
 import { EstadoSolicitud } from '../src/auth/empresas/interfaces/estado-solicitud.enum';
 
 const ESTADOS_SOLICITUD: readonly EstadoSolicitud[] = [
@@ -131,6 +132,30 @@ async function main(): Promise<void> {
     if (!existente) {
       await prisma.estados_postulaciones.create({ data: { nombre } });
     }
+  }
+
+  const adminEmail = process.env.DEFAULT_ADMIN_EMAIL || 'admin@puentelaboral.com';
+  const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'admin123';
+
+  const adminExists = await prisma.usuarios.findUnique({
+    where: { email: adminEmail }
+  });
+
+  if (!adminExists) {
+    const passwordHash = await bcrypt.hash(adminPassword, 10);
+    await prisma.usuarios.create({
+      data: {
+        email: adminEmail,
+        password_hash: passwordHash,
+        administradores: {
+          create: {
+            nombre: 'Admin',
+            apellido: 'Sistema',
+          }
+        }
+      }
+    });
+    console.log(`Default admin user created with email: ${adminEmail}`);
   }
 
   await prisma.$disconnect();
