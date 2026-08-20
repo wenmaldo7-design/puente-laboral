@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { CatalogosModule } from './catalogos/catalogos.module';
 import { BeneficiariosModule } from './beneficiarios/beneficiarios.module';
 import { OfertasLaboralesModule } from './ofertas-laborales/ofertas-laborales.module';
+import { NotificacionesModule } from './notificaciones/notificaciones.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { OfertasLaboralesModule } from './ofertas-laborales/ofertas-laborales.mo
     CatalogosModule,
     BeneficiariosModule,
     OfertasLaboralesModule,
+    NotificacionesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -35,6 +35,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'notificaciones',
+    loadChildren: () =>
+      import('./features/notificaciones/notificaciones.routes').then(
+        (m) => m.NOTIFICACIONES_ROUTES,
+      ),
+  },
+  {
     path: 'puentelaboral',
     loadComponent: () =>
       import('./pages/home-page/home-page').then((m) => m.HomePage),

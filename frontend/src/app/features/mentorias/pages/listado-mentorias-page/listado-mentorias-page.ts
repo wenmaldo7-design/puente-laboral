@@ -7,6 +7,7 @@ import { Mentorias } from '../../services/mentorias';
 import { FILTROS_MODALIDAD, FiltroModalidad, Mentoria } from '../../models/mentoria.model';
 import { PerfilBeneficiarioService } from '../../../beneficiarios/services/perfil-beneficiario.service';
 import { PerfilBeneficiario } from '../../../beneficiarios/models/perfil-beneficiario.model';
+import { Notificaciones } from '../../../notificaciones/services/notificaciones';
 
 @Component({
   selector: 'app-listado-mentorias-page',
@@ -22,7 +23,8 @@ export class ListadoMentoriasPage implements OnInit {
     { initialValue: null },
   );
   protected readonly nombreBeneficiario = computed(() => this.perfil()?.nombre.split(' ')[0] ?? '');
-  protected readonly notificacionesNoLeidas = signal(2);
+  private readonly notificacionesService = inject(Notificaciones);
+  protected readonly notificacionesNoLeidas = this.notificacionesService.contadorNoLeidas;
   protected readonly mentorias = signal<Mentoria[]>([]);
 
   protected readonly filtros: FiltroModalidad[] = FILTROS_MODALIDAD;
@@ -48,6 +50,7 @@ export class ListadoMentoriasPage implements OnInit {
 
   ngOnInit(): void {
     this.mentoriasService.getMentorias().subscribe((mentorias) => this.mentorias.set(mentorias));
+    this.notificacionesService.refrescarContador();
   }
 
   protected seleccionarFiltro(id: FiltroModalidad['id']): void {
