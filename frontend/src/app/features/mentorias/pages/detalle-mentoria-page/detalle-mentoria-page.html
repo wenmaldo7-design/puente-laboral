@@ -6,10 +6,6 @@
 
     @if (mentoria(); as m) {
       <article class="detalle-card">
-        @if (m.matchPorcentaje) {
-          <span class="match-badge">{{ m.matchPorcentaje }}% match</span>
-        }
-
         <h1 class="detalle-titulo">{{ m.titulo }}</h1>
 
         <div class="mentor-row">

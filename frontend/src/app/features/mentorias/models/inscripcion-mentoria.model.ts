@@ -1,8 +1,10 @@
-export type EstadoInscripcion = 'pendiente' | 'confirmada' | 'cancelada';
+export type EstadoInscripcion = 'inscrito' | 'cancelado';
 
 export interface InscripcionMentoria {
-  id: string;
-  mentoriaId: string;
+  id: number;
+  mentoriaId: number;
+  tituloMentoria: string;
   estado: EstadoInscripcion;
   fechaInscripcion: string;
+  fechaActualizacion: string | null;
 }
