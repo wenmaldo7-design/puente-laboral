@@ -2,12 +2,13 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminReportsService, AdminMetricsResponse, TimeRange } from '../../services/admin-reports.service';
 import { Auth } from '../../../auth/services/auth';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { Header } from '../../../../shared/ui/header/header';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink, Header],
   templateUrl: './dashboard-page.html',
   styleUrls: []
 })

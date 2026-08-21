@@ -7,13 +7,14 @@ import {
   SolicitudEmpresaResponseDto,
 } from '../../models/solicitud-habilitacion.model';
 import { SolicitudesHabilitacion } from '../../services/solicitudes-habilitacion';
+import { Header } from '../../../../shared/ui/header/header';
 
 const LIMITE_POR_PAGINA = 20;
 
 /** Panel admin: listado de solicitudes de habilitación en estado PENDIENTE. */
 @Component({
   selector: 'app-solicitudes-pendientes-page',
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe, Header],
   templateUrl: './solicitudes-pendientes-page.html',
   styleUrl: './solicitudes-pendientes-page.css',
 })

@@ -4,6 +4,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { extraerMensajeDeError } from '../../../../core/http/api-error';
+import { Header } from '../../../../shared/ui/header/header';
 import {
   EstadoSolicitud,
   SolicitudEmpresaResponseDto,
@@ -15,7 +16,7 @@ const MS_ANTES_DE_VOLVER = 1500;
 /** Panel admin: detalle de una solicitud, con acciones de aprobar/rechazar. */
 @Component({
   selector: 'app-revision-solicitud-page',
-  imports: [RouterLink, ReactiveFormsModule, DatePipe],
+  imports: [RouterLink, ReactiveFormsModule, DatePipe, Header],
   templateUrl: './revision-solicitud-page.html',
   styleUrl: './revision-solicitud-page.css',
 })

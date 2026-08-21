@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Auth } from '../../../features/auth/services/auth';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, CommonModule],
   templateUrl: './header.html',
-  styleUrl: './header.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Header {
@@ -15,6 +15,8 @@ export class Header {
 
   private readonly auth = inject(Auth);
   private readonly router = inject(Router);
+
+  readonly sesion = this.auth.sesion;
 
   async cerrarSesion(): Promise<void> {
     await this.auth.logout();
