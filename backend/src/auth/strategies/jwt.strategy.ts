@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
+import { PrismaService } from '../../database/prisma.service';
 
 /**
  * Extractor custom: el token NUNCA viaja en el header Authorization,
@@ -18,7 +19,10 @@ const cookieExtractor = (req: Request): string | null => {
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(configService: ConfigService) {
+  constructor(
+    configService: ConfigService,
+    private readonly prisma: PrismaService,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),
       ignoreExpiration: false,
@@ -27,7 +31,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload): Promise<JwtPayload> {
-    // Lo que se retorna aca queda disponible en req.user
+    // Validamos contra la base de datos para asegurar que el usuario
+    // no haya sido borrado ni desactivado despues de emitir el token.
+    const usuario = await this.prisma.usuarios.findUnique({
+      where: { id_usuario: payload.sub },
+    });
+
+    if (!usuario || !usuario.activo) {
+      throw new UnauthorizedException('Usuario invalido o inactivo');
+    }
+
     return payload;
   }
 }

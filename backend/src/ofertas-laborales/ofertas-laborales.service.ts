@@ -1,6 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CrearOfertaLaboralDto } from './dto/crear-oferta-laboral.dto';
+import { ActualizarOfertaLaboralDto } from './dto/actualizar-oferta-laboral.dto';
+import { CandidatoEmpresaResponseDto } from './dto/candidato-empresa-response.dto';
 import { OfertaLaboralResponseDto } from './dto/oferta-laboral-response.dto';
 import { OportunidadEmpresaResponseDto } from './dto/oportunidad-empresa-response.dto';
 
@@ -167,6 +169,129 @@ export class OfertasLaboralesService {
       postulaciones_count: conteoPorServicio.get(servicio.id_servicio) ?? 0,
       nuevas_postulaciones_count:
         pendientesPorServicio.get(servicio.id_servicio) ?? 0,
+    }));
+  }
+
+  async actualizar(
+    idUsuarioEmpresa: number,
+    idServicio: number,
+    dto: ActualizarOfertaLaboralDto,
+  ): Promise<OfertaLaboralResponseDto> {
+    const servicio = await this.prisma.servicios.findUnique({
+      where: { id_servicio: idServicio },
+      include: {
+        ofertas_laborales: true,
+      },
+    });
+
+    if (!servicio) {
+      throw new NotFoundException('Oferta laboral no encontrada');
+    }
+
+    if (servicio.id_usuario_empresa !== idUsuarioEmpresa) {
+      throw new ForbiddenException('No tienes permisos para modificar esta oferta');
+    }
+
+    const updatedServicio = await this.prisma.servicios.update({
+      where: { id_servicio: idServicio },
+      data: {
+        titulo: dto.titulo ?? undefined,
+        descripcion: dto.descripcion ?? undefined,
+      },
+      include: {
+        ofertas_laborales: {
+          include: {
+            ofertas_habilidades: {
+              include: { habilidades: true }
+            }
+          }
+        },
+        areas_interes: true,
+        estados_publicacion_servicios: true,
+      }
+    });
+
+    return {
+      id_servicio: updatedServicio.id_servicio,
+      titulo: updatedServicio.titulo,
+      descripcion: updatedServicio.descripcion,
+      area: updatedServicio.areas_interes.nombre,
+      habilidades: updatedServicio.ofertas_laborales?.ofertas_habilidades.map(oh => oh.habilidades.nombre) ?? [],
+      tipo_contrato: null,
+      modalidad: updatedServicio.ofertas_laborales?.modalidad ?? '',
+      salario: updatedServicio.ofertas_laborales?.salario ? Number(updatedServicio.ofertas_laborales.salario) : null,
+      vacantes: updatedServicio.ofertas_laborales?.vacantes ?? null,
+      fecha_limite: updatedServicio.ofertas_laborales?.fecha_limite ?? new Date(),
+      fecha_publicacion: updatedServicio.fecha_publicacion,
+      estado_publicacion: updatedServicio.estados_publicacion_servicios.nombre,
+    };
+  }
+
+  async eliminar(idUsuarioEmpresa: number, idServicio: number): Promise<void> {
+    const servicio = await this.prisma.servicios.findUnique({
+      where: { id_servicio: idServicio },
+    });
+
+    if (!servicio) {
+      throw new NotFoundException('Oferta laboral no encontrada');
+    }
+
+    if (servicio.id_usuario_empresa !== idUsuarioEmpresa) {
+      throw new ForbiddenException('No tienes permisos para eliminar esta oferta');
+    }
+
+    const estadoCerrada = await this.prisma.estados_publicacion_servicios.findFirst({
+      where: { nombre: 'cerrada' },
+    });
+
+    if (!estadoCerrada) {
+      throw new BadRequestException('Estado de publicación "cerrada" no encontrado');
+    }
+
+    await this.prisma.servicios.update({
+      where: { id_servicio: idServicio },
+      data: { id_estado_publicacion: estadoCerrada.id_estado_publicacion },
+    });
+  }
+
+  async obtenerCandidatos(
+    idUsuarioEmpresa: number,
+    idServicio: number,
+  ): Promise<CandidatoEmpresaResponseDto[]> {
+    const servicio = await this.prisma.servicios.findUnique({
+      where: { id_servicio: idServicio },
+    });
+
+    if (!servicio) {
+      throw new NotFoundException('Oferta laboral no encontrada');
+    }
+
+    if (servicio.id_usuario_empresa !== idUsuarioEmpresa) {
+      throw new ForbiddenException('No tienes permisos para ver estos candidatos');
+    }
+
+    const postulaciones = await this.prisma.postulaciones_laborales.findMany({
+      where: { id_servicio: idServicio },
+      include: {
+        beneficiarios: {
+          include: {
+            usuarios: true,
+          },
+        },
+        estados_postulaciones: true,
+      },
+    });
+
+    return postulaciones.map((p) => ({
+      id_postulacion: p.id_postulacion,
+      id_usuario_beneficiario: p.id_usuario_beneficiario,
+      nombre: p.beneficiarios.nombre,
+      apellido: p.beneficiarios.apellido,
+      email: p.beneficiarios.usuarios.email,
+      fecha_postulacion: p.fecha_postulacion,
+      estado_postulacion: p.estados_postulaciones.nombre,
+      cv_url: p.cv_url ?? p.beneficiarios.cv_url,
+      carta_presentacion: p.carta_presentacion ?? undefined,
     }));
   }
 }

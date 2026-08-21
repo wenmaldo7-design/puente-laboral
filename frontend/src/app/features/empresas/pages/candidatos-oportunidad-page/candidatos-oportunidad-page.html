@@ -1,0 +1,57 @@
+<div class="page-container">
+  <header class="content-header">
+    <div>
+      <a routerLink="/empresas/home" class="btn-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-icon" aria-hidden="true">
+          <line x1="19" y1="12" x2="5" y2="12" />
+          <polyline points="12 19 5 12 12 5" />
+        </svg>
+        Volver al Panel
+      </a>
+      <h1 class="main-title">Candidatos de la Oportunidad</h1>
+      <p class="subtitle">Gestioná el estado de cada postulante para esta vacante</p>
+    </div>
+  </header>
+
+  <main class="content">
+    @if (cargando()) {
+      <div class="empty-state">Cargando candidatos...</div>
+    } @else if (error()) {
+      <div class="empty-state" role="alert">{{ error() }}</div>
+    } @else if (candidatos().length === 0) {
+      <div class="empty-state">Aún no hay candidatos postulados a esta oportunidad.</div>
+    } @else {
+      <div class="postulantes-list">
+        @for (c of candidatos(); track c.id_postulacion) {
+          <div class="postulante-card">
+            <div class="postulante-main">
+              <div class="avatar" aria-hidden="true">{{ c.nombre[0] }}{{ c.apellido[0] }}</div>
+              <div class="postulante-info">
+                <h4 class="postulante-nombre">{{ c.nombre }} {{ c.apellido }}</h4>
+                <p class="postulante-vacante">{{ c.email }}</p>
+                <p class="postulante-vacante">Postulado el: {{ c.fecha_postulacion | date:'dd/MM/yyyy' }}</p>
+              </div>
+            </div>
+            <div class="postulante-meta">
+              @if (c.cv_url) {
+                <a [href]="c.cv_url" target="_blank" class="btn-link">Ver CV</a>
+              }
+              <select
+                class="postulante-estado estado-{{ c.estado_postulacion }}"
+                [value]="c.estado_postulacion"
+                (change)="onCambioEstado(c.id_postulacion, $event)"
+                aria-label="Estado de la postulación"
+              >
+                <option value="pendiente">Pendiente</option>
+                <option value="en_proceso">En proceso</option>
+                <option value="entrevistado">Entrevistado</option>
+                <option value="aceptada">Aceptada</option>
+                <option value="rechazada">Rechazada</option>
+              </select>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </main>
+</div>

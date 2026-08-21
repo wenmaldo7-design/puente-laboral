@@ -113,4 +113,35 @@ export class HomeEmpresaPage implements OnInit {
   protected etiquetaTipo(tipoServicio: string): string {
     return tipoServicio === 'oferta_laboral' ? 'Empleo' : tipoServicio;
   }
+
+  protected onCambioEstado(idPostulacion: number, event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const nuevoEstado = select.value;
+    const estadoAnterior = this.postulantesRecientes().find((p) => p.id === idPostulacion)?.estado;
+
+    select.disabled = true;
+
+    this.homeService.actualizarEstadoPostulacion(idPostulacion, nuevoEstado).subscribe({
+      next: () => {
+        select.disabled = false;
+        this.postulantesRecientes.update((postulantes) =>
+          postulantes.map((p) => (p.id === idPostulacion ? { ...p, estado: nuevoEstado } : p)),
+        );
+      },
+      error: (err: unknown) => {
+        select.disabled = false;
+        const msjError =
+          err instanceof HttpErrorResponse
+            ? extraerMensajeDeError(err.error, 'No se pudo actualizar el estado de la postulación.')
+            : 'No se pudo actualizar el estado de la postulación.';
+        
+        alert(msjError);
+
+        // Revertir el select al estado anterior
+        if (estadoAnterior) {
+          select.value = estadoAnterior;
+        }
+      },
+    });
+  }
 }

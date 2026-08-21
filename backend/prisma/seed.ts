@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
+import * as bcrypt from 'bcrypt';
 import { EstadoSolicitud } from '../src/auth/empresas/interfaces/estado-solicitud.enum';
 
 const ESTADOS_SOLICITUD: readonly EstadoSolicitud[] = [
@@ -63,7 +64,7 @@ const ESTADOS_PUBLICACION_SERVICIOS: readonly string[] = ['activa', 'pausada', '
  * al crear una postulación; aceptada/rechazada quedan listas para cuando
  * la empresa pueda revisar postulaciones (todavía no implementado).
  */
-const ESTADOS_POSTULACIONES: readonly string[] = ['pendiente', 'aceptada', 'rechazada'];
+const ESTADOS_POSTULACIONES: readonly string[] = ['pendiente', 'en_proceso', 'entrevistado', 'aceptada', 'rechazada'];
 
 /** TIPOS_CONTRATO tampoco tenía seed: catálogo estándar para ofertas laborales. */
 const TIPOS_CONTRATO: readonly string[] = [
@@ -130,6 +131,46 @@ async function main(): Promise<void> {
     const existente = await prisma.estados_postulaciones.findFirst({ where: { nombre } });
     if (!existente) {
       await prisma.estados_postulaciones.create({ data: { nombre } });
+    }
+  }
+
+  const adminEmail = process.env.DEFAULT_ADMIN_EMAIL || 'admin@puentelaboral.com';
+  const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'admin123';
+
+  if (process.env.NODE_ENV === 'production' && !process.env.DEFAULT_ADMIN_PASSWORD) {
+    console.warn('WARNING: Cannot use default admin password in production. Skipping admin seed.');
+  } else {
+    // Buscar usuario ignorando mayúsculas/minúsculas o usando findFirst con filter
+    const adminUser = await prisma.usuarios.findFirst({
+      where: { email: { equals: adminEmail, mode: 'insensitive' } },
+      include: { administradores: true }
+    });
+
+    if (!adminUser) {
+      const passwordHash = await bcrypt.hash(adminPassword, 10);
+      await prisma.usuarios.create({
+        data: {
+          email: adminEmail,
+          password_hash: passwordHash,
+          administradores: {
+            create: {
+              nombre: 'Admin',
+              apellido: 'Sistema',
+            }
+          }
+        }
+      });
+      console.log(`Default admin user created with email: ${adminEmail}`);
+    } else if (!adminUser.administradores) {
+      // Si el usuario existe pero no tiene rol de admin, crearlo
+      await prisma.administradores.create({
+        data: {
+          id_usuario: adminUser.id,
+          nombre: 'Admin',
+          apellido: 'Sistema',
+        }
+      });
+      console.log(`Granted admin role to existing user: ${adminEmail}`);
     }
   }
 

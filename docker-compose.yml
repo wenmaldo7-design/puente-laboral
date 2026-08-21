@@ -1,4 +1,15 @@
 services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: localpassword
+      POSTGRES_DB: puentelaboral
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
   backend:
     build:
       context: ./backend
@@ -9,6 +20,8 @@ services:
     environment:
       - PORT=3000
       - FRONTEND_URL=http://localhost:4200
+    depends_on:
+      - db
 
   frontend:
     build:
@@ -19,3 +32,6 @@ services:
       - API_URL=http://localhost:3000
     depends_on:
       - backend
+
+volumes:
+  pgdata:

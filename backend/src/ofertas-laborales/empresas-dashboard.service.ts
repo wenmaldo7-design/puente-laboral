@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+import { NotificacionesService } from '../notificaciones/notificaciones.service';
 import { EmpresaMetricasResponseDto } from './dto/empresa-metricas-response.dto';
 import { PostulanteRecienteResponseDto } from './dto/postulante-reciente-response.dto';
 import { calcularMatchPorcentaje } from './matching.util';
@@ -13,7 +14,10 @@ interface PostulacionParaMatch {
 
 @Injectable()
 export class EmpresasDashboardService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificacionesService: NotificacionesService,
+  ) {}
 
   /** GET /empresas/metricas: resumen de impacto de la empresa autenticada. */
   async obtenerMetricas(
@@ -168,4 +172,83 @@ export class EmpresasDashboardService {
       );
     });
   }
+
+  /** PATCH /empresas/postulaciones/:id/estado: actualiza el estado de la postulación. */
+  async actualizarEstadoPostulacion(
+    idUsuarioEmpresa: number,
+    idPostulacion: number,
+    nuevoEstado: string,
+  ): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      const postulacion = await tx.postulaciones_laborales.findUnique({
+        where: { id_postulacion: idPostulacion },
+        include: {
+          ofertas_laborales: {
+            include: { servicios: { include: { empresas: true } } },
+          },
+          estados_postulaciones: true,
+        },
+      });
+
+      if (!postulacion) {
+        throw new NotFoundException('Postulación no encontrada');
+      }
+
+      const servicio = postulacion.ofertas_laborales.servicios;
+
+      if (servicio.id_usuario_empresa !== idUsuarioEmpresa) {
+        throw new ForbiddenException('No tienes permiso para modificar esta postulación');
+      }
+
+      if (postulacion.estados_postulaciones.nombre === nuevoEstado) {
+        return; // Sin cambios
+      }
+
+      const estadoDestino = await tx.estados_postulaciones.findFirst({
+        where: { nombre: nuevoEstado },
+      });
+
+      if (!estadoDestino) {
+        throw new BadRequestException(`Estado "${nuevoEstado}" inválido`);
+      }
+
+      if (nuevoEstado === 'aceptada') {
+        // Lockea la oferta
+        await tx.$queryRaw`SELECT id_servicio FROM ofertas_laborales WHERE id_servicio = ${postulacion.id_servicio} FOR UPDATE`;
+
+        const vacantes = postulacion.ofertas_laborales.vacantes;
+        if (vacantes !== null) {
+          const aceptados = await tx.postulaciones_laborales.count({
+            where: {
+              id_servicio: postulacion.id_servicio,
+              estados_postulaciones: { nombre: 'aceptada' },
+            },
+          });
+
+          if (aceptados >= vacantes) {
+            throw new ConflictException('El límite de vacantes para esta oferta ha sido alcanzado');
+          }
+        }
+      }
+
+      await tx.postulaciones_laborales.update({
+        where: { id_postulacion: idPostulacion },
+        data: { id_estado_postulacion: estadoDestino.id_estado_postulacion },
+      });
+
+      await this.notificacionesService.crear({
+        tipo: 'POSTULACION_CAMBIO_ESTADO',
+        destinatario: {
+          rol: 'beneficiario',
+          idUsuario: postulacion.id_usuario_beneficiario,
+        },
+        datos: {
+          oferta: servicio.titulo,
+          empresa: servicio.empresas.razon_social,
+          estado: nuevoEstado,
+        },
+      });
+    });
+  }
 }
+

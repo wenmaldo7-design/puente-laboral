@@ -102,4 +102,8 @@ export class EmpresaHomeService {
       .get<PostulanteRecienteResponseDto[]>(`${this.config.apiUrl}/empresas/postulaciones/recientes`)
       .pipe(map((items) => items.map(aPostulanteReciente)));
   }
+
+  actualizarEstadoPostulacion(idPostulacion: number, estado: string): Observable<void> {
+    return this.http.patch<void>(`${this.config.apiUrl}/empresas/postulaciones/${idPostulacion}/estado`, { estado });
+  }
 }
