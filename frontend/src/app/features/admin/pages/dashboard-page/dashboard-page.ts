@@ -22,6 +22,17 @@ export class DashboardPage implements OnInit {
   readonly loading = signal<boolean>(false);
   readonly error = signal<string | null>(null);
 
+  get maxServiceCount(): number {
+    const m = this.metrics();
+    if (!m) return 1;
+    const max = Math.max(
+      m.servicesBreakdown.offers,
+      m.servicesBreakdown.courses,
+      m.servicesBreakdown.mentorships
+    );
+    return max > 0 ? max : 1;
+  }
+
   async ngOnInit(): Promise<void> {
     await this.loadMetrics();
   }

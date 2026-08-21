@@ -7,6 +7,17 @@ export interface AdminMetricsResponse {
   totalActiveJobOffers: number;
   totalAcceptedCandidates: number;
   averageMatchPercentage: number | null;
+  totalOrganizations: number;
+  totalBeneficiaries: number;
+  servicesBreakdown: {
+    offers: number;
+    courses: number;
+    mentorships: number;
+  };
+  pendingCompanies: number;
+  topSkills: { name: string; count: number }[];
+  postulationsFunnel: { state: string; count: number }[];
+  geographicDistribution: { city: string; count: number }[];
 }
 
 export type TimeRange = '30d' | '1y' | 'all';
