@@ -4,7 +4,8 @@ export type TipoNotificacion =
   | 'MENTORIA_CANCELACION'
   | 'POSTULACION_RECIBIDA'
   | 'SOLICITUD_APROBADA'
-  | 'SOLICITUD_RECHAZADA';
+  | 'SOLICITUD_RECHAZADA'
+  | 'OFERTA_COMPATIBLE';
 
 /** Datos variables que exige la plantilla de cada tipo de notificación. */
 export interface DatosPlantilla {
@@ -14,20 +15,21 @@ export interface DatosPlantilla {
   POSTULACION_RECIBIDA: { nombre: string; oferta: string };
   SOLICITUD_APROBADA: Record<string, never>;
   SOLICITUD_RECHAZADA: Record<string, never>;
+  OFERTA_COMPATIBLE: { oferta: string; empresa: string };
 }
 
 const PLANTILLAS: {
   [K in TipoNotificacion]: (datos: DatosPlantilla[K]) => string;
 } = {
   POSTULACION_ENVIADA: (d) => `Te postulaste a "${d.oferta}" en ${d.empresa}.`,
-  MENTORIA_INSCRIPCION: (d) =>
-    `Te inscribiste a la mentoría "${d.mentoria}".`,
-  MENTORIA_CANCELACION: (d) =>
-    `Se canceló tu inscripción a "${d.mentoria}".`,
+  MENTORIA_INSCRIPCION: (d) => `Te inscribiste a la mentoría "${d.mentoria}".`,
+  MENTORIA_CANCELACION: (d) => `Se canceló tu inscripción a "${d.mentoria}".`,
   POSTULACION_RECIBIDA: (d) => `${d.nombre} se postuló a "${d.oferta}".`,
   SOLICITUD_APROBADA: () =>
     'Tu solicitud de habilitación fue aprobada. Ya podés publicar ofertas.',
   SOLICITUD_RECHAZADA: () => 'Tu solicitud de habilitación fue rechazada.',
+  OFERTA_COMPATIBLE: (d) =>
+    `Nueva oferta que podría interesarte: "${d.oferta}" en ${d.empresa}.`,
 };
 
 /** Arma el texto final de la notificación según su tipo y los datos de la plantilla. */

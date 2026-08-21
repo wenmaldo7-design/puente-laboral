@@ -8,6 +8,7 @@ import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../../database/prisma.service';
 import { MailService } from '../../mail/mail.service';
+import { NotificacionesService } from '../../notificaciones/notificaciones.service';
 import { CrearSolicitudEmpresaDto } from './dto/crear-solicitud-empresa.dto';
 import { DisponibilidadResponseDto } from './dto/disponibilidad-response.dto';
 import { ListarSolicitudesQueryDto } from './dto/listar-solicitudes-query.dto';
@@ -32,6 +33,7 @@ export class EmpresasHabilitacionService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailService: MailService,
+    private readonly notificacionesService: NotificacionesService,
   ) {}
 
   /**
@@ -234,77 +236,88 @@ export class EmpresasHabilitacionService {
       EstadoSolicitud.APROBADA,
     );
 
-    const solicitudActualizada = await this.prisma.$transaction(async (tx) => {
-      const solicitud = await tx.solicitudes_habilitacion_empresas.findUnique({
-        where: { id_solicitud: id },
-        include: INCLUDE_ESTADO,
-      });
-      if (!solicitud) {
-        throw new NotFoundException('Solicitud no encontrada');
-      }
-      if (
-        this.parseEstado(solicitud.estados_solicitudes.nombre) !==
-        EstadoSolicitud.PENDIENTE
-      ) {
-        throw new ConflictException('La solicitud ya fue revisada');
-      }
-
-      const [usuarioExistente, empresaPorCuit, empresaPorRazonSocial] =
-        await Promise.all([
-          tx.usuarios.findUnique({
-            where: { email: solicitud.email_contacto },
-          }),
-          tx.empresas.findUnique({ where: { cuit: solicitud.cuit } }),
-          tx.empresas.findUnique({
-            where: { razon_social: solicitud.razon_social },
-          }),
-        ]);
-      if (usuarioExistente) {
-        throw new ConflictException(
-          'Ya existe un usuario con el email de contacto de esta solicitud',
+    const { solicitud: solicitudActualizada, usuario } =
+      await this.prisma.$transaction(async (tx) => {
+        const solicitud = await tx.solicitudes_habilitacion_empresas.findUnique(
+          {
+            where: { id_solicitud: id },
+            include: INCLUDE_ESTADO,
+          },
         );
-      }
-      if (empresaPorCuit) {
-        throw new ConflictException(
-          'Ya existe una empresa registrada con ese CUIT',
-        );
-      }
-      if (empresaPorRazonSocial) {
-        throw new ConflictException(
-          'Ya existe una empresa registrada con esa razón social',
-        );
-      }
+        if (!solicitud) {
+          throw new NotFoundException('Solicitud no encontrada');
+        }
+        if (
+          this.parseEstado(solicitud.estados_solicitudes.nombre) !==
+          EstadoSolicitud.PENDIENTE
+        ) {
+          throw new ConflictException('La solicitud ya fue revisada');
+        }
 
-      const usuario = await tx.usuarios.create({
-        data: {
-          email: solicitud.email_contacto,
-          password_hash: solicitud.password_hash,
-          activo: true,
-        },
+        const [usuarioExistente, empresaPorCuit, empresaPorRazonSocial] =
+          await Promise.all([
+            tx.usuarios.findUnique({
+              where: { email: solicitud.email_contacto },
+            }),
+            tx.empresas.findUnique({ where: { cuit: solicitud.cuit } }),
+            tx.empresas.findUnique({
+              where: { razon_social: solicitud.razon_social },
+            }),
+          ]);
+        if (usuarioExistente) {
+          throw new ConflictException(
+            'Ya existe un usuario con el email de contacto de esta solicitud',
+          );
+        }
+        if (empresaPorCuit) {
+          throw new ConflictException(
+            'Ya existe una empresa registrada con ese CUIT',
+          );
+        }
+        if (empresaPorRazonSocial) {
+          throw new ConflictException(
+            'Ya existe una empresa registrada con esa razón social',
+          );
+        }
+
+        const usuario = await tx.usuarios.create({
+          data: {
+            email: solicitud.email_contacto,
+            password_hash: solicitud.password_hash,
+            activo: true,
+          },
+        });
+
+        await tx.empresas.create({
+          data: {
+            id_usuario: usuario.id_usuario,
+            razon_social: solicitud.razon_social,
+            cuit: solicitud.cuit,
+            descripcion: solicitud.descripcion,
+            habilitada_operativamente: true,
+            fecha_habilitacion: new Date(),
+            id_solicitud: solicitud.id_solicitud,
+          },
+        });
+
+        const solicitudActualizada =
+          await tx.solicitudes_habilitacion_empresas.update({
+            where: { id_solicitud: solicitud.id_solicitud },
+            data: {
+              id_estado_solicitud: idEstadoAprobada,
+              fecha_revision: new Date(),
+              id_admin_revisor: idAdminRevisor,
+            },
+            include: INCLUDE_ESTADO,
+          });
+
+        return { solicitud: solicitudActualizada, usuario };
       });
 
-      await tx.empresas.create({
-        data: {
-          id_usuario: usuario.id_usuario,
-          razon_social: solicitud.razon_social,
-          cuit: solicitud.cuit,
-          descripcion: solicitud.descripcion,
-          habilitada_operativamente: true,
-          fecha_habilitacion: new Date(),
-          id_solicitud: solicitud.id_solicitud,
-        },
-      });
-
-      return tx.solicitudes_habilitacion_empresas.update({
-        where: { id_solicitud: solicitud.id_solicitud },
-        data: {
-          id_estado_solicitud: idEstadoAprobada,
-          fecha_revision: new Date(),
-          id_admin_revisor: idAdminRevisor,
-        },
-        include: INCLUDE_ESTADO,
-      });
-    });
+    await this.notificacionesService.notificarSolicitudAprobada(
+      usuario.id_usuario,
+      solicitudActualizada.razon_social,
+    );
 
     return this.toResponseDto(solicitudActualizada);
   }

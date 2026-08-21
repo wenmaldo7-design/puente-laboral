@@ -8,6 +8,7 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { UsersModule } from '../users/users.module';
 import { MailModule } from '../mail/mail.module';
+import { NotificacionesModule } from '../notificaciones/notificaciones.module';
 import { EmpresasHabilitacionController } from './empresas/empresas-habilitacion.controller';
 import { EmpresasHabilitacionService } from './empresas/empresas-habilitacion.service';
 import { EmpresaAuthController } from './empresas/empresa-auth.controller';
@@ -17,6 +18,7 @@ import { EmpresaAuthService } from './empresas/empresa-auth.service';
   imports: [
     UsersModule,
     MailModule,
+    NotificacionesModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

@@ -26,7 +26,10 @@ export class MailService {
       },
     });
 
-    this.from = this.configService.get<string>('SMTP_FROM', 'no-reply@puente-laboral.local');
+    this.from = this.configService.get<string>(
+      'SMTP_FROM',
+      'no-reply@puente-laboral.local',
+    );
   }
 
   /**
@@ -53,6 +56,51 @@ export class MailService {
       // completa, solo se registra para diagnostico.
       this.logger.error(
         `No se pudo enviar el mail de rechazo a ${emailContacto}`,
+        error instanceof Error ? error.stack : String(error),
+      );
+    }
+  }
+
+  /** Aviso de una oferta laboral compatible con el perfil del beneficiario. */
+  async notificarOfertaCompatible(
+    email: string,
+    tituloOferta: string,
+    razonSocialEmpresa: string,
+    habilidadesRequeridas: string[],
+  ): Promise<void> {
+    try {
+      const habilidadesTexto = habilidadesRequeridas.length
+        ? `\nHabilidades requeridas: ${habilidadesRequeridas.join(', ')}\n`
+        : '';
+      await this.transporter.sendMail({
+        from: this.from,
+        to: email,
+        subject: `Nueva oferta laboral que podría interesarte: ${tituloOferta}`,
+        text: `Hola,\n\n${razonSocialEmpresa} publicó una nueva oferta laboral que coincide con tu perfil:\n\n"${tituloOferta}"${habilidadesTexto}\nIngresá a la plataforma para ver el detalle completo y postularte.`,
+      });
+    } catch (error) {
+      this.logger.error(
+        `No se pudo enviar el mail de oferta compatible a ${email}`,
+        error instanceof Error ? error.stack : String(error),
+      );
+    }
+  }
+
+  /** Aviso de que la solicitud de habilitación de la empresa fue aprobada. */
+  async notificarSolicitudAprobada(
+    email: string,
+    razonSocial: string,
+  ): Promise<void> {
+    try {
+      await this.transporter.sendMail({
+        from: this.from,
+        to: email,
+        subject: 'Tu solicitud de habilitación fue aprobada',
+        text: `Hola,\n\nTu solicitud de habilitación para "${razonSocial}" fue aprobada. Ya podés ingresar a la plataforma con tus credenciales y publicar ofertas laborales.`,
+      });
+    } catch (error) {
+      this.logger.error(
+        `No se pudo enviar el mail de aprobación a ${email}`,
         error instanceof Error ? error.stack : String(error),
       );
     }

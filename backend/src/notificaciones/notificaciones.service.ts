@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import type { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
+import { MailService } from '../mail/mail.service';
 import { ContadorNoLeidasResponseDto } from './dto/contador-no-leidas-response.dto';
 import { NotificacionResponseDto } from './dto/notificacion-response.dto';
 import {
@@ -26,7 +27,12 @@ type NotificacionConTipo = Prisma.notificacionesGetPayload<{
 
 @Injectable()
 export class NotificacionesService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(NotificacionesService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mailService: MailService,
+  ) {}
 
   /** GET /notificaciones: las del usuario logueado, más recientes primero. */
   async listar(user: JwtPayload): Promise<NotificacionResponseDto[]> {
@@ -107,6 +113,77 @@ export class NotificacionesService {
           : { id_usuario_empresa: opciones.destinatario.idUsuario }),
       },
     });
+  }
+
+  /**
+   * Orquesta el aviso a un beneficiario de que una oferta laboral nueva es
+   * compatible con su perfil: notificación in-app + email. Pensado para ser
+   * llamado desde OfertasLaboralesService tras crear una oferta. Un fallo en
+   * cualquiera de los dos canales queda solo registrado, nunca se propaga:
+   * no debe romper la creación de la oferta que lo disparó.
+   */
+  async notificarOfertaCompatible(
+    idUsuarioBeneficiario: number,
+    datos: { titulo: string; empresa: string; habilidades: string[] },
+  ): Promise<void> {
+    try {
+      await this.crear({
+        tipo: 'OFERTA_COMPATIBLE',
+        destinatario: { idUsuario: idUsuarioBeneficiario, rol: 'beneficiario' },
+        datos: { oferta: datos.titulo, empresa: datos.empresa },
+      });
+
+      const email = await this.obtenerEmailUsuario(idUsuarioBeneficiario);
+      if (email) {
+        await this.mailService.notificarOfertaCompatible(
+          email,
+          datos.titulo,
+          datos.empresa,
+          datos.habilidades,
+        );
+      }
+    } catch (error) {
+      this.logger.error(
+        `No se pudo notificar oferta compatible al beneficiario ${idUsuarioBeneficiario}`,
+        error instanceof Error ? error.stack : String(error),
+      );
+    }
+  }
+
+  /**
+   * Orquesta el aviso a una empresa de que su solicitud de habilitación fue
+   * aprobada: notificación in-app + email. Mismo criterio de no propagar
+   * errores que notificarOfertaCompatible().
+   */
+  async notificarSolicitudAprobada(
+    idUsuarioEmpresa: number,
+    razonSocial: string,
+  ): Promise<void> {
+    try {
+      await this.crear({
+        tipo: 'SOLICITUD_APROBADA',
+        destinatario: { idUsuario: idUsuarioEmpresa, rol: 'empresa' },
+        datos: {},
+      });
+
+      const email = await this.obtenerEmailUsuario(idUsuarioEmpresa);
+      if (email) {
+        await this.mailService.notificarSolicitudAprobada(email, razonSocial);
+      }
+    } catch (error) {
+      this.logger.error(
+        `No se pudo notificar la aprobación a la empresa ${idUsuarioEmpresa}`,
+        error instanceof Error ? error.stack : String(error),
+      );
+    }
+  }
+
+  private async obtenerEmailUsuario(idUsuario: number): Promise<string | null> {
+    const usuario = await this.prisma.usuarios.findUnique({
+      where: { id_usuario: idUsuario },
+      select: { email: true },
+    });
+    return usuario?.email ?? null;
   }
 
   /** Filtra por el destinatario que corresponde al rol autenticado (nunca cruza usuarios). */

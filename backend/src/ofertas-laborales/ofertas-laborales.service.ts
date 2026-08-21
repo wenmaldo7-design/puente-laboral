@@ -1,15 +1,22 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+import { NotificacionesService } from '../notificaciones/notificaciones.service';
 import { CrearOfertaLaboralDto } from './dto/crear-oferta-laboral.dto';
 import { OfertaLaboralResponseDto } from './dto/oferta-laboral-response.dto';
 import { OportunidadEmpresaResponseDto } from './dto/oportunidad-empresa-response.dto';
+import { calcularMatchPorcentaje } from './matching.util';
 
 /** Estado asignado por default a toda oferta laboral recién publicada. */
 const ESTADO_PUBLICACION_DEFAULT = 'activa';
 
 @Injectable()
 export class OfertasLaboralesService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(OfertasLaboralesService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificacionesService: NotificacionesService,
+  ) {}
 
   /**
    * POST /empresas/ofertas-laborales. Resuelve área/habilidades/tipo de
@@ -100,6 +107,14 @@ export class OfertasLaboralesService {
       return { servicio, oferta };
     });
 
+    await this.notificarBeneficiariosCompatibles(
+      idUsuarioEmpresa,
+      ofertaLaboral.servicio.id_area,
+      habilidades.map((h) => h.id_habilidad),
+      ofertaLaboral.servicio.titulo,
+      habilidades.map((h) => h.nombre),
+    );
+
     return {
       id_servicio: ofertaLaboral.servicio.id_servicio,
       titulo: ofertaLaboral.servicio.titulo,
@@ -168,5 +183,65 @@ export class OfertasLaboralesService {
       nuevas_postulaciones_count:
         pendientesPorServicio.get(servicio.id_servicio) ?? 0,
     }));
+  }
+
+  /**
+   * Tras crear una oferta, avisa (in-app + email) a los beneficiarios cuyo
+   * perfil coincide con el área o alguna de las habilidades requeridas,
+   * reutilizando el mismo criterio de match (> 0%) que ya usa
+   * OfertasLaboralesBeneficiarioService al listar ofertas compatibles. No
+   * debe romper la creación de la oferta si algo falla acá.
+   */
+  private async notificarBeneficiariosCompatibles(
+    idUsuarioEmpresa: number,
+    idArea: number,
+    idsHabilidadesRequeridas: number[],
+    tituloOferta: string,
+    nombresHabilidades: string[],
+  ): Promise<void> {
+    try {
+      const [empresa, beneficiarios] = await Promise.all([
+        this.prisma.empresas.findUnique({
+          where: { id_usuario: idUsuarioEmpresa },
+          select: { razon_social: true },
+        }),
+        this.prisma.beneficiarios.findMany({
+          select: {
+            id_usuario: true,
+            beneficiarios_habilidades: { select: { id_habilidad: true } },
+            beneficiarios_areas: { select: { id_area: true } },
+          },
+        }),
+      ]);
+      if (!empresa) return;
+
+      const compatibles = beneficiarios.filter(
+        (b) =>
+          calcularMatchPorcentaje(
+            {
+              idsHabilidades: new Set(
+                b.beneficiarios_habilidades.map((h) => h.id_habilidad),
+              ),
+              idsAreas: new Set(b.beneficiarios_areas.map((a) => a.id_area)),
+            },
+            { idArea, idsHabilidadesRequeridas },
+          ) > 0,
+      );
+
+      await Promise.all(
+        compatibles.map((b) =>
+          this.notificacionesService.notificarOfertaCompatible(b.id_usuario, {
+            titulo: tituloOferta,
+            empresa: empresa.razon_social,
+            habilidades: nombresHabilidades,
+          }),
+        ),
+      );
+    } catch (error) {
+      this.logger.error(
+        'No se pudo procesar el aviso de oferta compatible a beneficiarios',
+        error instanceof Error ? error.stack : String(error),
+      );
+    }
   }
 }
