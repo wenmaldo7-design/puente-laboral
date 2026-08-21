@@ -165,7 +165,7 @@ async function main(): Promise<void> {
       // Si el usuario existe pero no tiene rol de admin, crearlo
       await prisma.administradores.create({
         data: {
-          id_usuario: adminUser.id,
+          id_usuario: adminUser.id_usuario,
           nombre: 'Admin',
           apellido: 'Sistema',
         }

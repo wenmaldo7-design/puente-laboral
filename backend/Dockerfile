@@ -12,7 +12,7 @@ COPY . .
 # seteada) aunque `generate` no necesita conectarse de verdad a una base:
 # solo lee schema.prisma. El valor real llega recien en runtime via
 # docker-compose (env_file), nunca queda horneado en la imagen.
-RUN DATABASE_URL="postgresql://user:pass@localhost:5432/db" npx prisma generate
+RUN DATABASE_URL="postgresql://user:pass@localhost:5432/db" DIRECT_URL="postgresql://user:pass@localhost:5432/db" npx prisma generate
 
 RUN npm run build
 

@@ -2,12 +2,13 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminReportsService, AdminMetricsResponse, TimeRange } from '../../services/admin-reports.service';
 import { Auth } from '../../../auth/services/auth';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { Header } from '../../../../shared/ui/header/header';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink, Header],
   templateUrl: './dashboard-page.html',
   styleUrls: []
 })
@@ -20,6 +21,17 @@ export class DashboardPage implements OnInit {
   readonly metrics = signal<AdminMetricsResponse | null>(null);
   readonly loading = signal<boolean>(false);
   readonly error = signal<string | null>(null);
+
+  get maxServiceCount(): number {
+    const m = this.metrics();
+    if (!m) return 1;
+    const max = Math.max(
+      m.servicesBreakdown.offers,
+      m.servicesBreakdown.courses,
+      m.servicesBreakdown.mentorships
+    );
+    return max > 0 ? max : 1;
+  }
 
   async ngOnInit(): Promise<void> {
     await this.loadMetrics();

@@ -1,45 +1,5 @@
 <div class="page">
-  <header class="header">
-    <a routerLink="/empresas/home" class="brand" aria-label="Ir al Inicio de Empresas">
-      <svg class="brand-icon" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-        <circle cx="33" cy="7" r="3" fill="#f2b93b" />
-        <rect x="4" y="24" width="6" height="12" rx="1" fill="#185fa5" />
-        <rect x="13" y="18" width="6" height="18" rx="1" fill="#185fa5" />
-        <rect x="22" y="12" width="6" height="24" rx="1" fill="#185fa5" />
-        <circle cx="7" cy="20" r="2.5" fill="#042c53" />
-        <circle cx="16" cy="14" r="2.5" fill="#042c53" />
-        <circle cx="25" cy="8" r="2.5" fill="#042c53" />
-      </svg>
-      <div class="brand-text">
-        <span class="brand-name">Puente Laboral</span>
-        <span class="brand-role">Portal Empresas</span>
-      </div>
-    </a>
-
-    <div class="header-actions">
-      <button type="button" class="btn-icon" aria-label="Notificaciones">
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path
-            d="M12 3a6 6 0 0 0-6 6v3.2c0 .5-.18.99-.5 1.38L4 15.5c-.7.85-.1 2.1 1 2.1h14c1.1 0 1.7-1.25 1-2.1l-1.5-1.92c-.32-.4-.5-.89-.5-1.38V9a6 6 0 0 0-6-6Z"
-            stroke="#185FA5" stroke-width="1.6" stroke-linejoin="round" />
-          <path d="M9.5 19a2.5 2.5 0 0 0 5 0" stroke="#185FA5" stroke-width="1.6" stroke-linecap="round" />
-        </svg>
-        <span class="badge-count">12</span>
-      </button>
-      <a routerLink="/empresas/perfil" class="header-user" aria-label="Ir al Perfil de la Empresa">
-        <span class="avatar-sm">{{ perfil()?.avatarIniciales ?? 'E' }}</span>
-        <span class="header-greeting">{{ perfil()?.razonSocial }}</span>
-      </a>
-      <button type="button" class="btn-logout" (click)="cerrarSesion()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-icon" aria-hidden="true">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-          <polyline points="16 17 21 12 16 7" />
-          <line x1="21" y1="12" x2="9" y2="12" />
-        </svg>
-        <span>Cerrar sesión</span>
-      </button>
-    </div>
-  </header>
+  <app-header />
 
   <main class="content">
     @if (perfil(); as p) {
@@ -72,7 +32,7 @@
 
     <div class="profile-grid">
       <!-- 1. Información General (solo lectura: razón social/cuit no se editan desde acá) -->
-      <section class="section-card">
+      <section class="section-card full-width">
         <div class="section-card-header">
           <h2 class="section-card-title">Información de la Empresa</h2>
         </div>

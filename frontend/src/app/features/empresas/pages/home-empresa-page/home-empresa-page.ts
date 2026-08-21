@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
+import { Header } from '../../../../shared/ui/header/header';
 import { Auth } from '../../../auth/services/auth';
 import { extraerMensajeDeError } from '../../../../core/http/api-error';
 import { EmpresaHomeService } from '../../services/empresa-home.service';
@@ -15,7 +16,7 @@ import {
 
 @Component({
   selector: 'app-home-empresa-page',
-  imports: [RouterLink],
+  imports: [RouterLink, Header],
   templateUrl: './home-empresa-page.html',
   styleUrl: './home-empresa-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

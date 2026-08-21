@@ -1,21 +1,5 @@
 <div class="min-h-screen bg-[#e6f1fb] flex flex-col">
-  <header class="bg-white border-b border-slate-100 flex items-center justify-between px-6 py-4 shadow-sm">
-    <a href="/admin/dashboard" class="flex items-center gap-3">
-      <img src="/logo.png" alt="Puente Laboral" class="h-10 w-auto object-contain">
-      <div class="flex flex-col">
-        <span class="text-sm font-bold text-[#042c53] leading-tight">Puente Laboral</span>
-        <span class="text-xs text-slate-500 font-medium">Panel Administrador</span>
-      </div>
-    </a>
-    <button type="button" class="text-sm text-slate-600 font-medium hover:text-[#042c53] flex items-center gap-2 transition" (click)="cerrarSesion()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4" aria-hidden="true">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-        <polyline points="16 17 21 12 16 7" />
-        <line x1="21" y1="12" x2="9" y2="12" />
-      </svg>
-      Cerrar Sesi&oacute;n
-    </button>
-  </header>
+  <app-header />
 
 <div class="container mx-auto p-6 max-w-6xl flex-grow">
   <header class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
@@ -67,54 +51,175 @@
     {{ error() }}
   </div>
 
-  <div *ngIf="loading()" class="grid grid-cols-1 md:grid-cols-3 gap-6 animate-pulse">
+  <div *ngIf="loading()" class="grid grid-cols-1 md:grid-cols-3 gap-6 animate-pulse mb-8">
     <div class="bg-white h-32 rounded-xl"></div>
     <div class="bg-white h-32 rounded-xl"></div>
     <div class="bg-white h-32 rounded-xl"></div>
   </div>
 
-  <div *ngIf="!loading() && metrics()" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <!-- Ofertas Activas -->
-    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col h-full">
-      <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Ofertas Laborales Activas</h3>
-      <div class="flex-grow flex items-center justify-center py-4">
-        <ng-container *ngIf="metrics()!.totalActiveJobOffers > 0; else noOffers">
-          <span class="text-4xl font-bold text-[#042c53]" data-testid="metric-active-jobs">{{ metrics()!.totalActiveJobOffers }}</span>
-        </ng-container>
-        <ng-template #noOffers>
-          <span class="text-gray-400 italic text-sm">Todavía no hay datos</span>
-        </ng-template>
+  <div *ngIf="!loading() && metrics()" class="space-y-6">
+
+    <!-- Banner Empresas Pendientes -->
+    <div *ngIf="metrics()!.pendingCompanies > 0" class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between shadow-sm">
+      <div class="flex items-center gap-3">
+        <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        <div>
+          <h4 class="font-bold text-amber-800">Atención requerida</h4>
+          <p class="text-sm text-amber-700">Hay {{ metrics()!.pendingCompanies }} empresa(s) pendiente(s) de revisión para ser habilitadas.</p>
+        </div>
+      </div>
+      <button routerLink="/admin/solicitudes" class="px-4 py-2 bg-amber-600 text-white rounded-md text-sm font-medium hover:bg-amber-700 transition-colors">
+        Revisar Solicitudes
+      </button>
+    </div>
+
+    <!-- Primera fila: Métricas Generales -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      
+      <!-- Organizaciones Aliadas -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col h-full">
+        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Organizaciones Aliadas</h3>
+        <div class="flex-grow flex items-center justify-center py-2">
+          <span class="text-4xl font-bold text-[#042c53]">{{ metrics()!.totalOrganizations }}</span>
+        </div>
+      </div>
+
+      <!-- Beneficiarios Totales -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col h-full">
+        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Beneficiarios Totales</h3>
+        <div class="flex-grow flex items-center justify-center py-2">
+          <span class="text-4xl font-bold text-[#042c53]">{{ metrics()!.totalBeneficiaries }}</span>
+        </div>
+      </div>
+
+      <!-- Candidatos Aceptados -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col h-full">
+        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Candidatos Aceptados</h3>
+        <div class="flex-grow flex items-center justify-center py-2">
+          <ng-container *ngIf="metrics()!.totalAcceptedCandidates > 0; else noCandidates">
+            <span class="text-4xl font-bold text-[#042c53]" data-testid="metric-accepted-candidates">{{ metrics()!.totalAcceptedCandidates }}</span>
+          </ng-container>
+          <ng-template #noCandidates>
+            <span class="text-gray-400 italic text-sm">Sin datos</span>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- Match Promedio -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col h-full">
+        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Match Promedio</h3>
+        <div class="flex-grow flex items-center justify-center py-2">
+          <ng-container *ngIf="metrics()!.averageMatchPercentage !== null; else noMatch">
+            <span class="text-4xl font-bold text-[#042c53]" data-testid="metric-match-percentage">{{ metrics()!.averageMatchPercentage }}%</span>
+          </ng-container>
+          <ng-template #noMatch>
+            <span class="text-gray-400 italic text-sm">Sin datos</span>
+          </ng-template>
+        </div>
       </div>
     </div>
 
-    <!-- Candidatos Aceptados -->
-    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col h-full">
-      <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Candidatos Aceptados</h3>
-      <div class="flex-grow flex items-center justify-center py-4">
-        <ng-container *ngIf="metrics()!.totalAcceptedCandidates > 0; else noCandidates">
-          <span class="text-4xl font-bold text-[#042c53]" data-testid="metric-accepted-candidates">{{ metrics()!.totalAcceptedCandidates }}</span>
-        </ng-container>
-        <ng-template #noCandidates>
-          <span class="text-gray-400 italic text-sm">Todavía no hay datos</span>
-        </ng-template>
+    <!-- Segunda Fila: Desglose de Servicios (Gráfico) -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+      <h3 class="text-lg font-bold text-[#042c53] mb-6">Desglose de Servicios Publicados</h3>
+      
+      <div class="flex items-end justify-around h-48 mt-4 pt-4 border-b border-gray-200 relative">
+        <!-- Grilla de fondo sutil -->
+        <div class="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-20">
+          <div class="border-t border-gray-400 w-full"></div>
+          <div class="border-t border-gray-400 w-full"></div>
+          <div class="border-t border-gray-400 w-full"></div>
+          <div class="border-t border-gray-400 w-full"></div>
+        </div>
+        
+        <!-- Barra 1: Ofertas -->
+        <div class="flex flex-col justify-end items-center z-10 w-24 h-full">
+          <span class="text-sm font-bold text-gray-600 mb-2">{{ metrics()!.servicesBreakdown.offers }}</span>
+          <div class="w-16 bg-[#185fa5] rounded-t-md transition-all duration-500 ease-in-out" 
+               [style.height.%]="(metrics()!.servicesBreakdown.offers / maxServiceCount) * 85"></div>
+        </div>
+
+        <!-- Barra 2: Cursos -->
+        <div class="flex flex-col justify-end items-center z-10 w-24 h-full">
+          <span class="text-sm font-bold text-gray-600 mb-2">{{ metrics()!.servicesBreakdown.courses }}</span>
+          <div class="w-16 bg-[#29a3ff] rounded-t-md transition-all duration-500 ease-in-out" 
+               [style.height.%]="(metrics()!.servicesBreakdown.courses / maxServiceCount) * 85"></div>
+        </div>
+
+        <!-- Barra 3: Mentorías -->
+        <div class="flex flex-col justify-end items-center z-10 w-24 h-full">
+          <span class="text-sm font-bold text-gray-600 mb-2">{{ metrics()!.servicesBreakdown.mentorships }}</span>
+          <div class="w-16 bg-[#042c53] rounded-t-md transition-all duration-500 ease-in-out" 
+               [style.height.%]="(metrics()!.servicesBreakdown.mentorships / maxServiceCount) * 85"></div>
+        </div>
+      </div>
+      
+      <!-- Etiquetas (Eje X) -->
+      <div class="flex justify-around mt-4">
+        <div class="text-center w-24">
+          <span class="text-sm font-medium text-gray-700">Ofertas<br/>Laborales</span>
+        </div>
+        <div class="text-center w-24">
+          <span class="text-sm font-medium text-gray-700">Cursos</span>
+        </div>
+        <div class="text-center w-24">
+          <span class="text-sm font-medium text-gray-700">Mentorías</span>
+        </div>
+      </div>
+      
+      <div class="mt-4 text-center text-sm text-gray-500 italic" *ngIf="metrics()!.servicesBreakdown.offers === 0 && metrics()!.servicesBreakdown.courses === 0 && metrics()!.servicesBreakdown.mentorships === 0">
+        No hay servicios publicados en este período.
       </div>
     </div>
+    
+    <!-- Tercera Fila: 3 Columnas -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <!-- Top Habilidades -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <h3 class="text-lg font-bold text-[#042c53] mb-4">Top Habilidades Demandadas</h3>
+        <ul class="space-y-3" *ngIf="metrics()!.topSkills.length > 0; else noSkills">
+          <li *ngFor="let skill of metrics()!.topSkills; let i = index" class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+            <div class="flex items-center gap-3">
+              <span class="font-bold text-gray-400">#{{ i + 1 }}</span>
+              <span class="font-medium text-gray-700">{{ skill.name }}</span>
+            </div>
+            <span class="px-2 py-1 bg-[#e6f1fb] text-[#185fa5] text-xs font-bold rounded-full">{{ skill.count }}</span>
+          </li>
+        </ul>
+        <ng-template #noSkills>
+          <div class="text-center py-6 text-gray-400 italic text-sm">No hay datos de habilidades</div>
+        </ng-template>
+      </div>
 
-    <!-- Match Promedio -->
-    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col h-full">
-      <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Porcentaje de Match Promedio</h3>
-      <div class="flex-grow flex items-center justify-center py-4">
-        <ng-container *ngIf="metrics()!.averageMatchPercentage !== null; else noMatch">
-          <span class="text-4xl font-bold text-[#042c53]" data-testid="metric-match-percentage">{{ metrics()!.averageMatchPercentage }}%</span>
-        </ng-container>
-        <ng-template #noMatch>
-          <span class="text-gray-400 italic text-sm">Todavía no hay datos</span>
+      <!-- Embudo de Postulaciones -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <h3 class="text-lg font-bold text-[#042c53] mb-4">Estado de Postulaciones</h3>
+        <ul class="space-y-3" *ngIf="metrics()!.postulationsFunnel.length > 0; else noPostulations">
+          <li *ngFor="let state of metrics()!.postulationsFunnel" class="flex justify-between items-center p-3 border border-gray-100 rounded-lg">
+            <span class="font-medium text-gray-700 capitalize">{{ state.state }}</span>
+            <span class="font-bold text-[#042c53]">{{ state.count }}</span>
+          </li>
+        </ul>
+        <ng-template #noPostulations>
+          <div class="text-center py-6 text-gray-400 italic text-sm">No hay postulaciones registradas</div>
+        </ng-template>
+      </div>
+
+      <!-- Distribución Geográfica -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <h3 class="text-lg font-bold text-[#042c53] mb-4">Distribución Geográfica</h3>
+        <ul class="space-y-3" *ngIf="metrics()!.geographicDistribution.length > 0; else noGeo">
+          <li *ngFor="let geo of metrics()!.geographicDistribution" class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+            <span class="font-medium text-gray-700 truncate" [title]="geo.city">{{ geo.city }}</span>
+            <span class="px-2 py-1 bg-gray-200 text-gray-700 text-xs font-bold rounded-full">{{ geo.count }}</span>
+          </li>
+        </ul>
+        <ng-template #noGeo>
+          <div class="text-center py-6 text-gray-400 italic text-sm">No hay datos geográficos</div>
         </ng-template>
       </div>
     </div>
   </div>
 </div>
 </div>
-
-
-

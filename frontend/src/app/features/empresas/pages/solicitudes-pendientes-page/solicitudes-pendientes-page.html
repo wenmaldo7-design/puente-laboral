@@ -1,9 +1,8 @@
-<main class="panel">
+<app-header />
+<main class="panel mt-6">
   <header class="panel-header">
     <h1>Solicitudes pendientes</h1>
-    <button type="button" class="link-volver" (click)="cerrarSesion()">Cerrar sesión</button>
   </header>
-
   @if (cargando()) {
     <p class="estado-info">Cargando...</p>
   } @else if (error()) {
