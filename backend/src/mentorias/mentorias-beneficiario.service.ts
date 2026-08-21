@@ -2,10 +2,12 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
+import { NotificacionesService } from '../notificaciones/notificaciones.service';
 import { InscripcionResponseDto } from './dto/inscripcion-response.dto';
 import { MentoriaResponseDto } from './dto/mentoria-response.dto';
 
@@ -35,7 +37,12 @@ function inicioDeHoy(): Date {
 
 @Injectable()
 export class MentoriasBeneficiarioService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(MentoriasBeneficiarioService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificacionesService: NotificacionesService,
+  ) {}
 
   /** GET /beneficiarios/mentorias. Solo mentorías activas y con fecha futura. */
   async listarDisponibles(
@@ -177,6 +184,12 @@ export class MentoriasBeneficiarioService {
       });
     }
 
+    await this.notificar(
+      'MENTORIA_INSCRIPCION',
+      idUsuarioBeneficiario,
+      servicio.titulo,
+    );
+
     return {
       id_inscripcion: inscripcion.id_inscripcion,
       id_servicio: idServicio,
@@ -222,6 +235,12 @@ export class MentoriasBeneficiarioService {
       },
     });
 
+    await this.notificar(
+      'MENTORIA_CANCELACION',
+      idUsuarioBeneficiario,
+      existente.mentorias.servicios.titulo,
+    );
+
     return {
       id_inscripcion: inscripcion.id_inscripcion,
       id_servicio: idServicio,
@@ -230,6 +249,30 @@ export class MentoriasBeneficiarioService {
       estado_mentoria: estadoCancelado.nombre,
       fecha_actualizacion: inscripcion.fecha_actualizacion,
     };
+  }
+
+  /**
+   * La inscripción/baja ya se guardó antes de llamar a este método: una
+   * falla al notificar no debe hacer fallar la operación principal, solo
+   * se registra para diagnóstico.
+   */
+  private async notificar(
+    tipo: 'MENTORIA_INSCRIPCION' | 'MENTORIA_CANCELACION',
+    idUsuarioBeneficiario: number,
+    mentoria: string,
+  ): Promise<void> {
+    try {
+      await this.notificacionesService.crear({
+        tipo,
+        destinatario: { idUsuario: idUsuarioBeneficiario, rol: 'beneficiario' },
+        datos: { mentoria },
+      });
+    } catch (error) {
+      this.logger.error(
+        `No se pudo crear la notificación "${tipo}" para el usuario ${idUsuarioBeneficiario}`,
+        error instanceof Error ? error.stack : String(error),
+      );
+    }
   }
 
   private async obtenerEstado(nombre: string) {
