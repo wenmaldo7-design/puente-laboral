@@ -9,6 +9,7 @@ import { CatalogosModule } from './catalogos/catalogos.module';
 import { BeneficiariosModule } from './beneficiarios/beneficiarios.module';
 import { OfertasLaboralesModule } from './ofertas-laborales/ofertas-laborales.module';
 import { MentoriasModule } from './mentorias/mentorias.module';
+import { NotificacionesModule } from './notificaciones/notificaciones.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { MentoriasModule } from './mentorias/mentorias.module';
     BeneficiariosModule,
     OfertasLaboralesModule,
     MentoriasModule,
+    NotificacionesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

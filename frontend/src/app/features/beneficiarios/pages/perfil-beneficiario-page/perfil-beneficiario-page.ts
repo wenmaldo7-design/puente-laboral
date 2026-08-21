@@ -4,6 +4,7 @@ import { Header } from '../../../../shared/ui/header/header';
 import { Footer } from '../../../../shared/ui/footer/footer';
 import { extraerMensajeDeError } from '../../../../core/http/api-error';
 import { PerfilBeneficiarioService } from '../../services/perfil-beneficiario.service';
+import { Notificaciones } from '../../../notificaciones/services/notificaciones';
 import {
   EnlacesPerfil,
   HabilidadCatalogo,
@@ -29,8 +30,10 @@ type ClaveEdicion = CampoSimple | 'enlaces' | SeccionTags;
   styleUrl: './perfil-beneficiario-page.css',
 })
 export class PerfilBeneficiarioPage implements OnInit {
+  private readonly notificacionesService = inject(Notificaciones);
+
   protected readonly perfil = signal<PerfilBeneficiario | null>(null);
-  protected readonly notificacionesNoLeidas = signal(2);
+  protected readonly notificacionesNoLeidas = this.notificacionesService.contadorNoLeidas;
 
   protected readonly nombreSaludo = computed(() => this.perfil()?.nombre.split(' ')[0] ?? '');
 
@@ -60,6 +63,7 @@ export class PerfilBeneficiarioPage implements OnInit {
     this.perfilBeneficiarioService.getPerfil().subscribe((perfil) => this.perfil.set(perfil));
     this.perfilBeneficiarioService.getCatalogoHabilidades().subscribe((c) => this.catalogoHabilidades.set(c));
     this.perfilBeneficiarioService.getCatalogoAreasInteres().subscribe((c) => this.catalogoAreasInteres.set(c));
+    this.notificacionesService.refrescarContador();
   }
 
   protected estaEditando(clave: ClaveEdicion): boolean {
