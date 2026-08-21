@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Header } from '../../../../shared/ui/header/header';
 import { Footer } from '../../../../shared/ui/footer/footer';
 import { BeneficiarioHomeService } from '../../services/beneficiario-home.service';
 import { PerfilBeneficiarioService } from '../../services/perfil-beneficiario.service';
+import { Notificaciones } from '../../../notificaciones/services/notificaciones';
 import { OfertasLaborales } from '../../../ofertas-laborales/services/ofertas-laborales';
 import { Postulaciones } from '../../../ofertas-laborales/services/postulaciones';
 import { OfertaLaboralBeneficiario, Postulacion } from '../../../ofertas-laborales/models/postulacion.model';
@@ -16,9 +17,6 @@ import {
 } from '../../models/beneficiario-home.model';
 import { PerfilBeneficiario } from '../../models/perfil-beneficiario.model';
 
-/** Todavía no hay endpoint de notificaciones: se muestra un valor fijo, igual que en el resto de las páginas de beneficiario. */
-const NOTIFICACIONES_MOCK = 2;
-
 @Component({
   selector: 'app-home-beneficiario-page',
   imports: [Header, Footer],
@@ -26,11 +24,16 @@ const NOTIFICACIONES_MOCK = 2;
   styleUrl: './home-beneficiario-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomeBeneficiarioPage {
+export class HomeBeneficiarioPage implements OnInit {
   private readonly beneficiarioHomeService = inject(BeneficiarioHomeService);
   private readonly perfilBeneficiarioService = inject(PerfilBeneficiarioService);
   private readonly ofertasLaboralesService = inject(OfertasLaborales);
   private readonly postulacionesService = inject(Postulaciones);
+  private readonly notificacionesService = inject(Notificaciones);
+
+  ngOnInit(): void {
+    this.notificacionesService.refrescarContador();
+  }
 
   protected readonly perfil = toSignal<PerfilBeneficiario | null>(
     this.perfilBeneficiarioService.getPerfil(),
@@ -46,14 +49,13 @@ export class HomeBeneficiarioPage {
     initialValue: [] as OfertaLaboralBeneficiario[],
   });
 
-  /** Postulaciones y En curso salen de datos reales; Notificaciones sigue mockeado (sin endpoint todavía). */
   protected readonly metricas = computed<MetricaResumen[]>(() => [
     { etiqueta: 'Postulaciones', valor: this.postulaciones().length },
     {
       etiqueta: 'En curso',
       valor: this.postulaciones().filter((p) => p.estado_postulacion === 'pendiente').length,
     },
-    { etiqueta: 'Notificaciones', valor: NOTIFICACIONES_MOCK },
+    { etiqueta: 'Notificaciones', valor: this.notificacionesService.contadorNoLeidas() },
   ]);
 
   /** Reusa las ofertas laborales compatibles con el beneficiario (mismo endpoint que el listado de ofertas). */

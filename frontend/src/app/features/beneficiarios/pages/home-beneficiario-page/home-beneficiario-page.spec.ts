@@ -7,6 +7,7 @@ import { HomeBeneficiarioPage } from './home-beneficiario-page';
 const PERFIL_URL = 'http://localhost:3000/beneficiarios/me';
 const POSTULACIONES_URL = 'http://localhost:3000/beneficiarios/postulaciones';
 const OFERTAS_URL = 'http://localhost:3000/beneficiarios/ofertas-laborales';
+const NOTIFICACIONES_NO_LEIDAS_URL = 'http://localhost:3000/notificaciones/no-leidas';
 
 /** Respuesta real de GET /beneficiarios/me (BeneficiarioPerfilResponseDto). */
 const PERFIL_DTO = {
@@ -114,11 +115,16 @@ function flushOfertas(httpMock: HttpTestingController): void {
   httpMock.expectOne({ url: OFERTAS_URL, method: 'GET' }).flush(OFERTAS_DTO);
 }
 
+function flushNotificacionesNoLeidas(httpMock: HttpTestingController, cantidad = 2): void {
+  httpMock.expectOne({ url: NOTIFICACIONES_NO_LEIDAS_URL, method: 'GET' }).flush({ cantidad });
+}
+
 function flushTodo(fixture: { detectChanges(): void }, httpMock: HttpTestingController): void {
   fixture.detectChanges();
   flushGetPerfil(httpMock);
   flushPostulaciones(httpMock);
   flushOfertas(httpMock);
+  flushNotificacionesNoLeidas(httpMock);
   fixture.detectChanges();
 }
 
@@ -148,7 +154,7 @@ describe('HomeBeneficiarioPage', () => {
     expect(compiled.querySelector('.main-title')?.textContent).toContain('Camila');
   });
 
-  it('should compute Postulaciones/En curso from real postulaciones, and keep Notificaciones mocked', () => {
+  it('should compute Postulaciones/En curso/Notificaciones from real data, not hardcoded values', () => {
     const fixture = TestBed.createComponent(HomeBeneficiarioPage);
     const component = fixture.componentInstance;
     flushTodo(fixture, httpMock);
