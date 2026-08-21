@@ -6,7 +6,6 @@ import { Footer } from '../../../../shared/ui/footer/footer';
 import { Mentorias } from '../../services/mentorias';
 import { InscripcionesMentorias } from '../../services/inscripciones-mentorias';
 import { Mentoria } from '../../models/mentoria.model';
-import { InscripcionMentoria } from '../../models/inscripcion-mentoria.model';
 import { PerfilBeneficiarioService } from '../../../beneficiarios/services/perfil-beneficiario.service';
 import { PerfilBeneficiario } from '../../../beneficiarios/models/perfil-beneficiario.model';
 import { Notificaciones } from '../../../notificaciones/services/notificaciones';
@@ -30,11 +29,10 @@ export class DetalleMentoriaPage implements OnInit {
 
   protected readonly mentoria = signal<Mentoria | null>(null);
   protected readonly cargando = signal(true);
-  protected readonly inscripcion = signal<InscripcionMentoria | null>(null);
   protected readonly inscribiendo = signal(false);
   protected readonly dandoBaja = signal(false);
 
-  protected readonly estaInscripto = computed(() => this.inscripcion()?.estado === 'confirmada');
+  protected readonly estaInscripto = computed(() => this.mentoria()?.inscrito ?? false);
 
   private readonly route = inject(ActivatedRoute);
   private readonly mentoriasService = inject(Mentorias);
@@ -43,19 +41,20 @@ export class DetalleMentoriaPage implements OnInit {
   ngOnInit(): void {
     this.notificacionesService.refrescarContador();
 
-    const id = this.route.snapshot.paramMap.get('id');
-    if (!id) {
+    const idParam = this.route.snapshot.paramMap.get('id');
+    const id = idParam ? Number(idParam) : NaN;
+    if (!idParam || Number.isNaN(id)) {
       this.cargando.set(false);
       return;
     }
 
-    this.mentoriasService.getMentoriaPorId(id).subscribe((mentoria) => {
-      this.mentoria.set(mentoria ?? null);
-      this.cargando.set(false);
+    this.mentoriasService.getMentoriaPorId(id).subscribe({
+      next: (mentoria) => {
+        this.mentoria.set(mentoria);
+        this.cargando.set(false);
+      },
+      error: () => this.cargando.set(false),
     });
-    this.inscripcionesService
-      .getInscripcionPorMentoria(id)
-      .subscribe((inscripcion) => this.inscripcion.set(inscripcion ?? null));
   }
 
   protected inscribirme(): void {
@@ -63,8 +62,8 @@ export class DetalleMentoriaPage implements OnInit {
     if (!mentoria || this.inscribiendo() || this.estaInscripto()) return;
 
     this.inscribiendo.set(true);
-    this.inscripcionesService.inscribirse(mentoria.id).subscribe((inscripcion) => {
-      this.inscripcion.set(inscripcion);
+    this.inscripcionesService.inscribirse(mentoria.id).subscribe(() => {
+      this.mentoria.set({ ...mentoria, inscrito: true });
       this.inscribiendo.set(false);
     });
   }
@@ -74,8 +73,8 @@ export class DetalleMentoriaPage implements OnInit {
     if (!mentoria || this.dandoBaja() || !this.estaInscripto()) return;
 
     this.dandoBaja.set(true);
-    this.inscripcionesService.darDeBaja(mentoria.id).subscribe((inscripcion) => {
-      this.inscripcion.set(inscripcion);
+    this.inscripcionesService.darDeBaja(mentoria.id).subscribe(() => {
+      this.mentoria.set({ ...mentoria, inscrito: false });
       this.dandoBaja.set(false);
     });
   }

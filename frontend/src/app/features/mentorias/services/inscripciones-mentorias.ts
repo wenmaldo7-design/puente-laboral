@@ -1,57 +1,45 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { InscripcionMentoria } from '../models/inscripcion-mentoria.model';
+import { Observable, map } from 'rxjs';
+import { AppConfig } from '../../../core/config/app-config';
+import { EstadoInscripcion, InscripcionMentoria } from '../models/inscripcion-mentoria.model';
 
-declare global {
-  interface Window {
-    __env?: { apiUrl?: string };
-  }
+/** Espeja InscripcionResponseDto del backend. */
+interface InscripcionResponseDto {
+  id_inscripcion: number;
+  id_servicio: number;
+  titulo_mentoria: string;
+  estado_mentoria: string;
+  fecha_inscripcion: string;
+  fecha_actualizacion: string | null;
 }
 
-/**
- * El backend todavía no tiene el endpoint de inscripciones a mentorías.
- * Mientras tanto, `inscribirse` guarda el estado en memoria (se pierde al
- * recargar la página) para simular la confirmación sin depender de una API
- * real. La forma de los métodos ya es la que va a tener la versión HTTP.
- */
+function aInscripcion(dto: InscripcionResponseDto): InscripcionMentoria {
+  return {
+    id: dto.id_inscripcion,
+    mentoriaId: dto.id_servicio,
+    tituloMentoria: dto.titulo_mentoria,
+    estado: dto.estado_mentoria as EstadoInscripcion,
+    fechaInscripcion: dto.fecha_inscripcion,
+    fechaActualizacion: dto.fecha_actualizacion,
+  };
+}
+
 @Injectable({ providedIn: 'root' })
 export class InscripcionesMentorias {
-  constructor(private readonly http: HttpClient) {}
+  private readonly http = inject(HttpClient);
+  private readonly config = inject(AppConfig);
+  private readonly baseUrl = `${this.config.apiUrl}/beneficiarios`;
 
-  private get apiUrl(): string {
-    return window.__env?.apiUrl ?? 'http://localhost:3000';
+  inscribirse(mentoriaId: number): Observable<InscripcionMentoria> {
+    return this.http
+      .post<InscripcionResponseDto>(`${this.baseUrl}/mentorias/${mentoriaId}/inscripciones`, {})
+      .pipe(map(aInscripcion));
   }
 
-  private readonly inscripciones = new Map<string, InscripcionMentoria>();
-
-  getInscripcionPorMentoria(mentoriaId: string): Observable<InscripcionMentoria | undefined> {
-    // return this.http.get<InscripcionMentoria | undefined>(`${this.apiUrl}/mentorias/${mentoriaId}/inscripcion`);
-    return of(this.inscripciones.get(mentoriaId));
-  }
-
-  inscribirse(mentoriaId: string): Observable<InscripcionMentoria> {
-    // return this.http.post<InscripcionMentoria>(`${this.apiUrl}/mentorias/${mentoriaId}/inscripciones`, {});
-    const inscripcion: InscripcionMentoria = {
-      id: `insc-${mentoriaId}`,
-      mentoriaId,
-      estado: 'confirmada',
-      fechaInscripcion: new Date().toISOString().slice(0, 10),
-    };
-    this.inscripciones.set(mentoriaId, inscripcion);
-    return of(inscripcion);
-  }
-
-  darDeBaja(mentoriaId: string): Observable<InscripcionMentoria> {
-    // return this.http.patch<InscripcionMentoria>(`${this.apiUrl}/mentorias/${mentoriaId}/inscripcion`, { estado: 'cancelada' });
-    const existente = this.inscripciones.get(mentoriaId);
-    const inscripcion: InscripcionMentoria = {
-      id: existente?.id ?? `insc-${mentoriaId}`,
-      mentoriaId,
-      estado: 'cancelada',
-      fechaInscripcion: existente?.fechaInscripcion ?? new Date().toISOString().slice(0, 10),
-    };
-    this.inscripciones.set(mentoriaId, inscripcion);
-    return of(inscripcion);
+  darDeBaja(mentoriaId: number): Observable<InscripcionMentoria> {
+    return this.http
+      .delete<InscripcionResponseDto>(`${this.baseUrl}/mentorias/${mentoriaId}/inscripciones`)
+      .pipe(map(aInscripcion));
   }
 }

@@ -1,16 +1,17 @@
 export type ModalidadMentoria = 'presencial' | 'virtual';
 
 export interface Mentoria {
-  id: string;
+  id: number;
   titulo: string;
   descripcion: string;
+  area: string;
   mentorNombre: string;
   mentorIniciales: string;
   fecha: string;
   horaInicio: string;
   modalidad: ModalidadMentoria;
   linkOCanal?: string;
-  matchPorcentaje?: number;
+  inscrito: boolean;
 }
 
 export interface FiltroModalidad {

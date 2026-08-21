@@ -36,9 +36,6 @@
       <div class="mentorias-grid">
         @for (mentoria of mentoriasFiltradas(); track mentoria.id) {
           <article class="mentoria-card">
-            @if (mentoria.matchPorcentaje) {
-              <span class="match-badge">{{ mentoria.matchPorcentaje }}% match</span>
-            }
             <h2 class="mentoria-titulo">{{ mentoria.titulo }}</h2>
             <p class="mentoria-mentor">{{ mentoria.mentorNombre }}</p>
             <div class="mentoria-datos">

@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { CatalogosModule } from './catalogos/catalogos.module';
 import { BeneficiariosModule } from './beneficiarios/beneficiarios.module';
 import { OfertasLaboralesModule } from './ofertas-laborales/ofertas-laborales.module';
+import { MentoriasModule } from './mentorias/mentorias.module';
 import { NotificacionesModule } from './notificaciones/notificaciones.module';
 import { AdminReportsModule } from './admin-reports/admin-reports.module';
 
@@ -20,6 +21,7 @@ import { AdminReportsModule } from './admin-reports/admin-reports.module';
     CatalogosModule,
     BeneficiariosModule,
     OfertasLaboralesModule,
+    MentoriasModule,
     NotificacionesModule,
     AdminReportsModule,
   ],
