@@ -3,6 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { PerfilOrganizacion } from '../models/perfil-organizacion.model';
 
+declare global {
+  interface Window {
+    __env?: { apiUrl?: string };
+  }
+}
+
 const MOCK_SECTORES: string[] = [
   'Tecnología y Software',
   'Educación y Formación',
