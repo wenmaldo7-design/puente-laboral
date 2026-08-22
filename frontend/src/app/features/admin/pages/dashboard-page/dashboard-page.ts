@@ -33,6 +33,10 @@ export class DashboardPage implements OnInit {
     return max > 0 ? max : 1;
   }
 
+  formatState(state: string): string {
+    return state.replace(/_/g, ' ');
+  }
+
   async ngOnInit(): Promise<void> {
     await this.loadMetrics();
   }

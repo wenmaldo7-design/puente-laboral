@@ -197,7 +197,7 @@
         <h3 class="text-lg font-bold text-[#042c53] mb-4">Estado de Postulaciones</h3>
         <ul class="space-y-3" *ngIf="metrics()!.postulationsFunnel.length > 0; else noPostulations">
           <li *ngFor="let state of metrics()!.postulationsFunnel" class="flex justify-between items-center p-3 border border-gray-100 rounded-lg">
-            <span class="font-medium text-gray-700 capitalize">{{ state.state }}</span>
+            <span class="font-medium text-gray-700 capitalize">{{ formatState(state.state) }}</span>
             <span class="font-bold text-[#042c53]">{{ state.count }}</span>
           </li>
         </ul>

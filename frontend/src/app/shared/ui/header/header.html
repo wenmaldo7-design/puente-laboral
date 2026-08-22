@@ -43,11 +43,13 @@
     }
 
     <!-- Saludo / Perfil -->
-    <a [routerLink]="sesion()?.rol === 'beneficiario' ? '/beneficiarios/perfil' : sesion()?.rol === 'empresa' ? '/empresas/perfil' : null" 
-       class="text-sm font-medium text-[#185fa5] hover:underline cursor-pointer">
-      @if (nombre()) { Hola, {{ nombre() }} }
-      @else { Mi Perfil }
-    </a>
+    @if (sesion()?.rol !== 'administrador') {
+      <a [routerLink]="sesion()?.rol === 'beneficiario' ? '/beneficiarios/perfil' : sesion()?.rol === 'empresa' ? '/empresas/perfil' : null" 
+         class="text-sm font-medium text-[#185fa5] hover:underline cursor-pointer">
+        @if (nombre()) { Hola, {{ nombre() }} }
+        @else { Mi Perfil }
+      </a>
+    }
 
     <!-- Botón Cerrar Sesión -->
     <button type="button" class="text-sm text-slate-600 font-medium hover:text-red-600 flex items-center gap-2 transition ml-2 border-l border-slate-200 pl-4" (click)="cerrarSesion()">
