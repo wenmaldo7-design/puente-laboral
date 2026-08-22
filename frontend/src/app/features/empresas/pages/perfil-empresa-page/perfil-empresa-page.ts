@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe, CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { Auth } from '../../../auth/services/auth';
 import { extraerMensajeDeError } from '../../../../core/http/api-error';
 import { PerfilEmpresaService } from '../../services/perfil-empresa.service';
@@ -12,7 +12,7 @@ type SeccionEdicion = 'sobreNosotros' | 'sitioWeb';
 
 @Component({
   selector: 'app-perfil-empresa-page',
-  imports: [RouterLink, DatePipe, CommonModule, Header],
+  imports: [DatePipe, CommonModule, Header],
   templateUrl: './perfil-empresa-page.html',
   styleUrl: './perfil-empresa-page.css',
 })

@@ -21,4 +21,5 @@ export interface OfertaLaboralBeneficiarioResponseDto {
   match_porcentaje: number;
   puede_postularse: boolean;
   motivo_no_disponible: MotivoNoDisponible | null;
+  provincia: string | null;
 }
