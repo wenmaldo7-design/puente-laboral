@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { homeGuard } from './features/auth/guards/home-guard';
 
 export const routes: Routes = [
   {
@@ -48,6 +49,7 @@ export const routes: Routes = [
   },
   {
     path: 'puentelaboral',
+    canActivate: [homeGuard],
     loadComponent: () =>
       import('./pages/home-page/home-page').then((m) => m.HomePage),
   },
