@@ -7,7 +7,8 @@ import { HomeBeneficiarioPage } from './home-beneficiario-page';
 const PERFIL_URL = 'http://localhost:3000/beneficiarios/me';
 const POSTULACIONES_URL = 'http://localhost:3000/beneficiarios/postulaciones';
 const OFERTAS_URL = 'http://localhost:3000/beneficiarios/ofertas-laborales';
-const NOTIFICACIONES_NO_LEIDAS_URL = 'http://localhost:3000/notificaciones/no-leidas';
+const NOTIFICACIONES_URL = 'http://localhost:3000/notificaciones';
+const NOTIFICACIONES_NO_LEIDAS_URL = `${NOTIFICACIONES_URL}/no-leidas`;
 
 /** Respuesta real de GET /beneficiarios/me (BeneficiarioPerfilResponseDto). */
 const PERFIL_DTO = {
@@ -103,6 +104,24 @@ const OFERTAS_DTO = [
   },
 ];
 
+/** Respuesta real de GET /notificaciones (NotificacionResponseDto[]). */
+const NOTIFICACIONES_DTO = [
+  {
+    id: 1,
+    tipo: 'POSTULACION_RECIBIDA',
+    mensaje: 'Tu postulación a Asistente administrativo/a pasó a Entrevista',
+    fecha_envio: '2026-08-01',
+    leida: false,
+  },
+  {
+    id: 2,
+    tipo: 'SOLICITUD_APROBADA',
+    mensaje: 'Tu postulación a Curso de Excel intermedio fue Aceptada',
+    fecha_envio: '2026-07-28',
+    leida: true,
+  },
+];
+
 function flushGetPerfil(httpMock: HttpTestingController): void {
   httpMock.expectOne({ url: PERFIL_URL, method: 'GET' }).flush(PERFIL_DTO);
 }
@@ -119,12 +138,17 @@ function flushNotificacionesNoLeidas(httpMock: HttpTestingController, cantidad =
   httpMock.expectOne({ url: NOTIFICACIONES_NO_LEIDAS_URL, method: 'GET' }).flush({ cantidad });
 }
 
+function flushNotificacionesListar(httpMock: HttpTestingController, dtos: unknown[] = NOTIFICACIONES_DTO): void {
+  httpMock.expectOne({ url: NOTIFICACIONES_URL, method: 'GET' }).flush(dtos);
+}
+
 function flushTodo(fixture: { detectChanges(): void }, httpMock: HttpTestingController): void {
   fixture.detectChanges();
   flushGetPerfil(httpMock);
   flushPostulaciones(httpMock);
   flushOfertas(httpMock);
   flushNotificacionesNoLeidas(httpMock);
+  flushNotificacionesListar(httpMock);
   fixture.detectChanges();
 }
 
@@ -175,12 +199,16 @@ describe('HomeBeneficiarioPage', () => {
     expect(oportunidades.every((o: { tipo: string }) => o.tipo === 'empleo')).toBe(true);
   });
 
-  it('should load the mock actualizaciones', () => {
+  it('should load the últimas actualizaciones from the notificaciones endpoint', () => {
     const fixture = TestBed.createComponent(HomeBeneficiarioPage);
     const component = fixture.componentInstance;
     flushTodo(fixture, httpMock);
 
-    expect(component['actualizaciones']().length).toBeGreaterThan(0);
+    const actualizaciones = component['actualizaciones']();
+    expect(actualizaciones).toEqual([
+      { id: '1', mensaje: NOTIFICACIONES_DTO[0].mensaje, fecha: NOTIFICACIONES_DTO[0].fecha_envio },
+      { id: '2', mensaje: NOTIFICACIONES_DTO[1].mensaje, fecha: NOTIFICACIONES_DTO[1].fecha_envio },
+    ]);
   });
 
   it('should default to the "todo" filter and show every oportunidad', () => {
