@@ -138,4 +138,106 @@ describe('HomeEmpresaPage', () => {
     expect(titulos.length).toBe(1);
     expect(titulos[0].textContent).toContain('Soporte Técnico');
   });
+
+  it('should not show pagination controls when there are 3 or fewer postulantes', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.pagination')).toBeNull();
+  });
+});
+
+function postulanteDto(id: number) {
+  return {
+    id_postulacion: id,
+    beneficiario_nombre: `Postulante ${id}`,
+    avatar_iniciales: 'PP',
+    oferta_titulo: 'Desarrollador Angular Trainee',
+    id_servicio: 1,
+    match_porcentaje: 80,
+    fecha_postulacion: '2026-08-03T00:00:00.000Z',
+    estado_postulacion: 'pendiente',
+  };
+}
+
+describe('HomeEmpresaPage postulantes pagination', () => {
+  let component: HomeEmpresaPage;
+  let fixture: ComponentFixture<HomeEmpresaPage>;
+  let httpMock: HttpTestingController;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [HomeEmpresaPage],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(HomeEmpresaPage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    httpMock = TestBed.inject(HttpTestingController);
+
+    httpMock.expectOne('http://localhost:3000/auth/empresa/me').flush({
+      id_usuario: 101,
+      email: 'contacto@innovartech.org.ar',
+      razon_social: 'InnovarTech',
+      cuit: '30-71234567-9',
+      descripcion: null,
+      sitio_web: null,
+      logo_url: null,
+      habilitada_operativamente: true,
+      fecha_habilitacion: '2026-01-01',
+    });
+    httpMock.expectOne('http://localhost:3000/empresas/metricas').flush({
+      oportunidades_activas: 0,
+      postulaciones_totales: 0,
+      postulaciones_pendientes: 0,
+      match_promedio: 0,
+    });
+    httpMock.expectOne('http://localhost:3000/empresas/ofertas-laborales').flush([]);
+    httpMock
+      .expectOne('http://localhost:3000/empresas/postulaciones/recientes')
+      .flush([1, 2, 3, 4, 5].map(postulanteDto));
+
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  it('should show only the first page of 3 postulantes', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelectorAll('.postulante-card').length).toBe(3);
+    expect(compiled.querySelector('.pagination')?.textContent).toContain('Página 1 de 2');
+  });
+
+  it('should disable "Anterior" on the first page and enable "Siguiente"', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const [anterior, siguiente] = Array.from(compiled.querySelectorAll('.pagination button')) as HTMLButtonElement[];
+
+    expect(anterior.disabled).toBe(true);
+    expect(siguiente.disabled).toBe(false);
+  });
+
+  it('should advance to the next page and show the remaining postulantes', () => {
+    component['paginaSiguiente']();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelectorAll('.postulante-card').length).toBe(2);
+    expect(compiled.querySelector('.pagination')?.textContent).toContain('Página 2 de 2');
+
+    const [anterior, siguiente] = Array.from(compiled.querySelectorAll('.pagination button')) as HTMLButtonElement[];
+    expect(anterior.disabled).toBe(false);
+    expect(siguiente.disabled).toBe(true);
+  });
+
+  it('should not go past the last page or before the first page', () => {
+    component['paginaSiguiente']();
+    component['paginaSiguiente']();
+    expect(component['paginaActual']()).toBe(1);
+
+    component['paginaAnterior']();
+    component['paginaAnterior']();
+    expect(component['paginaActual']()).toBe(0);
+  });
 });
