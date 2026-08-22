@@ -34,6 +34,14 @@ export const EMPRESAS_ROUTES: Routes = [
       ).then((m) => m.PublicarOfertaPage),
   },
   {
+    path: 'mentorias/publicar',
+    canActivate: [roleGuard(['empresa'])],
+    loadComponent: () =>
+      import(
+        '../mentorias/pages/publicar-mentoria-page/publicar-mentoria-page'
+      ).then((m) => m.PublicarMentoriaPage),
+  },
+  {
     path: 'ofertas-laborales/:id/candidatos',
     canActivate: [roleGuard(['empresa'])],
     loadComponent: () =>

@@ -220,6 +220,8 @@ model mentorias {
   hora_inicio             DateTime?                 @db.Time(6)
   modalidad               String                    @db.VarChar(20)
   link_o_canal            String?                   @db.VarChar(300)
+  requisitos              String?
+  duracion_minutos        Int?
   id_profesional          Int?
   inscripciones_mentorias inscripciones_mentorias[]
   profesionales           profesionales?            @relation(fields: [id_profesional], references: [id_profesional], onDelete: NoAction, onUpdate: NoAction)
