@@ -9,6 +9,7 @@ import { OfertasLaborales } from '../../services/ofertas-laborales';
 import { MENSAJE_NO_DISPONIBLE, OfertaLaboralBeneficiario } from '../../models/postulacion.model';
 import { PerfilBeneficiarioService } from '../../../beneficiarios/services/perfil-beneficiario.service';
 import { PerfilBeneficiario } from '../../../beneficiarios/models/perfil-beneficiario.model';
+import { Notificaciones } from '../../../notificaciones/services/notificaciones';
 
 type ModalidadFiltro = 'todas' | 'virtual' | 'presencial';
 
@@ -37,7 +38,8 @@ export class ListadoOfertasPage implements OnInit {
     { initialValue: null },
   );
   protected readonly nombreBeneficiario = computed(() => this.perfil()?.nombre.split(' ')[0] ?? '');
-  protected readonly notificacionesNoLeidas = signal(2);
+  private readonly notificacionesService = inject(Notificaciones);
+  protected readonly notificacionesNoLeidas = this.notificacionesService.contadorNoLeidas;
 
   protected readonly ofertas = signal<OfertaLaboralBeneficiario[]>([]);
   protected readonly cargando = signal(true);
@@ -65,6 +67,7 @@ export class ListadoOfertasPage implements OnInit {
   private readonly ofertasLaboralesService = inject(OfertasLaborales);
 
   ngOnInit(): void {
+    this.notificacionesService.refrescarContador();
     this.ofertasLaboralesService.getCompatibles().subscribe({
       next: (ofertas) => {
         this.ofertas.set(ofertas);
