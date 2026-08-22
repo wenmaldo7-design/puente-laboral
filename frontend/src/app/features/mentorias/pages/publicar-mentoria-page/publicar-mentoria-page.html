@@ -1,59 +1,173 @@
-<div class="container mx-auto p-4">
-  <h1 class="text-2xl font-bold mb-4">Publicar Mentoría</h1>
-  
-  <form [formGroup]="mentoriaForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4 max-w-lg">
-    
-    <div>
-      <label class="block text-sm font-medium">Título</label>
-      <input type="text" formControlName="titulo" class="w-full border rounded p-2" />
-    </div>
+<div class="page">
+  <header class="header">
+    <a class="brand" routerLink="/empresas/home">
+      <img class="brand-logo" src="/logo.png" alt="Puente Laboral" width="677" height="369" />
+    </a>
+    <a class="link-volver" routerLink="/empresas/home">‹ Volver al panel</a>
+  </header>
 
-    <div>
-      <label class="block text-sm font-medium">Descripción</label>
-      <textarea formControlName="descripcion" class="w-full border rounded p-2"></textarea>
-    </div>
+  <main class="content">
+    @if (enviado()) {
+      <div class="confirmacion">
+        <h1 class="main-title">¡Mentoría publicada!</h1>
+        <p class="subtitle">Tu mentoría ya está activa y visible para los beneficiarios.</p>
+        <button type="button" class="btn-submit" (click)="volverAlHome()">Volver al panel</button>
+      </div>
+    } @else {
+      <h1 class="main-title">Crear mentoría</h1>
+      <p class="subtitle">Completá los datos de la publicación.</p>
 
-    <div>
-      <label class="block text-sm font-medium">Requisitos</label>
-      <textarea formControlName="requisitos" class="w-full border rounded p-2"></textarea>
-    </div>
+      <form [formGroup]="mentoriaForm" (ngSubmit)="onSubmit()" novalidate class="oferta-form">
+        @if (errorGeneral()) {
+          <div class="alert-error" role="alert">{{ errorGeneral() }}</div>
+        }
 
-    <div>
-      <label class="block text-sm font-medium">Duración (minutos)</label>
-      <input type="number" formControlName="duracion_minutos" class="w-full border rounded p-2" />
-    </div>
+        <div class="form-group">
+          <label for="meTitulo">Título <span class="required">*</span></label>
+          <input
+            id="meTitulo"
+            type="text"
+            class="form-control"
+            formControlName="titulo"
+            maxlength="150"
+            placeholder="Ej: Mentoría sobre Arquitectura Frontend"
+          />
+          @if (mentoriaForm.controls.titulo.invalid && mentoriaForm.controls.titulo.touched) {
+            <p class="form-error">El título es obligatorio.</p>
+          }
+        </div>
 
-    <div>
-      <label class="block text-sm font-medium">ID Área</label>
-      <input type="number" formControlName="id_area" class="w-full border rounded p-2" />
-    </div>
+        <div class="form-group">
+          <label for="meDescripcion">Descripción (opcional)</label>
+          <textarea
+            id="meDescripcion"
+            class="form-control form-textarea"
+            rows="3"
+            formControlName="descripcion"
+            placeholder="Detalle de lo que se verá en la mentoría..."
+          ></textarea>
+        </div>
 
-    <div>
-      <label class="block text-sm font-medium">Fecha</label>
-      <input type="date" formControlName="fecha" class="w-full border rounded p-2" />
-    </div>
+        <div class="form-group">
+          <label for="meRequisitos">Requisitos <span class="required">*</span></label>
+          <textarea
+            id="meRequisitos"
+            class="form-control form-textarea"
+            rows="2"
+            formControlName="requisitos"
+            placeholder="¿Qué conocimientos o actitud necesita el postulante?"
+          ></textarea>
+          @if (mentoriaForm.controls.requisitos.invalid && mentoriaForm.controls.requisitos.touched) {
+            <p class="form-error">Los requisitos son obligatorios.</p>
+          }
+        </div>
 
-    <div>
-      <label class="block text-sm font-medium">Hora Inicio (HH:mm)</label>
-      <input type="time" formControlName="hora_inicio" class="w-full border rounded p-2" />
-    </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="meArea">Área <span class="required">*</span></label>
+            <select id="meArea" class="form-control form-select" formControlName="area">
+              <option value="" disabled>Seleccioná un área</option>
+              @for (area of areas(); track area) {
+                <option [value]="area">{{ area }}</option>
+              }
+            </select>
+            @if (mentoriaForm.controls.area.invalid && mentoriaForm.controls.area.touched) {
+              <p class="form-error">Seleccioná un área.</p>
+            }
+          </div>
 
-    <div>
-      <label class="block text-sm font-medium">Modalidad</label>
-      <select formControlName="modalidad" class="w-full border rounded p-2">
-        <option value="virtual">Virtual</option>
-        <option value="presencial">Presencial</option>
-        <option value="hibrida">Híbrida</option>
-      </select>
-    </div>
+          <div class="form-group">
+            <label for="meDuracion">Duración (minutos) <span class="required">*</span></label>
+            <input
+              id="meDuracion"
+              type="number"
+              class="form-control"
+              formControlName="duracion_minutos"
+              min="1"
+              step="15"
+              placeholder="Ej: 60"
+            />
+            @if (mentoriaForm.controls.duracion_minutos.invalid && mentoriaForm.controls.duracion_minutos.touched) {
+              <p class="form-error">Ingresá una duración válida en minutos.</p>
+            }
+          </div>
+        </div>
 
-    <div>
-      <label class="block text-sm font-medium">Link o Canal</label>
-      <input type="text" formControlName="link_o_canal" class="w-full border rounded p-2" />
-    </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="meFecha">Fecha <span class="required">*</span></label>
+            <input
+              id="meFecha"
+              type="date"
+              class="form-control"
+              formControlName="fecha"
+              [min]="minFechaLimite"
+            />
+            @if (mentoriaForm.controls.fecha.invalid && mentoriaForm.controls.fecha.touched) {
+              <p class="form-error">Elegí una fecha válida para la mentoría.</p>
+            }
+          </div>
 
-    <button type="submit" [disabled]="mentoriaForm.invalid" class="bg-blue-600 text-white p-2 rounded disabled:bg-gray-400">
-      Publicar Mentoría
-    </button>
-  </form>
+          <div class="form-group">
+            <label for="meHora">Hora (HH:mm) <span class="required">*</span></label>
+            <input
+              id="meHora"
+              type="time"
+              class="form-control"
+              formControlName="hora_inicio"
+            />
+            @if (mentoriaForm.controls.hora_inicio.invalid && mentoriaForm.controls.hora_inicio.touched) {
+              <p class="form-error">La hora es obligatoria.</p>
+            }
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="meModalidad">Modalidad <span class="required">*</span></label>
+            <select id="meModalidad" class="form-control form-select" formControlName="modalidad">
+              <option value="" disabled>Seleccioná una modalidad</option>
+              <option value="virtual">Virtual</option>
+              <option value="presencial">Presencial</option>
+              <option value="hibrida">Híbrida</option>
+            </select>
+            @if (mentoriaForm.controls.modalidad.invalid && mentoriaForm.controls.modalidad.touched) {
+              <p class="form-error">Seleccioná una modalidad.</p>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="meProvincia">Provincia @if (mentoriaForm.controls.modalidad.value === 'presencial' || mentoriaForm.controls.modalidad.value === 'hibrida') {<span class="required">*</span>}</label>
+            <select id="meProvincia" class="form-control form-select" formControlName="provincia">
+              <option value="">Sin especificar</option>
+              @for (prov of provincias(); track prov) {
+                <option [value]="prov">{{ prov }}</option>
+              }
+            </select>
+            @if (mentoriaForm.controls.provincia.invalid && mentoriaForm.controls.provincia.touched) {
+              <p class="form-error">Seleccioná una provincia.</p>
+            }
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="meLink">Link o Canal de encuentro (opcional)</label>
+          <input
+            id="meLink"
+            type="text"
+            class="form-control"
+            formControlName="link_o_canal"
+            placeholder="Ej: Enlace de Meet / Nombre de la sala"
+          />
+        </div>
+
+        <div class="form-actions">
+          <a routerLink="/empresas/home" class="btn-cancel">Cancelar</a>
+          <button type="submit" class="btn-submit" [disabled]="enviando()">
+            {{ enviando() ? 'Publicando...' : 'Publicar mentoría' }}
+          </button>
+        </div>
+      </form>
+    }
+  </main>
 </div>

@@ -8,7 +8,7 @@ describe('CreateMentoriaDto', () => {
     dto.descripcion = 'Descripción de prueba';
     dto.requisitos = 'Requisitos básicos';
     dto.duracion_minutos = 60;
-    dto.id_area = 1;
+    dto.area = 'IT';
     dto.fecha = '2024-01-01';
     dto.hora_inicio = '10:00';
     dto.modalidad = 'virtual';
@@ -26,7 +26,7 @@ describe('CreateMentoriaDto', () => {
     expect(missingProperties).toContain('titulo');
     expect(missingProperties).toContain('requisitos');
     expect(missingProperties).toContain('duracion_minutos');
-    expect(missingProperties).toContain('id_area');
+    expect(missingProperties).toContain('area');
     expect(missingProperties).toContain('fecha');
     expect(missingProperties).toContain('hora_inicio');
     expect(missingProperties).toContain('modalidad');

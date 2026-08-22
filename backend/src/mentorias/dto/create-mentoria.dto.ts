@@ -15,8 +15,8 @@ export class CreateMentoriaDto {
   @IsInt()
   duracion_minutos: number;
 
-  @IsInt()
-  id_area: number;
+  @IsString()
+  area: string;
 
   @IsDateString()
   fecha: string;
@@ -28,9 +28,9 @@ export class CreateMentoriaDto {
   @IsIn(['presencial', 'virtual', 'hibrida'])
   modalidad: string;
 
-  @IsInt()
+  @IsString()
   @IsOptional()
-  id_provincia?: number;
+  provincia?: string;
 
   @IsString()
   @IsOptional()

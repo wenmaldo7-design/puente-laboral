@@ -7,6 +7,12 @@ describe('MentoriasEmpresaService', () => {
   let prisma: PrismaService;
 
   const mockPrisma = {
+    areas_interes: {
+      findFirst: jest.fn().mockResolvedValue({ id_area: 1, nombre: 'IT' }),
+    },
+    provincias: {
+      findFirst: jest.fn().mockResolvedValue({ id_provincia: 2, nombre: 'Córdoba' }),
+    },
     estados_publicacion_servicios: {
       findFirst: jest.fn().mockResolvedValue({ id_estado_publicacion: 1, nombre: 'Publicado' }),
     },
@@ -44,13 +50,14 @@ describe('MentoriasEmpresaService', () => {
       descripcion: 'desc',
       requisitos: 'req',
       duracion_minutos: 60,
-      id_area: 1,
+      area: 'IT',
       fecha: '2025-01-01',
       hora_inicio: '10:00',
       modalidad: 'virtual',
     };
     const result = await service.crearMentoria(1, dto);
 
+    expect(prisma.areas_interes.findFirst).toHaveBeenCalled();
     expect(prisma.estados_publicacion_servicios.findFirst).toHaveBeenCalled();
     expect(prisma.$transaction).toHaveBeenCalled();
     expect(result.servicio.id_servicio).toBe(1);

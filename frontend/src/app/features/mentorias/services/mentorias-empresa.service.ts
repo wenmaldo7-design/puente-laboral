@@ -8,11 +8,11 @@ export interface CreateMentoriaDto {
   descripcion?: string;
   requisitos: string;
   duracion_minutos: number;
-  id_area: number;
+  area: string;
   fecha: string;
   hora_inicio: string;
   modalidad: string;
-  id_provincia?: number;
+  provincia?: string;
   link_o_canal?: string;
 }
 
