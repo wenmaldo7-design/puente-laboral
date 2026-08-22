@@ -1,4 +1,4 @@
-export type ModalidadOferta = 'virtual' | 'presencial';
+export type ModalidadOferta = 'virtual' | 'presencial' | 'hibrida';
 
 /** Payload real de POST /empresas/ofertas-laborales (ver CrearOfertaLaboralDto del backend). */
 export interface CrearOfertaLaboralDto {
@@ -11,6 +11,7 @@ export interface CrearOfertaLaboralDto {
   salario?: number;
   vacantes: number;
   fecha_limite: string;
+  provincia?: string;
 }
 
 export interface OfertaLaboralCreada {
@@ -24,6 +25,7 @@ export interface OfertaLaboralCreada {
   salario: number | null;
   vacantes: number | null;
   fecha_limite: string | null;
+  provincia: string | null;
   fecha_publicacion: string;
   estado_publicacion: string;
 }

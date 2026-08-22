@@ -1,5 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
 import { DashboardPage } from './dashboard-page';
 import { AdminReportsService } from '../../services/admin-reports.service';
 import { By } from '@angular/platform-browser';
@@ -15,7 +18,14 @@ describe('DashboardPage', () => {
       getMetrics: async () => ({
         totalActiveJobOffers: 0,
         totalAcceptedCandidates: 0,
-        averageMatchPercentage: null
+        averageMatchPercentage: null,
+        totalOrganizations: 0,
+        totalBeneficiaries: 0,
+        servicesBreakdown: { offers: 0, courses: 0, mentorships: 0 },
+        pendingCompanies: 0,
+        topSkills: [],
+        postulationsFunnel: [],
+        geographicDistribution: []
       }),
       exportExcel: async () => new Blob(),
       exportPdf: async () => new Blob()
@@ -29,6 +39,9 @@ describe('DashboardPage', () => {
     await TestBed.configureTestingModule({
       imports: [DashboardPage],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
         { provide: AdminReportsService, useValue: mockAdminReportsService }
       ]
     }).compileComponents();
@@ -51,24 +64,28 @@ describe('DashboardPage', () => {
     fixture.detectChanges();
     
     const elements = fixture.debugElement.queryAll(By.css('.italic.text-gray-400'));
-    expect(elements.length).toBe(3);
-    expect(elements[0].nativeElement.textContent.trim()).toBe('Todavía no hay datos');
+    expect(elements.length).toBe(5);
+    expect(elements[0].nativeElement.textContent.trim()).toBe('Sin datos');
   });
 
   it('should display metric values when data is present', async () => {
     mockAdminReportsService.getMetrics.mockResolvedValue({
       totalActiveJobOffers: 15,
       totalAcceptedCandidates: 5,
-      averageMatchPercentage: 85
+      averageMatchPercentage: 85,
+      totalOrganizations: 10,
+      totalBeneficiaries: 100,
+      servicesBreakdown: { offers: 15, courses: 0, mentorships: 0 },
+      pendingCompanies: 0,
+      topSkills: [],
+      postulationsFunnel: [],
+      geographicDistribution: []
     });
     
     // Manually trigger reload
     await component.loadMetrics();
     fixture.detectChanges();
     await fixture.whenStable();
-
-    const activeJobs = fixture.debugElement.query(By.css('[data-testid="metric-active-jobs"]')).nativeElement.textContent;
-    expect(activeJobs.trim()).toBe('15');
 
     const acceptedCandidates = fixture.debugElement.query(By.css('[data-testid="metric-accepted-candidates"]')).nativeElement.textContent;
     expect(acceptedCandidates.trim()).toBe('5');

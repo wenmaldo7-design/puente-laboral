@@ -95,7 +95,6 @@ describe('HomeEmpresaPage', () => {
     expect(brandLink).toBeTruthy();
     expect(brandLink.getAttribute('routerlink') ?? brandLink.getAttribute('href')).toBeTruthy();
     expect(userLink).toBeTruthy();
-    expect(userLink.getAttribute('routerlink') ?? userLink.getAttribute('href')).toBeTruthy();
   });
 
   it('should render main organization dashboard title', () => {

@@ -1,4 +1,4 @@
-export type ModalidadMentoria = 'presencial' | 'virtual';
+export type ModalidadMentoria = 'presencial' | 'virtual' | 'hibrida';
 
 export interface Mentoria {
   id: number;
@@ -12,6 +12,7 @@ export interface Mentoria {
   modalidad: ModalidadMentoria;
   linkOCanal?: string;
   inscrito: boolean;
+  provincia: string | null;
 }
 
 export interface FiltroModalidad {
@@ -23,4 +24,5 @@ export const FILTROS_MODALIDAD: FiltroModalidad[] = [
   { id: 'todas', etiqueta: 'Todas' },
   { id: 'presencial', etiqueta: 'Presencial' },
   { id: 'virtual', etiqueta: 'Virtual' },
+  { id: 'hibrida', etiqueta: 'Híbrida' },
 ];

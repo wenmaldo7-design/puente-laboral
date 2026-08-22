@@ -10,4 +10,5 @@ export interface MentoriaResponseDto {
   link_o_canal: string | null;
   mentor: string | null;
   inscrito: boolean;
+  provincia: string | null;
 }

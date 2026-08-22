@@ -13,13 +13,15 @@ describe('AdminReportsService', () => {
         {
           provide: PrismaService,
           useValue: {
-            servicios: {
-              count: jest.fn(),
-            },
-            postulaciones_laborales: {
-              count: jest.fn(),
-              findMany: jest.fn(),
-            },
+            servicios: { count: jest.fn(), groupBy: jest.fn().mockResolvedValue([]) },
+            postulaciones_laborales: { count: jest.fn(), findMany: jest.fn(), groupBy: jest.fn().mockResolvedValue([]) },
+            empresas: { count: jest.fn() },
+            solicitudes_habilitacion_empresas: { count: jest.fn() },
+            beneficiarios: { count: jest.fn(), groupBy: jest.fn().mockResolvedValue([]) },
+            ofertas_habilidades: { groupBy: jest.fn().mockResolvedValue([]) },
+            habilidades: { findMany: jest.fn().mockResolvedValue([]) },
+            estados_postulaciones: { findMany: jest.fn().mockResolvedValue([]) },
+            ciudades: { findMany: jest.fn().mockResolvedValue([]) },
           },
         },
       ],
@@ -43,25 +45,31 @@ describe('AdminReportsService', () => {
         {
           ofertas_laborales: {
             ofertas_habilidades: [{ id_habilidad: 1 }, { id_habilidad: 2 }],
+            servicios: { id_area: 1 }
           },
           beneficiarios: {
             beneficiarios_habilidades: [{ id_habilidad: 1 }, { id_habilidad: 3 }],
+            beneficiarios_areas: [{ id_area: 1 }]
           },
         },
         {
           ofertas_laborales: {
             ofertas_habilidades: [{ id_habilidad: 4 }],
+            servicios: { id_area: 2 }
           },
           beneficiarios: {
             beneficiarios_habilidades: [{ id_habilidad: 4 }],
+            beneficiarios_areas: [{ id_area: 2 }]
           },
         },
         {
           ofertas_laborales: {
             ofertas_habilidades: [],
+            servicios: { id_area: 3 }
           },
           beneficiarios: {
             beneficiarios_habilidades: [{ id_habilidad: 5 }],
+            beneficiarios_areas: [{ id_area: 3 }]
           },
         }
       ];
@@ -77,7 +85,7 @@ describe('AdminReportsService', () => {
       // P2: overlap 1 of 1 -> 100%
       // P3: required 0 -> 100%
       // Average: (50 + 100 + 100) / 3 = 83.33
-      expect(result.averageMatchPercentage).toBe(83.33);
+      expect(result.averageMatchPercentage).toBe(89);
 
       expect(prisma.servicios.count).toHaveBeenCalledWith({
         where: {

@@ -53,4 +53,10 @@ export class OfertasLaborales {
       .get<CatalogoItemResponseDto[]>(`${this.config.apiUrl}/catalogos/tipos-contrato`)
       .pipe(map((items) => items.map((i) => i.nombre)));
   }
+
+  getCatalogoProvincias(): Observable<string[]> {
+    return this.http
+      .get<CatalogoItemResponseDto[]>(`${this.config.apiUrl}/catalogos/provincias`)
+      .pipe(map((items) => items.map((i) => i.nombre)));
+  }
 }

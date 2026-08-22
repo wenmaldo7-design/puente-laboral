@@ -80,9 +80,23 @@
               <option value="" disabled>Seleccioná una modalidad</option>
               <option value="virtual">Virtual</option>
               <option value="presencial">Presencial</option>
+              <option value="hibrida">Híbrida</option>
             </select>
             @if (form.controls.modalidad.invalid && form.controls.modalidad.touched) {
               <p class="form-error">Seleccioná una modalidad.</p>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="ofProvincia">Provincia @if (form.controls.modalidad.value === 'presencial' || form.controls.modalidad.value === 'hibrida') {<span class="required">*</span>}</label>
+            <select id="ofProvincia" class="form-control form-select" formControlName="provincia">
+              <option value="">Sin especificar</option>
+              @for (prov of provincias(); track prov) {
+                <option [value]="prov">{{ prov }}</option>
+              }
+            </select>
+            @if (form.controls.provincia.invalid && form.controls.provincia.touched) {
+              <p class="form-error">Seleccioná una provincia.</p>
             }
           </div>
 

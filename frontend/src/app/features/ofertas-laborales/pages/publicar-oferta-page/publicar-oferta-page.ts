@@ -38,6 +38,7 @@ export class PublicarOfertaPage implements OnInit {
   protected readonly areas = signal<string[]>([]);
   protected readonly habilidadesCatalogo = signal<string[]>([]);
   protected readonly tiposContrato = signal<string[]>([]);
+  protected readonly provincias = signal<string[]>([]);
   protected readonly filtroHabilidad = signal('');
 
   protected readonly enviando = signal(false);
@@ -50,6 +51,7 @@ export class PublicarOfertaPage implements OnInit {
     area: ['', [Validators.required]],
     tipo_contrato: [''],
     modalidad: this.fb.nonNullable.control<ModalidadOferta | ''>('', [Validators.required]),
+    provincia: [''],
     salario: this.fb.control<number | null>(null, [Validators.min(0.01)]),
     vacantes: this.fb.control<number | null>(null, [Validators.required, Validators.min(1), esEntero]),
     fecha_limite: ['', [Validators.required]],
@@ -70,6 +72,19 @@ export class PublicarOfertaPage implements OnInit {
     this.ofertasLaborales
       .getCatalogoTiposContrato()
       .subscribe((tipos) => this.tiposContrato.set(tipos));
+    this.ofertasLaborales
+      .getCatalogoProvincias()
+      .subscribe((provincias) => this.provincias.set(provincias));
+
+    this.form.controls.modalidad.valueChanges.subscribe((modalidad) => {
+      const provinciaCtrl = this.form.controls.provincia;
+      if (modalidad === 'presencial' || modalidad === 'hibrida') {
+        provinciaCtrl.setValidators([Validators.required]);
+      } else {
+        provinciaCtrl.clearValidators();
+      }
+      provinciaCtrl.updateValueAndValidity();
+    });
   }
 
   protected onFiltroHabilidadInput(event: Event): void {

@@ -10,6 +10,7 @@ async function crearFixture(): Promise<{
   fixture: ComponentFixture<PublicarOfertaPage>;
   httpMock: HttpTestingController;
 }> {
+  TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
     imports: [PublicarOfertaPage],
     providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
@@ -24,6 +25,7 @@ async function crearFixture(): Promise<{
     .expectOne(`${API_URL}/catalogos/habilidades`)
     .flush([{ nombre: 'HTML/CSS' }, { nombre: 'Ventas' }]);
   httpMock.expectOne(`${API_URL}/catalogos/tipos-contrato`).flush([{ nombre: 'Plazo fijo' }]);
+  httpMock.expectOne(`${API_URL}/catalogos/provincias`).flush(['Buenos Aires']);
   fixture.detectChanges();
 
   return { fixture, httpMock };
@@ -59,6 +61,7 @@ describe('PublicarOfertaPage', () => {
       salario: null,
       vacantes: 2,
       fecha_limite: component['minFechaLimite'],
+      provincia: '',
       habilidades: [],
     });
 
@@ -89,6 +92,7 @@ describe('PublicarOfertaPage', () => {
       salario: null,
       vacantes: 2,
       fecha_limite: component['minFechaLimite'],
+      provincia: '',
       habilidades: ['HTML/CSS'],
     });
 
@@ -135,6 +139,7 @@ describe('PublicarOfertaPage', () => {
       salario: null,
       vacantes: 2,
       fecha_limite: component['minFechaLimite'],
+      provincia: '',
       habilidades: [],
     });
 

@@ -30,6 +30,13 @@
           {{ filtro.etiqueta }}
         </button>
       }
+
+      <select class="filter-select" [value]="filtroProvincia()" (change)="onProvinciaSelect($event)" aria-label="Filtrar por provincia">
+        <option value="">Todas las provincias</option>
+        @for (prov of provinciasCatalogo(); track prov) {
+          <option [value]="prov">{{ prov }}</option>
+        }
+      </select>
     </div>
 
     @if (cargando()) {
@@ -52,8 +59,11 @@
             <p class="oferta-empresa">{{ oferta.empresa }}</p>
             <div class="oferta-datos">
               <span class="modalidad-badge" [class.virtual]="oferta.modalidad === 'virtual'">
-                {{ oferta.modalidad === 'virtual' ? 'Virtual' : 'Presencial' }}
+                {{ oferta.modalidad === 'virtual' ? 'Virtual' : oferta.modalidad === 'hibrida' ? 'Híbrida' : 'Presencial' }}
               </span>
+              @if (oferta.provincia) {
+                <span class="oferta-provincia">{{ oferta.provincia }}</span>
+              }
               @if (oferta.vacantes !== null) {
                 <span class="oferta-cupo">{{ oferta.postulantes_actuales }}/{{ oferta.vacantes }} postulantes</span>
               }

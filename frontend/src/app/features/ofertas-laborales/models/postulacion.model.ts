@@ -14,6 +14,7 @@ export interface OfertaLaboralBeneficiario {
   vacantes: number | null;
   postulantes_actuales: number;
   fecha_limite: string | null;
+  provincia: string | null;
   fecha_publicacion: string;
   estado_publicacion: string;
   match_porcentaje: number;

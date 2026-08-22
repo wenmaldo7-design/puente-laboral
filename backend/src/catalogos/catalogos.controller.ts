@@ -21,4 +21,9 @@ export class CatalogosController {
   async tiposContrato(): Promise<CatalogoItemResponseDto[]> {
     return this.catalogosService.listarTiposContrato();
   }
+
+  @Get('provincias')
+  async provincias(): Promise<CatalogoItemResponseDto[]> {
+    return this.catalogosService.listarProvincias();
+  }
 }

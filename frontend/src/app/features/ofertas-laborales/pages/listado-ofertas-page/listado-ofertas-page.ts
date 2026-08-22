@@ -46,19 +46,23 @@ export class ListadoOfertasPage implements OnInit {
   protected readonly filtros = FILTROS_MODALIDAD;
   protected readonly filtroActivo = signal<ModalidadFiltro>('todas');
   protected readonly terminoBusqueda = signal('');
+  protected readonly filtroProvincia = signal<string>('');
+  protected readonly provinciasCatalogo = signal<string[]>([]);
 
   protected readonly ofertasFiltradas = computed(() => {
     const filtro = this.filtroActivo();
     const termino = this.terminoBusqueda().trim().toLowerCase();
+    const prov = this.filtroProvincia();
 
     return this.ofertas().filter((oferta) => {
       const coincideFiltro = filtro === 'todas' || oferta.modalidad === filtro;
+      const coincideProvincia = !prov || oferta.provincia === prov;
       const coincideBusqueda =
         !termino ||
         oferta.titulo.toLowerCase().includes(termino) ||
         oferta.empresa.toLowerCase().includes(termino);
 
-      return coincideFiltro && coincideBusqueda;
+      return coincideFiltro && coincideBusqueda && coincideProvincia;
     });
   });
 
@@ -79,10 +83,19 @@ export class ListadoOfertasPage implements OnInit {
         );
       },
     });
+
+    this.ofertasLaboralesService.getCatalogoProvincias().subscribe((provincias) => {
+      this.provinciasCatalogo.set(provincias);
+    });
   }
 
   protected seleccionarFiltro(id: ModalidadFiltro): void {
     this.filtroActivo.set(id);
+  }
+
+  protected onProvinciaSelect(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.filtroProvincia.set(select.value);
   }
 
   protected onBusquedaInput(event: Event): void {

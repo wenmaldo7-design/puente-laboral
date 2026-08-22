@@ -306,9 +306,10 @@ model profesionales {
 }
 
 model provincias {
-  id_provincia Int        @id @default(autoincrement())
-  nombre       String     @db.VarChar(100)
+  id_provincia Int         @id @default(autoincrement())
+  nombre       String      @db.VarChar(100)
   ciudades     ciudades[]
+  servicios    servicios[]
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -342,6 +343,7 @@ model servicios {
   descripcion                   String?
   fecha_publicacion             DateTime                      @default(dbgenerated("CURRENT_DATE")) @db.Date
   id_estado_publicacion         Int
+  id_provincia                  Int?
   cursos                        cursos?
   mentorias                     mentorias?
   notificaciones                notificaciones[]
@@ -350,6 +352,7 @@ model servicios {
   areas_interes                 areas_interes                 @relation(fields: [id_area], references: [id_area], onDelete: NoAction, onUpdate: NoAction)
   estados_publicacion_servicios estados_publicacion_servicios @relation(fields: [id_estado_publicacion], references: [id_estado_publicacion], onDelete: NoAction, onUpdate: NoAction)
   empresas                      empresas                      @relation(fields: [id_usuario_empresa], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+  provincias                    provincias?                   @relation(fields: [id_provincia], references: [id_provincia], onDelete: NoAction, onUpdate: NoAction)
   servicios_discapacidades      servicios_discapacidades[]
 
   @@index([id_area], map: "idx_servicios_area")

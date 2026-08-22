@@ -13,6 +13,7 @@ interface MentoriaResponseDto {
   fecha: string;
   hora_inicio: string;
   modalidad: string;
+  provincia: string | null;
   link_o_canal: string | null;
   mentor: string;
   inscrito: boolean;
@@ -43,6 +44,7 @@ function aMentoria(dto: MentoriaResponseDto): Mentoria {
     fecha: dto.fecha,
     horaInicio: horaDesdeIso(dto.hora_inicio),
     modalidad: dto.modalidad as ModalidadMentoria,
+    provincia: dto.provincia,
     linkOCanal: dto.link_o_canal ?? undefined,
     inscrito: dto.inscrito,
   };

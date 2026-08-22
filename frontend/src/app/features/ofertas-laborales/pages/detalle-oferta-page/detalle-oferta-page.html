@@ -19,8 +19,11 @@
 
         <div class="detalle-datos">
           <span class="modalidad-badge" [class.virtual]="o.modalidad === 'virtual'">
-            {{ o.modalidad === 'virtual' ? 'Virtual' : 'Presencial' }}
+            {{ o.modalidad === 'virtual' ? 'Virtual' : o.modalidad === 'hibrida' ? 'Híbrida' : 'Presencial' }}
           </span>
+          @if (o.provincia) {
+            <span class="detalle-provincia">{{ o.provincia }}</span>
+          }
           <span class="detalle-area">{{ o.area }}</span>
           @if (o.tipo_contrato) {
             <span class="detalle-tipo-contrato">{{ o.tipo_contrato }}</span>

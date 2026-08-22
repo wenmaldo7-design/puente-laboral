@@ -67,6 +67,17 @@ export class OfertasLaboralesService {
       );
     }
 
+    let idProvincia: number | null = null;
+    if (dto.provincia) {
+      const provincia = await this.prisma.provincias.findFirst({
+        where: { nombre: dto.provincia },
+      });
+      if (!provincia) {
+        throw new BadRequestException('La provincia seleccionada no existe en el catálogo');
+      }
+      idProvincia = provincia.id_provincia;
+    }
+
     const ofertaLaboral = await this.prisma.$transaction(async (tx) => {
       const servicio = await tx.servicios.create({
         data: {
@@ -76,6 +87,7 @@ export class OfertasLaboralesService {
           titulo: dto.titulo,
           descripcion: dto.descripcion || null,
           id_estado_publicacion: estadoActiva.id_estado_publicacion,
+          id_provincia: idProvincia,
         },
       });
 
@@ -117,6 +129,7 @@ export class OfertasLaboralesService {
       fecha_limite: ofertaLaboral.oferta.fecha_limite,
       fecha_publicacion: ofertaLaboral.servicio.fecha_publicacion,
       estado_publicacion: estadoActiva.nombre,
+      provincia: dto.provincia ?? null,
     };
   }
 
@@ -192,11 +205,23 @@ export class OfertasLaboralesService {
       throw new ForbiddenException('No tienes permisos para modificar esta oferta');
     }
 
+    let idProvincia: number | undefined = undefined;
+    if (dto.provincia !== undefined) {
+      const provincia = await this.prisma.provincias.findFirst({
+        where: { nombre: dto.provincia },
+      });
+      if (!provincia) {
+        throw new BadRequestException('La provincia seleccionada no existe en el catálogo');
+      }
+      idProvincia = provincia.id_provincia;
+    }
+
     const updatedServicio = await this.prisma.servicios.update({
       where: { id_servicio: idServicio },
       data: {
         titulo: dto.titulo ?? undefined,
         descripcion: dto.descripcion ?? undefined,
+        id_provincia: idProvincia,
       },
       include: {
         ofertas_laborales: {
@@ -208,6 +233,7 @@ export class OfertasLaboralesService {
         },
         areas_interes: true,
         estados_publicacion_servicios: true,
+        provincias: true,
       }
     });
 
@@ -224,6 +250,7 @@ export class OfertasLaboralesService {
       fecha_limite: updatedServicio.ofertas_laborales?.fecha_limite ?? new Date(),
       fecha_publicacion: updatedServicio.fecha_publicacion,
       estado_publicacion: updatedServicio.estados_publicacion_servicios.nombre,
+      provincia: updatedServicio.provincias?.nombre ?? null,
     };
   }
 

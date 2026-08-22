@@ -81,6 +81,7 @@ describe('ListadoOfertasPage', () => {
     fixture.detectChanges();
     httpMock.expectOne({ url: PERFIL_URL, method: 'GET' }).flush(PERFIL_DTO);
     httpMock.expectOne({ url: OFERTAS_URL, method: 'GET' }).flush(OFERTAS_DTO);
+    httpMock.expectOne({ url: 'http://localhost:3000/catalogos/provincias', method: 'GET' }).flush([]);
     expect(fixture.componentInstance).toBeTruthy();
   });
 
@@ -89,6 +90,7 @@ describe('ListadoOfertasPage', () => {
     fixture.detectChanges();
     httpMock.expectOne({ url: PERFIL_URL, method: 'GET' }).flush(PERFIL_DTO);
     httpMock.expectOne({ url: OFERTAS_URL, method: 'GET' }).flush(OFERTAS_DTO);
+    httpMock.expectOne({ url: 'http://localhost:3000/catalogos/provincias', method: 'GET' }).flush([]);
     fixture.detectChanges();
 
     expect(fixture.componentInstance['nombreBeneficiario']()).toBe('Camila');
@@ -100,7 +102,32 @@ describe('ListadoOfertasPage', () => {
     fixture.detectChanges();
     httpMock.expectOne({ url: PERFIL_URL, method: 'GET' }).flush(PERFIL_DTO);
     httpMock.expectOne({ url: OFERTAS_URL, method: 'GET' }).flush(OFERTAS_DTO);
+    httpMock.expectOne({ url: 'http://localhost:3000/catalogos/provincias', method: 'GET' }).flush([{ nombre: 'Córdoba' }, { nombre: 'Buenos Aires' }]);
 
     expect(component['ofertas']().length).toBe(2);
+  });
+
+  it('should correctly filter by filtroProvincia via ofertasFiltradas', () => {
+    const fixture = TestBed.createComponent(ListadoOfertasPage);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    httpMock.expectOne({ url: PERFIL_URL, method: 'GET' }).flush(PERFIL_DTO);
+    httpMock.expectOne({ url: OFERTAS_URL, method: 'GET' }).flush([
+      { ...OFERTAS_DTO[0], provincia: 'Córdoba' },
+      { ...OFERTAS_DTO[1], provincia: 'Mendoza' },
+    ]);
+    httpMock.expectOne({ url: 'http://localhost:3000/catalogos/provincias', method: 'GET' }).flush([{ nombre: 'Córdoba' }, { nombre: 'Mendoza' }]);
+    
+    // Initially all
+    expect(component['ofertasFiltradas']().length).toBe(2);
+    
+    // Set to Córdoba
+    component['filtroProvincia'].set('Córdoba');
+    expect(component['ofertasFiltradas']().length).toBe(1);
+    expect(component['ofertasFiltradas']()[0].provincia).toBe('Córdoba');
+    
+    // Set to empty (all)
+    component['filtroProvincia'].set('');
+    expect(component['ofertasFiltradas']().length).toBe(2);
   });
 });

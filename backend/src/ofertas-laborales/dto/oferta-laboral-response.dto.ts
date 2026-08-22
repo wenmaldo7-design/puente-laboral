@@ -12,4 +12,5 @@ export interface OfertaLaboralResponseDto {
   fecha_limite: Date | null;
   fecha_publicacion: Date;
   estado_publicacion: string;
+  provincia: string | null;
 }

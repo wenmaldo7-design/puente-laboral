@@ -30,6 +30,13 @@
           {{ filtro.etiqueta }}
         </button>
       }
+
+      <select class="filter-select" [value]="filtroProvincia()" (change)="onProvinciaSelect($event)" aria-label="Filtrar por provincia">
+        <option value="">Todas las provincias</option>
+        @for (prov of provinciasCatalogo(); track prov) {
+          <option [value]="prov">{{ prov }}</option>
+        }
+      </select>
     </div>
 
     @if (mentoriasFiltradas().length) {
@@ -40,8 +47,11 @@
             <p class="mentoria-mentor">{{ mentoria.mentorNombre }}</p>
             <div class="mentoria-datos">
               <span class="modalidad-badge" [class.virtual]="mentoria.modalidad === 'virtual'">
-                {{ mentoria.modalidad === 'virtual' ? 'Virtual' : 'Presencial' }}
+                {{ mentoria.modalidad === 'virtual' ? 'Virtual' : mentoria.modalidad === 'hibrida' ? 'Híbrida' : 'Presencial' }}
               </span>
+              @if (mentoria.provincia) {
+                <span class="mentoria-provincia">{{ mentoria.provincia }}</span>
+              }
               <span class="mentoria-fecha">{{ mentoria.fecha }} · {{ mentoria.horaInicio }}</span>
             </div>
             <a class="btn-detalle" [routerLink]="[mentoria.id]">Ver detalle</a>

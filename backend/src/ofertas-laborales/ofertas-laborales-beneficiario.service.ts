@@ -11,6 +11,7 @@ const INCLUDE_OFERTA = {
   areas_interes: true,
   empresas: true,
   estados_publicacion_servicios: true,
+  provincias: true,
   ofertas_laborales: {
     include: {
       tipos_contrato: true,
@@ -223,6 +224,7 @@ export class OfertasLaboralesBeneficiarioService {
       match_porcentaje: matchPorcentaje,
       puede_postularse: motivo === null,
       motivo_no_disponible: motivo,
+      provincia: servicio.provincias?.nombre ?? null,
     };
   }
 }

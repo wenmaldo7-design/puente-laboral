@@ -17,6 +17,7 @@ const ESTADO_CANCELADO = 'cancelado';
 const INCLUDE_MENTORIA = {
   areas_interes: true,
   estados_publicacion_servicios: true,
+  provincias: true,
   mentorias: {
     include: {
       profesionales: true,
@@ -322,6 +323,7 @@ export class MentoriasBeneficiarioService {
         ? `${profesional.nombre} ${profesional.apellido}`
         : null,
       inscrito,
+      provincia: servicio.provincias?.nombre ?? null,
     };
   }
 }

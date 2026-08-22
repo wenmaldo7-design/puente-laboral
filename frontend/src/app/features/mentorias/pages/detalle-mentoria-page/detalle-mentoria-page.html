@@ -15,8 +15,11 @@
 
         <div class="detalle-datos">
           <span class="modalidad-badge" [class.virtual]="m.modalidad === 'virtual'">
-            {{ m.modalidad === 'virtual' ? 'Virtual' : 'Presencial' }}
+            {{ m.modalidad === 'virtual' ? 'Virtual' : m.modalidad === 'hibrida' ? 'Híbrida' : 'Presencial' }}
           </span>
+          @if (m.provincia) {
+            <span class="detalle-provincia">{{ m.provincia }}</span>
+          }
           <span class="detalle-fecha">{{ m.fecha }} · {{ m.horaInicio }}</span>
         </div>
 

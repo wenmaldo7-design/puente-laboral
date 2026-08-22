@@ -14,7 +14,7 @@ import {
 import { IsNotBlank } from '../../auth/dto/validators/is-not-blank.validator';
 import { IsNotPastDate } from '../../auth/dto/validators/is-not-past-date.validator';
 
-const MODALIDADES_VALIDAS = ['virtual', 'presencial'] as const;
+const MODALIDADES_VALIDAS = ['virtual', 'presencial', 'hibrida'] as const;
 export type ModalidadOferta = (typeof MODALIDADES_VALIDAS)[number];
 
 /**
@@ -50,7 +50,7 @@ export class CrearOfertaLaboralDto {
   tipo_contrato?: string;
 
   @IsIn(MODALIDADES_VALIDAS, {
-    message: 'La modalidad debe ser "virtual" o "presencial"',
+    message: 'La modalidad debe ser "virtual", "presencial" o "hibrida"',
   })
   modalidad!: ModalidadOferta;
 
@@ -69,4 +69,9 @@ export class CrearOfertaLaboralDto {
   @IsDateString()
   @IsNotPastDate({ message: 'La fecha límite no puede ser una fecha pasada' })
   fecha_limite!: string;
+
+  @ValidateIf((o: CrearOfertaLaboralDto) => o.modalidad === 'presencial' || o.modalidad === 'hibrida')
+  @IsString()
+  @IsNotBlank({ message: 'La provincia es obligatoria para modalidad presencial o híbrida' })
+  provincia?: string;
 }

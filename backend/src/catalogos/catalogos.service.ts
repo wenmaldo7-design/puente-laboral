@@ -30,4 +30,11 @@ export class CatalogosService {
     });
     return tipos.map((t) => ({ nombre: t.nombre }));
   }
+
+  async listarProvincias(): Promise<CatalogoItemResponseDto[]> {
+    const provincias = await this.prisma.provincias.findMany({
+      orderBy: { nombre: 'asc' },
+    });
+    return provincias.map((p) => ({ nombre: p.nombre }));
+  }
 }

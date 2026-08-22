@@ -8,6 +8,7 @@ import { FILTROS_MODALIDAD, FiltroModalidad, Mentoria } from '../../models/mento
 import { PerfilBeneficiarioService } from '../../../beneficiarios/services/perfil-beneficiario.service';
 import { PerfilBeneficiario } from '../../../beneficiarios/models/perfil-beneficiario.model';
 import { Notificaciones } from '../../../notificaciones/services/notificaciones';
+import { OfertasLaborales } from '../../../ofertas-laborales/services/ofertas-laborales';
 
 @Component({
   selector: 'app-listado-mentorias-page',
@@ -30,31 +31,42 @@ export class ListadoMentoriasPage implements OnInit {
   protected readonly filtros: FiltroModalidad[] = FILTROS_MODALIDAD;
   protected readonly filtroActivo = signal<FiltroModalidad['id']>('todas');
   protected readonly terminoBusqueda = signal('');
+  protected readonly filtroProvincia = signal<string>('');
+  protected readonly provinciasCatalogo = signal<string[]>([]);
 
   protected readonly mentoriasFiltradas = computed(() => {
     const filtro = this.filtroActivo();
     const termino = this.terminoBusqueda().trim().toLowerCase();
+    const prov = this.filtroProvincia();
 
     return this.mentorias().filter((mentoria) => {
       const coincideFiltro = filtro === 'todas' || mentoria.modalidad === filtro;
+      const coincideProvincia = !prov || mentoria.provincia === prov;
       const coincideBusqueda =
         !termino ||
         mentoria.titulo.toLowerCase().includes(termino) ||
         mentoria.descripcion.toLowerCase().includes(termino);
 
-      return coincideFiltro && coincideBusqueda;
+      return coincideFiltro && coincideBusqueda && coincideProvincia;
     });
   });
 
   private readonly mentoriasService = inject(Mentorias);
+  private readonly ofertasLaboralesService = inject(OfertasLaborales);
 
   ngOnInit(): void {
     this.mentoriasService.getMentorias().subscribe((mentorias) => this.mentorias.set(mentorias));
     this.notificacionesService.refrescarContador();
+    this.ofertasLaboralesService.getCatalogoProvincias().subscribe((provincias) => this.provinciasCatalogo.set(provincias));
   }
 
   protected seleccionarFiltro(id: FiltroModalidad['id']): void {
     this.filtroActivo.set(id);
+  }
+
+  protected onProvinciaSelect(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.filtroProvincia.set(select.value);
   }
 
   protected onBusquedaInput(event: Event): void {

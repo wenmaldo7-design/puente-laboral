@@ -11,6 +11,7 @@ export interface PublicarOfertaFormValue {
   vacantes: number | null;
   fecha_limite: string;
   habilidades: string[];
+  provincia: string;
 }
 
 export function toCrearOfertaLaboralDto(raw: PublicarOfertaFormValue): CrearOfertaLaboralDto {
@@ -24,5 +25,6 @@ export function toCrearOfertaLaboralDto(raw: PublicarOfertaFormValue): CrearOfer
     ...(raw.salario !== null && { salario: raw.salario }),
     vacantes: raw.vacantes as number,
     fecha_limite: raw.fecha_limite,
+    ...(raw.provincia && { provincia: raw.provincia }),
   };
 }
