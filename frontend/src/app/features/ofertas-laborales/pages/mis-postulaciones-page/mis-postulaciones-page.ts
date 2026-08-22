@@ -9,6 +9,7 @@ import { Postulaciones } from '../../services/postulaciones';
 import { Postulacion } from '../../models/postulacion.model';
 import { PerfilBeneficiarioService } from '../../../beneficiarios/services/perfil-beneficiario.service';
 import { PerfilBeneficiario } from '../../../beneficiarios/models/perfil-beneficiario.model';
+import { Notificaciones } from '../../../notificaciones/services/notificaciones';
 
 @Component({
   selector: 'app-mis-postulaciones-page',
@@ -24,7 +25,8 @@ export class MisPostulacionesPage implements OnInit {
     { initialValue: null },
   );
   protected readonly nombreBeneficiario = computed(() => this.perfil()?.nombre.split(' ')[0] ?? '');
-  protected readonly notificacionesNoLeidas = signal(2);
+  private readonly notificacionesService = inject(Notificaciones);
+  protected readonly notificacionesNoLeidas = this.notificacionesService.contadorNoLeidas;
 
   protected readonly postulaciones = signal<Postulacion[]>([]);
   protected readonly cargando = signal(true);
@@ -33,6 +35,7 @@ export class MisPostulacionesPage implements OnInit {
   private readonly postulacionesService = inject(Postulaciones);
 
   ngOnInit(): void {
+    this.notificacionesService.refrescarContador();
     this.postulacionesService.misPostulaciones().subscribe({
       next: (postulaciones) => {
         this.postulaciones.set(postulaciones);
