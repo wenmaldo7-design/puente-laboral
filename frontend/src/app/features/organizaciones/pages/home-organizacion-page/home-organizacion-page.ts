@@ -90,6 +90,11 @@ export class HomeOrganizacionPage implements OnInit {
     this.modalPublicarAbierto.set(true);
   }
 
+  protected abrirModalPublicarCurso(): void {
+    this.abrirModalPublicar();
+    this.draftTipo.set('curso');
+  }
+
   @HostListener('document:keydown.escape')
   protected cerrarModalPublicar(): void {
     if (this.guardandoOportunidad()) return;

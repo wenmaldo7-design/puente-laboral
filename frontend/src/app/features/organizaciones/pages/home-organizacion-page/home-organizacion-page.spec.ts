@@ -114,5 +114,24 @@ describe('HomeOrganizacionPage', () => {
     expect(compiled.querySelector('.toast-success')).toBeTruthy();
     expect(compiled.querySelector('.oportunidad-titulo')?.textContent).toContain('Diseñador UI/UX Trainee');
   });
+  it('should open publish opportunity modal and pre-select curso when abrirModalPublicarCurso is called', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    
+    // Call the method to be implemented
+    (component as any).abrirModalPublicarCurso();
+    fixture.detectChanges();
+
+    expect(compiled.querySelector('.modal-dialog')).toBeTruthy();
+    
+    const typeSelect = compiled.querySelector('#opTipo') as HTMLSelectElement;
+    expect(typeSelect.value).toBe('curso');
+  });
+
+  it('should display the "Crear curso" button', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const buttons = Array.from(compiled.querySelectorAll('button'));
+    const createCourseBtn = buttons.find(btn => btn.textContent?.includes('Crear curso'));
+    expect(createCourseBtn).toBeTruthy();
+  });
 });
 
