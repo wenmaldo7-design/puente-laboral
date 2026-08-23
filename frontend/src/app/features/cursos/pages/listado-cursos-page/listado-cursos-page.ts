@@ -1,25 +1,41 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+﻿import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Header } from '../../../../shared/ui/header/header';
+import { Footer } from '../../../../shared/ui/footer/footer';
 import { Cursos } from '../../services/cursos';
 import { Curso } from '../../models/curso.model';
+import { PerfilBeneficiarioService } from '../../../beneficiarios/services/perfil-beneficiario.service';
+import { PerfilBeneficiario } from '../../../beneficiarios/models/perfil-beneficiario.model';
+import { Notificaciones } from '../../../notificaciones/services/notificaciones';
 
 @Component({
   selector: 'app-listado-cursos-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Header, Footer],
   templateUrl: './listado-cursos-page.html',
   styleUrl: './listado-cursos-page.css',
 })
 export class ListadoCursosPage implements OnInit {
   private readonly cursosService = inject(Cursos);
+  private readonly perfilBeneficiarioService = inject(PerfilBeneficiarioService);
+  private readonly notificacionesService = inject(Notificaciones);
   
+  public perfil = toSignal<PerfilBeneficiario | null>(
+    this.perfilBeneficiarioService.getPerfil(),
+    { initialValue: null },
+  );
+  public nombreBeneficiario = computed(() => this.perfil()?.nombre.split(' ')[0] ?? '');
+  public notificacionesNoLeidas = this.notificacionesService.contadorNoLeidas;
+
   public cursos = signal<Curso[]>([]);
   public modalidadFilter = signal<string>('');
   public provinciaFilter = signal<string>('');
   
   ngOnInit(): void {
     this.cargarCursos();
+    this.notificacionesService.refrescarContador();
   }
   
   cargarCursos(): void {

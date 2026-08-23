@@ -1,56 +1,81 @@
-<div class="page">
-  <header class="header">
+<div class="beneficiario-page">
+  <app-header [nombre]="nombreBeneficiario()" [notificacionesNoLeidas]="notificacionesNoLeidas()"></app-header>
+
+  <main class="content">
     <h1 class="main-title">Cursos Disponibles</h1>
-    <p class="subtitle">Encuentra y apúntate a los cursos que más te interesen</p>
-  </header>
-  
-  <div class="toolbar" style="margin-bottom: 2rem; display: flex; gap: 1rem; align-items: flex-end;">
-    <div class="form-group" style="flex: 1;">
-      <label for="modalidad">Modalidad</label>
-      <select id="modalidad" class="form-control form-select" [ngModel]="modalidadFilter()" (ngModelChange)="modalidadFilter.set($event); aplicarFiltros()">
-        <option value="">Todas</option>
-        <option value="presencial">Presencial</option>
-        <option value="remoto">Remoto</option>
+
+    @if (errorMensaje()) {
+      <div class="alert-error" role="alert">
+        {{ errorMensaje() }}
+      </div>
+    }
+
+    <div class="filters-row" aria-label="Filtrar por modalidad">
+      <button type="button" class="filter-pill" [class.active]="modalidadFilter() === ''" (click)="modalidadFilter.set(''); aplicarFiltros()">Todas</button>
+      <button type="button" class="filter-pill" [class.active]="modalidadFilter() === 'presencial'" (click)="modalidadFilter.set('presencial'); aplicarFiltros()">Presencial</button>
+      <button type="button" class="filter-pill" [class.active]="modalidadFilter() === 'remoto'" (click)="modalidadFilter.set('remoto'); aplicarFiltros()">Virtual</button>
+      
+      <select class="filter-select" [ngModel]="provinciaFilter()" (ngModelChange)="provinciaFilter.set($event); aplicarFiltros()" aria-label="Filtrar por provincia">
+        <option value="">Todas las provincias</option>
+        <option value="Buenos Aires">Buenos Aires</option>
+        <option value="Catamarca">Catamarca</option>
+        <option value="Chaco">Chaco</option>
+        <option value="Chubut">Chubut</option>
+        <option value="Córdoba">Córdoba</option>
+        <option value="Corrientes">Corrientes</option>
+        <option value="Entre Ríos">Entre Ríos</option>
+        <option value="Formosa">Formosa</option>
+        <option value="Jujuy">Jujuy</option>
+        <option value="La Pampa">La Pampa</option>
+        <option value="La Rioja">La Rioja</option>
+        <option value="Mendoza">Mendoza</option>
+        <option value="Misiones">Misiones</option>
+        <option value="Neuquén">Neuquén</option>
+        <option value="Río Negro">Río Negro</option>
+        <option value="Salta">Salta</option>
+        <option value="San Juan">San Juan</option>
+        <option value="San Luis">San Luis</option>
+        <option value="Santa Cruz">Santa Cruz</option>
+        <option value="Santa Fe">Santa Fe</option>
+        <option value="Santiago del Estero">Santiago del Estero</option>
+        <option value="Tierra del Fuego">Tierra del Fuego</option>
+        <option value="Tucumán">Tucumán</option>
       </select>
     </div>
-    <div class="form-group" style="flex: 1;">
-      <label for="provincia">Provincia</label>
-      <input id="provincia" type="text" class="form-control" placeholder="Ej: Córdoba" [ngModel]="provinciaFilter()" (ngModelChange)="provinciaFilter.set($event); aplicarFiltros()">
-    </div>
-  </div>
-  
-  @if (errorMensaje()) {
-    <div class="alert alert-error" style="margin-bottom: 2rem; padding: 1rem; background-color: #fee2e2; color: #991b1b; border-radius: 0.375rem;">
-      {{ errorMensaje() }}
-    </div>
-  }
 
-  <div class="oportunidades-grid">
-    @for (curso of cursos(); track curso.id) {
-      <article class="oportunidad-card">
-        <div class="card-header">
-          <span class="tipo-tag tipo-curso">Curso</span>
-        </div>
-        <h3 class="curso-titulo oportunidad-titulo">{{ curso.titulo }}</h3>
-        <p class="oportunidad-ubicacion">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-icon" aria-hidden="true">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-            <circle cx="12" cy="10" r="3" />
-          </svg>
-          <span>{{ curso.provincia }} - {{ curso.modalidad }}</span>
-        </p>
-        <p style="margin-top: 1rem; font-size: 0.875rem;">{{ curso.descripcion }}</p>
-        <p style="margin-top: 0.5rem; font-weight: 500;">Organiza: {{ curso.organizacionNombre }}</p>
-        <p style="margin-top: 0.5rem; font-size: 0.875rem;">Cupos: {{ curso.cuposDisponibles }} / {{ curso.cuposTotales }}</p>
-        
-        <div class="card-footer" style="margin-top: 1.5rem;">
-          @if (!curso.estaInscripto) {
-            <button class="btn-primary" (click)="inscribirse(curso.id)">Inscribirse</button>
-          } @else {
-            <button class="btn-cancel" (click)="darseDeBaja(curso.id)">Darse de Baja</button>
-          }
-        </div>
-      </article>
+    @if (cursos().length) {
+      <div class="mentorias-grid">
+        @for (curso of cursos(); track curso.id) {
+          <article class="mentoria-card">
+            <h2 class="mentoria-titulo">{{ curso.titulo }}</h2>
+            <div class="mentoria-mentor">
+              <span class="mentor-label">Organiza:</span>
+              <span class="mentor-name">{{ curso.organizacionNombre }}</span>
+            </div>
+            <div class="mentoria-datos">
+              <span class="modalidad-badge" [class.virtual]="curso.modalidad === 'remoto'">
+                {{ curso.modalidad === 'remoto' ? 'Virtual' : 'Presencial' }}
+              </span>
+              @if (curso.provincia) {
+                <span class="mentoria-provincia">
+                  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="inline-icon"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  {{ curso.provincia }}
+                </span>
+              }
+              <span class="mentoria-fecha">Cupos: {{ curso.cuposDisponibles }} / {{ curso.cuposTotales }}</span>
+            </div>
+            @if (!curso.estaInscripto) {
+              <button class="btn-detalle" (click)="inscribirse(curso.id)">Inscribirse</button>
+            } @else {
+              <button class="btn-cancel" (click)="darseDeBaja(curso.id)">Darse de Baja</button>
+            }
+          </article>
+        }
+      </div>
+    } @else {
+      <p class="empty-state">No se encontraron cursos con los filtros seleccionados.</p>
     }
-  </div>
+  </main>
+
+  <app-footer></app-footer>
 </div>
