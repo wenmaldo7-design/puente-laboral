@@ -66,6 +66,7 @@ export class DetalleMentoriaPage implements OnInit {
     this.inscripcionesService.inscribirse(mentoria.id).subscribe(() => {
       this.mentoria.set({ ...mentoria, inscrito: true });
       this.inscribiendo.set(false);
+      this.notificacionesService.refrescarContador();
     });
   }
 
@@ -77,6 +78,7 @@ export class DetalleMentoriaPage implements OnInit {
     this.inscripcionesService.darDeBaja(mentoria.id).subscribe(() => {
       this.mentoria.set({ ...mentoria, inscrito: false });
       this.dandoBaja.set(false);
+      this.notificacionesService.refrescarContador();
     });
   }
 }
