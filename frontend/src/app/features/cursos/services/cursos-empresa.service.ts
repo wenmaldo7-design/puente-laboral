@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { AppConfig } from '../../../core/config/app-config';
 
 export interface CreateCursoDto {
+  id_area: number;
   titulo: string;
   descripcion: string;
   cupos_totales: number;

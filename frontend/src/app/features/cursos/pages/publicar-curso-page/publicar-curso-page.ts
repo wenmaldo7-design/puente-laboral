@@ -3,7 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { CursosEmpresaService, CreateCursoDto } from '../../services/cursos-empresa.service';
-import { OfertasLaborales } from '../../../ofertas-laborales/services/ofertas-laborales';
+import {
+  AreaInteresCatalogoDto,
+  OfertasLaborales,
+} from '../../../ofertas-laborales/services/ofertas-laborales';
 import { HttpErrorResponse } from '@angular/common/http';
 import { extraerMensajeDeError } from '../../../../core/http/api-error';
 
@@ -27,12 +30,14 @@ export class PublicarCursoPage implements OnInit {
   protected readonly minFechaLimite = fechaHoyISO();
 
   protected readonly provincias = signal<string[]>([]);
+  protected readonly areas = signal<AreaInteresCatalogoDto[]>([]);
 
   protected readonly enviando = signal(false);
   protected readonly enviado = signal(false);
   protected readonly errorGeneral = signal<string | null>(null);
 
   cursoForm = this.fb.group({
+    id_area: ['', [Validators.required]],
     titulo: ['', [Validators.required, Validators.maxLength(150)]],
     descripcion: ['', [Validators.required]],
     cupos_totales: [30, [Validators.required, Validators.min(1)]],
@@ -44,6 +49,10 @@ export class PublicarCursoPage implements OnInit {
   ngOnInit(): void {
     this.ofertasLaborales.getCatalogoProvincias().subscribe((provs) => {
       this.provincias.set(provs);
+    });
+
+    this.ofertasLaborales.getCatalogoAreasConId().subscribe((areas) => {
+      this.areas.set(areas);
     });
 
     this.cursoForm.controls.modalidad.valueChanges.subscribe((mod) => {
@@ -68,6 +77,7 @@ export class PublicarCursoPage implements OnInit {
 
     const val = this.cursoForm.value;
     const dto: CreateCursoDto = {
+      id_area: Number(val.id_area),
       titulo: val.titulo!,
       descripcion: val.descripcion!,
       cupos_totales: Number(val.cupos_totales),

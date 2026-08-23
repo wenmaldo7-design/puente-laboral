@@ -1,6 +1,10 @@
 ﻿import { IsString, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator';
 
 export class CreateCursoBackendDto {
+  @IsNumber()
+  @IsNotEmpty()
+  id_area: number;
+
   @IsString()
   @IsNotEmpty()
   titulo: string;

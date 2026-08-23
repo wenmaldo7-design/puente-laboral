@@ -9,6 +9,11 @@ interface CatalogoItemResponseDto {
   nombre: string;
 }
 
+export interface AreaInteresCatalogoDto {
+  id_area: number;
+  nombre: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class OfertasLaborales {
   private readonly http = inject(HttpClient);
@@ -40,6 +45,13 @@ export class OfertasLaborales {
     return this.http
       .get<CatalogoItemResponseDto[]>(`${this.config.apiUrl}/catalogos/areas-interes`)
       .pipe(map((items) => items.map((i) => i.nombre)));
+  }
+
+  /** Igual que getCatalogoAreas() pero conserva el id_area, necesario para formularios que envían el id (ej. cursos). */
+  getCatalogoAreasConId(): Observable<AreaInteresCatalogoDto[]> {
+    return this.http.get<AreaInteresCatalogoDto[]>(
+      `${this.config.apiUrl}/catalogos/areas-interes`,
+    );
   }
 
   getCatalogoHabilidades(): Observable<string[]> {

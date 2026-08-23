@@ -23,6 +23,19 @@
         }
 
         <div class="form-group">
+          <label for="cArea">Área <span class="required">*</span></label>
+          <select id="cArea" class="form-control form-select" formControlName="id_area">
+            <option value="" disabled>Seleccioná un área</option>
+            @for (area of areas(); track area.id_area) {
+              <option [value]="area.id_area">{{ area.nombre }}</option>
+            }
+          </select>
+          @if (cursoForm.controls.id_area.invalid && cursoForm.controls.id_area.touched) {
+            <p class="form-error">Seleccioná un área.</p>
+          }
+        </div>
+
+        <div class="form-group">
           <label for="cTitulo">Título <span class="required">*</span></label>
           <input
             id="cTitulo"

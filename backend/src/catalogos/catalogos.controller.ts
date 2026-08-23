@@ -1,6 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
 import { CatalogosService } from './catalogos.service';
-import { CatalogoItemResponseDto } from './dto/catalogo-item-response.dto';
+import {
+  AreaInteresResponseDto,
+  CatalogoItemResponseDto,
+} from './dto/catalogo-item-response.dto';
 
 /** Públicos, sin auth: catálogos de referencia usados en varios formularios. */
 @Controller('catalogos')
@@ -13,7 +16,7 @@ export class CatalogosController {
   }
 
   @Get('areas-interes')
-  async areasInteres(): Promise<CatalogoItemResponseDto[]> {
+  async areasInteres(): Promise<AreaInteresResponseDto[]> {
     return this.catalogosService.listarAreasInteres();
   }
 

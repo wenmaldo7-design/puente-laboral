@@ -8,9 +8,11 @@ export class CursosEmpresaService {
   constructor(private prisma: PrismaService) {}
 
   async crearCurso(id_usuario_empresa: number, dto: CreateCursoBackendDto) {
-    const area = await this.prisma.areas_interes.findFirst();
+    const area = await this.prisma.areas_interes.findUnique({
+      where: { id_area: dto.id_area },
+    });
     if (!area) {
-      throw new BadRequestException(`No hay áreas disponibles`);
+      throw new BadRequestException(`El area seleccionada no existe`);
     }
 
     let provinciaId: number | null = null;

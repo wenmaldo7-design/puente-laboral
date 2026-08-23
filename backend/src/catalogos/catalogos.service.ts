@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { CatalogoItemResponseDto } from './dto/catalogo-item-response.dto';
+import {
+  AreaInteresResponseDto,
+  CatalogoItemResponseDto,
+} from './dto/catalogo-item-response.dto';
 
 /**
  * Catálogos de referencia (HABILIDADES, AREAS_INTERES): solo tienen nombre,
@@ -17,11 +20,11 @@ export class CatalogosService {
     return habilidades.map((h) => ({ nombre: h.nombre }));
   }
 
-  async listarAreasInteres(): Promise<CatalogoItemResponseDto[]> {
+  async listarAreasInteres(): Promise<AreaInteresResponseDto[]> {
     const areas = await this.prisma.areas_interes.findMany({
       orderBy: { nombre: 'asc' },
     });
-    return areas.map((a) => ({ nombre: a.nombre }));
+    return areas.map((a) => ({ id_area: a.id_area, nombre: a.nombre }));
   }
 
   async listarTiposContrato(): Promise<CatalogoItemResponseDto[]> {
