@@ -20,7 +20,6 @@
     }
     @if (sesion()?.rol === 'empresa') {
       <a routerLink="/empresas/home" routerLinkActive="font-bold underline" [routerLinkActiveOptions]="{ exact: true }" class="hover:text-[#185fa5]">Inicio</a>
-      <a routerLink="/empresas/ofertas-laborales/publicar" routerLinkActive="font-bold underline" class="hover:text-[#185fa5]">Publicar Oferta</a>
     }
     @if (sesion()?.rol === 'administrador') {
       <a routerLink="/admin/dashboard" routerLinkActive="font-bold underline" class="hover:text-[#185fa5]">Dashboard</a>
