@@ -12,6 +12,7 @@ import {
 } from '../ofertas-laborales/matching.util';
 import { CursoResponseDto } from './dto/curso-response.dto';
 import { InscripcionCursoResponseDto } from './dto/inscripcion-curso-response.dto';
+import { NotificacionesService } from '../notificaciones/notificaciones.service';
 
 const ESTADO_INSCRITO = 'inscrito';
 const ESTADO_CANCELADO = 'cancelado';
@@ -42,7 +43,10 @@ function inicioDeHoy(): Date {
 
 @Injectable()
 export class CursosBeneficiarioService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificacionesService: NotificacionesService,
+  ) {}
 
   /** GET /beneficiarios/cursos. Solo cursos activos y con fecha de inicio futura. */
   async listarDisponibles(
@@ -178,6 +182,13 @@ export class CursosBeneficiarioService {
         },
       });
     }
+    
+    // Notificación
+    await this.enviarNotificacion(
+      idUsuarioBeneficiario,
+      'CURSO_INSCRIPCION',
+      servicio.titulo,
+    );
 
     return {
       id: inscripcion.id_inscripcion,
@@ -223,6 +234,13 @@ export class CursosBeneficiarioService {
         fecha_actualizacion: new Date(),
       },
     });
+    
+    // Notificación
+    await this.enviarNotificacion(
+      idUsuarioBeneficiario,
+      'CURSO_CANCELACION',
+      existente.cursos.servicios.titulo,
+    );
 
     return {
       id: inscripcion.id_inscripcion,
@@ -378,5 +396,24 @@ export class CursosBeneficiarioService {
       matchPorcentaje,
       inscrito,
     };
+  }
+
+  private async enviarNotificacion(
+    idUsuarioBeneficiario: number,
+    tipo: 'CURSO_INSCRIPCION' | 'CURSO_CANCELACION',
+    curso: string,
+  ): Promise<void> {
+    try {
+      await this.notificacionesService.crear({
+        tipo,
+        destinatario: { idUsuario: idUsuarioBeneficiario, rol: 'beneficiario' },
+        datos: { curso },
+      });
+    } catch (error) {
+      console.error(
+        `No se pudo crear la notificación "${tipo}" para el usuario ${idUsuarioBeneficiario}`,
+        error instanceof Error ? error.stack : String(error),
+      );
+    }
   }
 }

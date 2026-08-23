@@ -5,7 +5,9 @@ export type TipoNotificacion =
   | 'POSTULACION_RECIBIDA'
   | 'SOLICITUD_APROBADA'
   | 'SOLICITUD_RECHAZADA'
-  | 'POSTULACION_CAMBIO_ESTADO';
+  | 'POSTULACION_CAMBIO_ESTADO'
+  | 'CURSO_INSCRIPCION'
+  | 'CURSO_CANCELACION';
 
 /** Datos variables que exige la plantilla de cada tipo de notificación. */
 export interface DatosPlantilla {
@@ -16,6 +18,8 @@ export interface DatosPlantilla {
   SOLICITUD_APROBADA: Record<string, never>;
   SOLICITUD_RECHAZADA: Record<string, never>;
   POSTULACION_CAMBIO_ESTADO: { oferta: string; empresa: string; estado: string };
+  CURSO_INSCRIPCION: { curso: string };
+  CURSO_CANCELACION: { curso: string };
 }
 
 const PLANTILLAS: {
@@ -32,6 +36,8 @@ const PLANTILLAS: {
   SOLICITUD_RECHAZADA: () => 'Tu solicitud de habilitación fue rechazada.',
   POSTULACION_CAMBIO_ESTADO: (d) =>
     `El estado de tu postulación a "${d.oferta}" en ${d.empresa} ha cambiado a: ${d.estado.replace('_', ' ')}.`,
+  CURSO_INSCRIPCION: (d) => `Te inscribiste al curso "${d.curso}".`,
+  CURSO_CANCELACION: (d) => `Se canceló tu inscripción al curso "${d.curso}".`,
 };
 
 /** Arma el texto final de la notificación según su tipo y los datos de la plantilla. */

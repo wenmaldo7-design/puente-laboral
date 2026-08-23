@@ -80,6 +80,7 @@ export class ListadoCursosPage implements OnInit {
         this.cursos.update((cursos) =>
           cursos.map((c) => (c.id === cursoId ? { ...c, inscrito: true } : c)),
         );
+        this.notificacionesService.refrescarContador();
       },
       error: () => {
         this.errorMensaje.set('El curso está lleno y no se pudo completar la inscripción.');
@@ -93,6 +94,7 @@ export class ListadoCursosPage implements OnInit {
         this.cursos.update((cursos) =>
           cursos.map((c) => (c.id === cursoId ? { ...c, inscrito: false } : c)),
         );
+        this.notificacionesService.refrescarContador();
       },
     });
   }

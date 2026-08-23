@@ -220,9 +220,9 @@ model mentorias {
   hora_inicio             DateTime?                 @db.Time(6)
   modalidad               String                    @db.VarChar(20)
   link_o_canal            String?                   @db.VarChar(300)
-  requisitos              String?
-  duracion_minutos        Int?
   id_profesional          Int?
+  duracion_minutos        Int?
+  requisitos              String?
   inscripciones_mentorias inscripciones_mentorias[]
   profesionales           profesionales?            @relation(fields: [id_profesional], references: [id_profesional], onDelete: NoAction, onUpdate: NoAction)
   servicios               servicios                 @relation(fields: [id_servicio], references: [id_servicio], onDelete: Cascade, onUpdate: NoAction)
@@ -240,12 +240,12 @@ model niveles_habilidad {
 model notificaciones {
   id_notificacion         Int                  @id @default(autoincrement())
   id_usuario_beneficiario Int?
-  id_usuario_empresa      Int?
-  id_servicio             Int?
   id_tipo_notificacion    Int
   mensaje                 String
   fecha_envio             DateTime             @default(now()) @db.Timestamp(6)
   leida                   Boolean              @default(false)
+  id_usuario_empresa      Int?
+  id_servicio             Int?
   servicios               servicios?           @relation(fields: [id_servicio], references: [id_servicio], onDelete: Cascade, onUpdate: NoAction)
   tipos_notificaciones    tipos_notificaciones @relation(fields: [id_tipo_notificacion], references: [id_tipo_notificacion], onDelete: NoAction, onUpdate: NoAction)
   beneficiarios           beneficiarios?       @relation(fields: [id_usuario_beneficiario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
@@ -300,8 +300,8 @@ model profesionales {
   id_usuario_empresa Int
   nombre             String      @db.VarChar(100)
   apellido           String      @db.VarChar(100)
-  email              String?     @db.VarChar(150)
   telefono           String?     @db.VarChar(50)
+  email              String?     @db.VarChar(150)
   cursos             cursos[]
   mentorias          mentorias[]
   empresas           empresas    @relation(fields: [id_usuario_empresa], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
@@ -353,8 +353,8 @@ model servicios {
   seguimientos                  seguimientos[]
   areas_interes                 areas_interes                 @relation(fields: [id_area], references: [id_area], onDelete: NoAction, onUpdate: NoAction)
   estados_publicacion_servicios estados_publicacion_servicios @relation(fields: [id_estado_publicacion], references: [id_estado_publicacion], onDelete: NoAction, onUpdate: NoAction)
-  empresas                      empresas                      @relation(fields: [id_usuario_empresa], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
   provincias                    provincias?                   @relation(fields: [id_provincia], references: [id_provincia], onDelete: NoAction, onUpdate: NoAction)
+  empresas                      empresas                      @relation(fields: [id_usuario_empresa], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
   servicios_discapacidades      servicios_discapacidades[]
 
   @@index([id_area], map: "idx_servicios_area")
