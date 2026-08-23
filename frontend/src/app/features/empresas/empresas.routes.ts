@@ -42,6 +42,14 @@ export const EMPRESAS_ROUTES: Routes = [
       ).then((m) => m.PublicarMentoriaPage),
   },
   {
+    path: 'cursos/publicar',
+    canActivate: [roleGuard(['empresa'])],
+    loadComponent: () =>
+      import(
+        '../cursos/pages/publicar-curso-page/publicar-curso-page'
+      ).then((m) => m.PublicarCursoPage),
+  },
+  {
     path: 'ofertas-laborales/:id/candidatos',
     canActivate: [roleGuard(['empresa'])],
     loadComponent: () =>

@@ -142,6 +142,8 @@ export class OfertasLaboralesService {
       include: {
         estados_publicacion_servicios: true,
         ofertas_laborales: true,
+        cursos: true,
+        mentorias: true,
       },
       orderBy: { fecha_publicacion: 'desc' },
     });
@@ -177,7 +179,7 @@ export class OfertasLaboralesService {
       titulo: servicio.titulo,
       tipo_servicio: servicio.tipo_servicio,
       estado_publicacion: servicio.estados_publicacion_servicios.nombre,
-      modalidad: servicio.ofertas_laborales?.modalidad ?? null,
+      modalidad: servicio.ofertas_laborales?.modalidad ?? servicio.cursos?.modalidad ?? servicio.mentorias?.modalidad ?? null,
       fecha_publicacion: servicio.fecha_publicacion,
       postulaciones_count: conteoPorServicio.get(servicio.id_servicio) ?? 0,
       nuevas_postulaciones_count:
