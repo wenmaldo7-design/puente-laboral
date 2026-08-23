@@ -32,6 +32,16 @@ export class ListadoCursosPage implements OnInit {
   public cursos = signal<Curso[]>([]);
   public modalidadFilter = signal<string>('');
   public provinciaFilter = signal<string>('');
+  public terminoBusqueda = signal<string>('');
+  
+  public cursosFiltrados = computed(() => {
+    const termino = this.terminoBusqueda().trim().toLowerCase();
+    return this.cursos().filter(curso => {
+      if (!termino) return true;
+      return curso.titulo.toLowerCase().includes(termino) || 
+             curso.organizacionNombre.toLowerCase().includes(termino);
+    });
+  });
   
   ngOnInit(): void {
     this.cargarCursos();
@@ -58,6 +68,11 @@ export class ListadoCursosPage implements OnInit {
   
   aplicarFiltros(): void {
     this.cargarCursos();
+  }
+  
+  onBusquedaInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.terminoBusqueda.set(input.value);
   }
   
   public errorMensaje = signal<string | null>(null);

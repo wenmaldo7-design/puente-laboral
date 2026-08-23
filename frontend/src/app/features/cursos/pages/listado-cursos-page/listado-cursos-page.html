@@ -10,6 +10,20 @@
       </div>
     }
 
+    <div class="search-bar">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" stroke="#185FA5" stroke-width="1.6" />
+        <path d="m20 20-3.2-3.2" stroke="#185FA5" stroke-width="1.6" stroke-linecap="round" />
+      </svg>
+      <input
+        type="search"
+        placeholder="Buscar cursos por título o institución..."
+        aria-label="Buscar cursos por título o institución..."
+        [value]="terminoBusqueda()"
+        (input)="onBusquedaInput($event)"
+      />
+    </div>
+
     <div class="filters-row" aria-label="Filtrar por modalidad">
       <button type="button" class="filter-pill" [class.active]="modalidadFilter() === ''" (click)="modalidadFilter.set(''); aplicarFiltros()">Todas</button>
       <button type="button" class="filter-pill" [class.active]="modalidadFilter() === 'presencial'" (click)="modalidadFilter.set('presencial'); aplicarFiltros()">Presencial</button>
@@ -43,9 +57,9 @@
       </select>
     </div>
 
-    @if (cursos().length) {
+    @if (cursosFiltrados().length) {
       <div class="mentorias-grid">
-        @for (curso of cursos(); track curso.id) {
+        @for (curso of cursosFiltrados(); track curso.id) {
           <article class="mentoria-card">
             <h2 class="mentoria-titulo">{{ curso.titulo }}</h2>
             <div class="mentoria-mentor">
