@@ -88,6 +88,7 @@ export class DetalleOfertaPage implements OnInit {
         this.postulando.set(false);
         this.postulacionExitosa.set(true);
         this.cargar(oferta.id_servicio);
+        this.notificacionesService.refrescarContador();
       },
       error: (err: unknown) => {
         this.postulando.set(false);
