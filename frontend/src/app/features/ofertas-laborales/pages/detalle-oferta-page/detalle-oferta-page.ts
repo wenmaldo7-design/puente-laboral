@@ -11,6 +11,7 @@ import { Postulaciones } from '../../services/postulaciones';
 import { MENSAJE_NO_DISPONIBLE, OfertaLaboralBeneficiario } from '../../models/postulacion.model';
 import { PerfilBeneficiarioService } from '../../../beneficiarios/services/perfil-beneficiario.service';
 import { PerfilBeneficiario } from '../../../beneficiarios/models/perfil-beneficiario.model';
+import { Notificaciones } from '../../../notificaciones/services/notificaciones';
 
 @Component({
   selector: 'app-detalle-oferta-page',
@@ -21,12 +22,13 @@ import { PerfilBeneficiario } from '../../../beneficiarios/models/perfil-benefic
 })
 export class DetalleOfertaPage implements OnInit {
   private readonly perfilBeneficiarioService = inject(PerfilBeneficiarioService);
+  private readonly notificacionesService = inject(Notificaciones);
   protected readonly perfil = toSignal<PerfilBeneficiario | null>(
     this.perfilBeneficiarioService.getPerfil(),
     { initialValue: null },
   );
   protected readonly nombreBeneficiario = computed(() => this.perfil()?.nombre.split(' ')[0] ?? '');
-  protected readonly notificacionesNoLeidas = signal(2);
+  protected readonly notificacionesNoLeidas = this.notificacionesService.contadorNoLeidas;
 
   protected readonly oferta = signal<OfertaLaboralBeneficiario | null>(null);
   protected readonly cargando = signal(true);
@@ -52,6 +54,7 @@ export class DetalleOfertaPage implements OnInit {
       return;
     }
     this.cargar(id);
+    this.notificacionesService.refrescarContador();
   }
 
   private cargar(id: number): void {

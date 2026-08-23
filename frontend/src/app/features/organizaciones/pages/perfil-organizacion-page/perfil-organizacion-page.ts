@@ -5,6 +5,7 @@ import {
   EnlacesOrganizacion,
   PerfilOrganizacion,
 } from '../../models/perfil-organizacion.model';
+import { Notificaciones } from '../../../notificaciones/services/notificaciones';
 
 type SeccionEdicion =
   | 'general'
@@ -20,8 +21,10 @@ type SeccionEdicion =
   styleUrl: './perfil-organizacion-page.css',
 })
 export class PerfilOrganizacionPage implements OnInit {
+  private readonly notificacionesService = inject(Notificaciones);
+
   protected readonly perfil = signal<PerfilOrganizacion | null>(null);
-  protected readonly notificacionesNoLeidas = signal(12);
+  protected readonly notificacionesNoLeidas = this.notificacionesService.contadorNoLeidas;
 
   protected readonly edicionActiva = signal<SeccionEdicion | null>(null);
 
@@ -59,6 +62,7 @@ export class PerfilOrganizacionPage implements OnInit {
     this.perfilService.getPerfil().subscribe((p) => this.perfil.set(p));
     this.perfilService.getCatalogoSectores().subscribe((s) => this.catalogoSectores.set(s));
     this.perfilService.getCatalogoProgramasInclusion().subscribe((pr) => this.catalogoProgramas.set(pr));
+    this.notificacionesService.refrescarContador();
   }
 
   protected iniciarEdicion(seccion: SeccionEdicion): void {

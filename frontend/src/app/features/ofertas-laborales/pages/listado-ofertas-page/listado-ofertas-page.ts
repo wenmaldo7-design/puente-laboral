@@ -9,6 +9,7 @@ import { OfertasLaborales } from '../../services/ofertas-laborales';
 import { MENSAJE_NO_DISPONIBLE, OfertaLaboralBeneficiario } from '../../models/postulacion.model';
 import { PerfilBeneficiarioService } from '../../../beneficiarios/services/perfil-beneficiario.service';
 import { PerfilBeneficiario } from '../../../beneficiarios/models/perfil-beneficiario.model';
+import { Notificaciones } from '../../../notificaciones/services/notificaciones';
 
 type ModalidadFiltro = 'todas' | 'virtual' | 'presencial';
 
@@ -32,12 +33,13 @@ const FILTROS_MODALIDAD: FiltroModalidad[] = [
 })
 export class ListadoOfertasPage implements OnInit {
   private readonly perfilBeneficiarioService = inject(PerfilBeneficiarioService);
+  private readonly notificacionesService = inject(Notificaciones);
   protected readonly perfil = toSignal<PerfilBeneficiario | null>(
     this.perfilBeneficiarioService.getPerfil(),
     { initialValue: null },
   );
   protected readonly nombreBeneficiario = computed(() => this.perfil()?.nombre.split(' ')[0] ?? '');
-  protected readonly notificacionesNoLeidas = signal(2);
+  protected readonly notificacionesNoLeidas = this.notificacionesService.contadorNoLeidas;
 
   protected readonly ofertas = signal<OfertaLaboralBeneficiario[]>([]);
   protected readonly cargando = signal(true);
@@ -87,6 +89,8 @@ export class ListadoOfertasPage implements OnInit {
     this.ofertasLaboralesService.getCatalogoProvincias().subscribe((provincias) => {
       this.provinciasCatalogo.set(provincias);
     });
+
+    this.notificacionesService.refrescarContador();
   }
 
   protected seleccionarFiltro(id: ModalidadFiltro): void {
