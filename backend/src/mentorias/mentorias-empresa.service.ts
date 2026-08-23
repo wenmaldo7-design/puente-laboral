@@ -29,11 +29,11 @@ export class MentoriasEmpresaService {
     }
 
     const estadoPublicado = await this.prisma.estados_publicacion_servicios.findFirst({
-      where: { nombre: { equals: 'Publicado', mode: 'insensitive' } },
+      where: { nombre: { equals: 'activa', mode: 'insensitive' } },
     });
 
     if (!estadoPublicado) {
-      throw new Error("Estado 'Publicado' no encontrado");
+      throw new Error("Estado 'activa' no encontrado");
     }
 
     return this.prisma.$transaction(async (tx) => {

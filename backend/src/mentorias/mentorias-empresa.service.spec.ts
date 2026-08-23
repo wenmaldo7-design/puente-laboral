@@ -14,7 +14,7 @@ describe('MentoriasEmpresaService', () => {
       findFirst: jest.fn().mockResolvedValue({ id_provincia: 2, nombre: 'Córdoba' }),
     },
     estados_publicacion_servicios: {
-      findFirst: jest.fn().mockResolvedValue({ id_estado_publicacion: 1, nombre: 'Publicado' }),
+      findFirst: jest.fn().mockResolvedValue({ id_estado_publicacion: 1, nombre: 'activa' }),
     },
     $transaction: jest.fn().mockImplementation(async (cb) => {
       return cb({
