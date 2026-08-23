@@ -8,6 +8,7 @@ import { Notificaciones } from '../../../notificaciones/services/notificaciones'
 import { OfertasLaborales } from '../../../ofertas-laborales/services/ofertas-laborales';
 import { Postulaciones } from '../../../ofertas-laborales/services/postulaciones';
 import { OfertaLaboralBeneficiario, Postulacion } from '../../../ofertas-laborales/models/postulacion.model';
+import { Mentorias } from '../../../mentorias/services/mentorias';
 import {
   ActualizacionPostulacion,
   FILTROS_OPORTUNIDAD,
@@ -49,6 +50,11 @@ export class HomeBeneficiarioPage implements OnInit {
     initialValue: [] as OfertaLaboralBeneficiario[],
   });
 
+  private readonly mentoriasService = inject(Mentorias);
+  private readonly mentoriasDisponibles = toSignal(this.mentoriasService.getMentorias(), {
+    initialValue: [],
+  });
+
   protected readonly metricas = computed<MetricaResumen[]>(() => [
     { etiqueta: 'Postulaciones', valor: this.postulaciones().length },
     {
@@ -58,9 +64,8 @@ export class HomeBeneficiarioPage implements OnInit {
     { etiqueta: 'Notificaciones', valor: this.notificacionesService.contadorNoLeidas() },
   ]);
 
-  /** Reusa las ofertas laborales compatibles con el beneficiario (mismo endpoint que el listado de ofertas). */
-  protected readonly oportunidades = computed<Oportunidad[]>(() =>
-    [...this.ofertasCompatibles()]
+  protected readonly oportunidades = computed<Oportunidad[]>(() => {
+    const ofertasMapeadas: Oportunidad[] = [...this.ofertasCompatibles()]
       .sort((a, b) => b.match_porcentaje - a.match_porcentaje)
       .map((oferta) => ({
         id: String(oferta.id_servicio),
@@ -68,8 +73,18 @@ export class HomeBeneficiarioPage implements OnInit {
         organizacion: oferta.empresa,
         matchPorcentaje: oferta.match_porcentaje,
         tipo: 'empleo',
-      })),
-  );
+      }));
+
+    const mentoriasMapeadas: Oportunidad[] = this.mentoriasDisponibles().map((mentoria) => ({
+      id: String(mentoria.id),
+      titulo: mentoria.titulo,
+      organizacion: mentoria.mentorNombre,
+      matchPorcentaje: 100, // Assigning 100% since no match calculation for mentorias yet
+      tipo: 'mentoria',
+    }));
+
+    return [...ofertasMapeadas, ...mentoriasMapeadas];
+  });
 
   protected readonly actualizaciones = toSignal(this.beneficiarioHomeService.getUltimasActualizaciones(), {
     initialValue: [] as ActualizacionPostulacion[],
