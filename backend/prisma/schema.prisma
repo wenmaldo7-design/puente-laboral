@@ -4,58 +4,217 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  //url      = env("DATABASE_URL")
 }
 
-// Entidades base
-model User {
-  id                   Int                 @id @default(autoincrement())
-  email                String              @unique
-  password             String
-  role                 String              // 'Beneficiario', 'Organizacion', 'Admin'
-  beneficiaryProfile   BeneficiaryProfile?
-  organizationProfile  OrganizationProfile?
+model Usuario {
+  id_usuario     Int       @id @default(autoincrement()) @map("id_usuario")
+  email          String    @unique @map("email")
+  password_hash  String    @map("password_hash")
+  fecha_registro DateTime  @default(now()) @map("fecha_registro")
+  activo         Boolean   @default(true) @map("activo")
+
+  administrador  Administrador?
+  empresa        Empresa?
+  beneficiario   Beneficiario?
+  profesional    Profesional?
+
+  @@map("usuarios")
 }
 
-model BeneficiaryProfile {
-  id           Int           @id @default(autoincrement())
-  userId       Int           @unique
-  user         User          @relation(fields: [userId], references: [id])
-  skills       Skill[]       // Lista de habilidades del usuario
-  applications Application[]
+model Administrador {
+  id_usuario Int     @id @unique @map("id_usuario")
+  nombre     String  @map("nombre")
+  apellido   String  @map("apellido")
+  usuario    Usuario @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+  @@map("administradores")
 }
 
-model OrganizationProfile {
-  id            Int           @id @default(autoincrement())
-  userId        Int           @unique
-  user          User          @relation(fields: [userId], references: [id])
-  name          String
-  opportunities Opportunity[]
+model Beneficiario {
+  id_usuario    Int       @id @unique @map("id_usuario")
+  nombre        String    @map("nombre")
+  apellido      String    @map("apellido")
+  dni           String    @unique @map("dni")
+  fecha_nac     DateTime? @map("fecha_nacimiento")
+  telefono      String?   @map("telefono")
+  direccion     String?   @map("direccion")
+  id_ciudad     Int?      @map("id_ciudad")
+  linkedin      String?   @map("linkedin")
+  github        String?   @map("github")
+  cv_url        String?   @map("cv_url")
+  usuario       Usuario   @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+  
+  beneficiarioHabilidades BeneficiarioHabilidad[]
+  beneficiarioAreas       BeneficiarioArea[]
+  postulacionesLaborales  PostulacionesLaborales[]
+  @@map("beneficiarios")
 }
 
-model Opportunity {
-  id              Int           @id @default(autoincrement())
-  title           String
-  type            String        // 'Empleo' o 'Curso'
-  requiredSkills  Skill[]       // El motor de match comparará esto
-  organizationId  Int
-  organization    OrganizationProfile @relation(fields: [organizationId], references: [id])
-  applications    Application[]
+model Empresa {
+  id_usuario           Int       @id @unique @map("id_usuario")
+  razon_social         String    @map("razon_social")
+  cuit                 String    @unique @map("cuit")
+  descripcion          String?   @map("descripcion")
+  sitio_web            String?   @map("sitio_web")
+  logo_url             String?   @map("logo_url")
+  fecha_habilitacion   DateTime? @map("fecha_habilitacion")
+  fecha_baja           DateTime? @map("fecha_baja")
+  habilitada_operativa Boolean   @default(false) @map("habilitada_operativa")
+  habilitada_operativamente Boolean? @map("habilitada_operativamente")
+  id_solicitud         Int?      @map("id_solicitud")
+  usuario              Usuario   @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+  @@map("empresas")
 }
 
-model Skill {
-  id             Int           @id @default(autoincrement())
-  name           String        @unique
-  beneficiaries  BeneficiaryProfile[]
-  opportunities  Opportunity[]
+model OfertaLaboral {
+  id_servicio      Int      @id @map("id_servicio")
+  salario          Decimal? @map("salario")
+  fecha_limite     DateTime? @map("fecha_limite")
+  vacantes         Int      @map("vacantes")
+  id_tipo_contrato Int?     @map("id_tipo_contrato")
+  modalidad        String?  @map("modalidad")
+
+  ofertasHabilidades OfertasHabilidades[]
+  postulaciones      PostulacionesLaborales[]
+  @@map("ofertas_laborales")
 }
 
-model Application {
-  id              Int        @id @default(autoincrement())
-  beneficiaryId   Int
-  beneficiary     BeneficiaryProfile @relation(fields: [beneficiaryId], references: [id])
-  opportunityId   Int
-  opportunity     Opportunity @relation(fields: [opportunityId], references: [id])
-  status          String     // Pendiente, Entrevista, Inscripto, Finalizado
-  createdAt       DateTime   @default(now())
+model Habilidad {
+  id_habilidad Int    @id @default(autoincrement()) @map("id_habilidad")
+  nombre       String @map("nombre")
+  beneficiarioHabilidades BeneficiarioHabilidad[]
+  ofertasHabilidades      OfertasHabilidades[]
+  @@map("habilidades")
+}
+
+model BeneficiarioHabilidad {
+  id_usuario_beneficiario Int @map("id_usuario_beneficiario")
+  id_habilidad            Int @map("id_habilidad")
+  id_nivel                Int? @map("id_nivel")
+  beneficiario Beneficiario @relation(fields: [id_usuario_beneficiario], references: [id_usuario], onDelete: Cascade)
+  habilidad    Habilidad    @relation(fields: [id_habilidad], references: [id_habilidad], onDelete: Cascade)
+  @@id([id_usuario_beneficiario, id_habilidad])
+  @@map("beneficiarios_habilidades")
+}
+
+model BeneficiarioArea {
+  id_usuario_beneficiario Int @map("id_usuario_beneficiario")
+  id_area                 Int @map("id_area")
+  beneficiario Beneficiario @relation(fields: [id_usuario_beneficiario], references: [id_usuario], onDelete: Cascade)
+  @@id([id_usuario_beneficiario, id_area])
+  @@map("beneficiarios_areas")
+}
+
+model PostulacionesLaborales {
+  id_postulacion          Int      @id @default(autoincrement()) @map("id_postulacion")
+  id_usuario_beneficiario Int      @map("id_usuario_beneficiario")
+  id_servicio             Int      @map("id_servicio")
+  fecha_postulacion       DateTime @default(now()) @map("fecha_postulacion")
+  id_estado_postulacion   Int      @map("id_estado_postulacion")
+  cv_url                  String?  @map("cv_url")
+  carta_presentacion      String?  @map("carta_presentacion")
+  beneficiario Beneficiario  @relation(fields: [id_usuario_beneficiario], references: [id_usuario], onDelete: Cascade)
+  oferta       OfertaLaboral @relation(fields: [id_servicio], references: [id_servicio], onDelete: Cascade)
+  @@map("postulaciones_laborales")
+}
+
+model Profesional {
+  id_profesional Int    @id @default(autoincrement()) @map("id_profesional")
+  id_usuario     Int    @unique @map("id_usuario_empresa")
+  nombre         String @map("nombre")
+  apellido       String @map("apellido")
+  telefono       String @map("telefono")
+  usuario        Usuario @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+  @@map("profesionales")
+}
+
+model OfertasHabilidades {
+  id_servicio  Int @map("id_servicio")
+  id_habilidad Int @map("id_habilidad")
+
+  ofertaLaboral OfertaLaboral @relation(fields: [id_servicio], references: [id_servicio], onDelete: Cascade)
+  habilidad     Habilidad     @relation(fields: [id_habilidad], references: [id_habilidad], onDelete: Cascade)
+
+  @@id([id_servicio, id_habilidad])
+  @@map("ofertas_habilidades")
+}
+
+model AreaInteres {
+  id_area Int    @id @map("id_area")
+  nombre  String @map("nombre")
+  @@map("areas_interes")
+}
+
+model EstadoMentoria {
+  id_estado_mentoria Int    @id @map("id_estado_mentoria")
+  nombre             String @map("nombre")
+  @@map("estados_mentorias")
+}
+
+model EstadoPostulacion {
+  id_estado_postulacion Int    @id @map("id_estado_postulacion")
+  nombre                String @map("nombre")
+  @@map("estados_postulaciones")
+}
+
+model Servicio {
+  id_servicio           Int       @id @map("id_servicio")
+  id_usuario_empresa    Int       @map("id_usuario_empresa")
+  id_area               Int       @map("id_area")
+  titulo                String    @map("titulo")
+  descripcion           String?   @map("descripcion") // <--- Con ?
+  fecha_publicacion     DateTime  @map("fecha_publicacion")
+  id_estado_publicacion Int       @map("id_estado_publicacion")
+  tipo_servicio         String    @map("tipo_servicio")
+  @@map("servicios")
+}
+
+model TipoContrato {
+  id_tipo_contrato Int    @id @map("id_tipo_contrato")
+  nombre           String @map("nombre")
+  @@map("tipos_contrato")
+}
+
+model EstadoPublicacionServicio {
+  id_estado_publicacion Int    @id @map("id_estado_publicacion")
+  nombre                String @map("nombre")
+  @@map("estados_publicacion_servicios")
+}
+
+model EstadoSolicitud {
+  id_estado_solicitud Int    @id @map("id_estado_solicitud")
+  nombre              String @map("nombre")
+  @@map("estados_solicitudes")
+}
+
+model SolicitudHabilitacionEmpresa {
+  id_solicitud        Int       @id @map("id_solicitud")
+  razon_social        String    @map("razon_social")
+  cuit                String    @map("cuit")
+  email_contacto      String    @map("email_contacto")
+  telefono_contacto   String?   @map("telefono_contacto")
+  descripcion         String?   @map("descripcion")
+  documentacion_url   String?   @map("documentacion_url")
+  fecha_solicitud     DateTime  @map("fecha_solicitud")
+  fecha_revision      DateTime? @map("fecha_revision")
+  motivo_rechazo      String?   @map("motivo_rechazo")
+  id_estado_solicitud Int       @map("id_estado_solicitud")
+  id_admin_revisor    Int?      @map("id_admin_revisor")
+  password_hash       String?   @map("password_hash") 
+  @@map("solicitudes_habilitacion_empresas")
+}
+
+model Notificacion {
+  id_notificacion         Int      @id @map("id_notificacion")
+  id_usuario_beneficiario Int      @map("id_usuario_beneficiario")
+  id_tipo_notificacion    Int      @map("id_tipo_notificacion")
+  mensaje                 String   @map("mensaje")
+  fecha_envio             DateTime @map("fecha_envio")
+  leida                   Boolean  @map("leida")
+  @@map("notificaciones")
+}
+
+model TipoNotificacion {
+  id_tipo_notificacion Int    @id @map("id_tipo_notificacion")
+  nombre               String @map("nombre")
+  @@map("tipos_notificaciones")
 }
