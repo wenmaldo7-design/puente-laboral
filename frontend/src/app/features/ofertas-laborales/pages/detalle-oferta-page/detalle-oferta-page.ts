@@ -11,6 +11,7 @@ import { Postulaciones } from '../../services/postulaciones';
 import { MENSAJE_NO_DISPONIBLE, OfertaLaboralBeneficiario } from '../../models/postulacion.model';
 import { PerfilBeneficiarioService } from '../../../beneficiarios/services/perfil-beneficiario.service';
 import { PerfilBeneficiario } from '../../../beneficiarios/models/perfil-beneficiario.model';
+import { Notificaciones } from '../../../notificaciones/services/notificaciones';
 
 @Component({
   selector: 'app-detalle-oferta-page',
@@ -26,7 +27,8 @@ export class DetalleOfertaPage implements OnInit {
     { initialValue: null },
   );
   protected readonly nombreBeneficiario = computed(() => this.perfil()?.nombre.split(' ')[0] ?? '');
-  protected readonly notificacionesNoLeidas = signal(2);
+  private readonly notificacionesService = inject(Notificaciones);
+  protected readonly notificacionesNoLeidas = this.notificacionesService.contadorNoLeidas;
 
   protected readonly oferta = signal<OfertaLaboralBeneficiario | null>(null);
   protected readonly cargando = signal(true);
@@ -46,6 +48,7 @@ export class DetalleOfertaPage implements OnInit {
   private readonly postulacionesService = inject(Postulaciones);
 
   ngOnInit(): void {
+    this.notificacionesService.refrescarContador();
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (!id) {
       this.cargando.set(false);

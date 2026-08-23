@@ -284,6 +284,23 @@
   color: #ffffff;
 }
 
+.chip:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.chip:disabled:hover {
+  background: #ffffff;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
 .section {
   margin-bottom: 36px;
 }

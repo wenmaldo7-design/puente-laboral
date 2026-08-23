@@ -7,6 +7,7 @@ import { extraerMensajeDeError } from '../../../../core/http/api-error';
 import { PerfilEmpresaService } from '../../services/perfil-empresa.service';
 import { PerfilEmpresa } from '../../models/perfil-empresa.model';
 import { Header } from '../../../../shared/ui/header/header';
+import { Notificaciones } from '../../../notificaciones/services/notificaciones';
 
 type SeccionEdicion = 'sobreNosotros' | 'sitioWeb';
 
@@ -18,7 +19,8 @@ type SeccionEdicion = 'sobreNosotros' | 'sitioWeb';
 })
 export class PerfilEmpresaPage implements OnInit {
   protected readonly perfil = signal<PerfilEmpresa | null>(null);
-  protected readonly notificacionesNoLeidas = signal(12);
+  private readonly notificacionesService = inject(Notificaciones);
+  protected readonly notificacionesNoLeidas = this.notificacionesService.contadorNoLeidas;
 
   protected readonly edicionActiva = signal<SeccionEdicion | null>(null);
   protected readonly guardando = signal(false);
@@ -33,6 +35,7 @@ export class PerfilEmpresaPage implements OnInit {
 
   ngOnInit(): void {
     this.perfilService.getPerfil().subscribe((p) => this.perfil.set(p));
+    this.notificacionesService.refrescarContador();
   }
 
   protected async cerrarSesion(): Promise<void> {
