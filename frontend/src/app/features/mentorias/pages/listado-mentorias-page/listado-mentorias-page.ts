@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { DatePipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Header } from '../../../../shared/ui/header/header';
 import { Footer } from '../../../../shared/ui/footer/footer';
@@ -12,7 +13,7 @@ import { OfertasLaborales } from '../../../ofertas-laborales/services/ofertas-la
 
 @Component({
   selector: 'app-listado-mentorias-page',
-  imports: [RouterLink, Header, Footer],
+  imports: [RouterLink, Header, Footer, DatePipe],
   templateUrl: './listado-mentorias-page.html',
   styleUrl: './listado-mentorias-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -44,15 +44,24 @@
         @for (mentoria of mentoriasFiltradas(); track mentoria.id) {
           <article class="mentoria-card">
             <h2 class="mentoria-titulo">{{ mentoria.titulo }}</h2>
-            <p class="mentoria-mentor">{{ mentoria.mentorNombre }}</p>
+            <div class="mentoria-mentor">
+              <span class="mentor-label">Mentor/a:</span>
+              <span class="mentor-name">{{ mentoria.mentorNombre }}</span>
+            </div>
             <div class="mentoria-datos">
               <span class="modalidad-badge" [class.virtual]="mentoria.modalidad === 'virtual'">
                 {{ mentoria.modalidad === 'virtual' ? 'Virtual' : mentoria.modalidad === 'hibrida' ? 'Híbrida' : 'Presencial' }}
               </span>
               @if (mentoria.provincia) {
-                <span class="mentoria-provincia">{{ mentoria.provincia }}</span>
+                <span class="mentoria-provincia">
+                  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="inline-icon"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  {{ mentoria.provincia }}
+                </span>
               }
-              <span class="mentoria-fecha">{{ mentoria.fecha }} · {{ mentoria.horaInicio }}</span>
+              <span class="mentoria-fecha">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="inline-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                {{ mentoria.fecha | date:'dd/MM/yyyy' }} a las {{ mentoria.horaInicio }}hs
+              </span>
             </div>
             <a class="btn-detalle" [routerLink]="[mentoria.id]">Ver detalle</a>
           </article>

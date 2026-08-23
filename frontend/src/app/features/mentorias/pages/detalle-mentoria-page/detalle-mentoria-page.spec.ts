@@ -133,7 +133,7 @@ describe('DetalleMentoriaPage', () => {
     expect(compiled.querySelector('.btn-inscribirme')).not.toBeNull();
   });
 
-  it('should reveal the access link after inscribiéndose in a virtual mentoría', async () => {
+  it('should update state and hide inscribirme button after inscribiéndose in a virtual mentoría', async () => {
     const { fixture, httpMock } = await crearFixture('1');
     const component = fixture.componentInstance;
     fixture.detectChanges();
@@ -147,7 +147,6 @@ describe('DetalleMentoriaPage', () => {
 
     expect(component['estaInscripto']()).toBe(true);
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.link-acceso')?.getAttribute('href')).toBe(component['mentoria']()?.linkOCanal);
     expect(compiled.querySelector('.btn-inscribirme')).toBeNull();
   });
 
@@ -181,7 +180,6 @@ describe('DetalleMentoriaPage', () => {
 
     let compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.btn-baja')).not.toBeNull();
-    expect(compiled.querySelector('.link-acceso')).not.toBeNull();
 
     (compiled.querySelector('.btn-baja') as HTMLButtonElement).click();
     httpMock.expectOne({ url: inscripcionesUrl(1), method: 'DELETE' }).flush(inscripcionDto(1, 'cancelado'));

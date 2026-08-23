@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { DatePipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Header } from '../../../../shared/ui/header/header';
 import { Footer } from '../../../../shared/ui/footer/footer';
@@ -12,7 +13,7 @@ import { Notificaciones } from '../../../notificaciones/services/notificaciones'
 
 @Component({
   selector: 'app-detalle-mentoria-page',
-  imports: [RouterLink, Header, Footer],
+  imports: [RouterLink, Header, Footer, DatePipe],
   templateUrl: './detalle-mentoria-page.html',
   styleUrl: './detalle-mentoria-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

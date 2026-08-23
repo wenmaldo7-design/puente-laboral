@@ -124,16 +124,36 @@
 }
 
 .mentoria-mentor {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
   margin: 0;
   font-size: 0.8rem;
   color: var(--text-2);
 }
 
+.mentor-label {
+  font-weight: 600;
+  color: var(--text);
+}
+
 .mentoria-datos {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 0.5rem;
-  flex-wrap: wrap;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.mentoria-datos > span {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.inline-icon {
+  color: var(--text-2);
+  flex-shrink: 0;
 }
 
 .modalidad-badge {
