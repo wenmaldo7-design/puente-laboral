@@ -18,6 +18,7 @@ const INCLUDE_MENTORIA = {
   areas_interes: true,
   estados_publicacion_servicios: true,
   provincias: true,
+  empresas: true,
   mentorias: {
     include: {
       profesionales: true,
@@ -310,6 +311,14 @@ export class MentoriasBeneficiarioService {
   ): MentoriaResponseDto {
     const mentoria = servicio.mentorias!;
     const profesional = mentoria.profesionales;
+    const empresa = servicio.empresas;
+    let mentorNombre: string | null = null;
+    if (profesional) {
+      mentorNombre = `${profesional.nombre} ${profesional.apellido}`;
+    } else if (empresa) {
+      mentorNombre = empresa.razon_social;
+    }
+
     return {
       id_servicio: servicio.id_servicio,
       titulo: servicio.titulo,
@@ -319,9 +328,7 @@ export class MentoriasBeneficiarioService {
       hora_inicio: mentoria.hora_inicio,
       modalidad: mentoria.modalidad,
       link_o_canal: mentoria.link_o_canal,
-      mentor: profesional
-        ? `${profesional.nombre} ${profesional.apellido}`
-        : null,
+      mentor: mentorNombre,
       inscrito,
       provincia: servicio.provincias?.nombre ?? null,
     };

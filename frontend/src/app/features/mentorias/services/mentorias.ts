@@ -15,11 +15,12 @@ interface MentoriaResponseDto {
   modalidad: string;
   provincia: string | null;
   link_o_canal: string | null;
-  mentor: string;
+  mentor: string | null;
   inscrito: boolean;
 }
 
-function iniciales(mentor: string): string {
+function iniciales(mentor: string | null): string {
+  if (!mentor) return '??';
   const partes = mentor.trim().split(/\s+/);
   const nombre = partes[0] ?? '';
   const apellido = partes[partes.length - 1] ?? '';
@@ -39,7 +40,7 @@ function aMentoria(dto: MentoriaResponseDto): Mentoria {
     titulo: dto.titulo,
     descripcion: dto.descripcion ?? '',
     area: dto.area,
-    mentorNombre: dto.mentor,
+    mentorNombre: dto.mentor ?? 'Mentor asignado',
     mentorIniciales: iniciales(dto.mentor),
     fecha: dto.fecha,
     horaInicio: horaDesdeIso(dto.hora_inicio),
