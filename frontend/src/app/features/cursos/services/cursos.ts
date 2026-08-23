@@ -1,31 +1,77 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { Curso, CursosFiltros } from '../models/curso.model';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
+import { AppConfig } from '../../../core/config/app-config';
+import { Curso } from '../models/curso.model';
 
-@Injectable({
-  providedIn: 'root',
-})
+/** Espeja CursoResponseDto del backend. */
+interface CursoResponseDto {
+  id: number;
+  titulo: string;
+  descripcion: string | null;
+  area: string;
+  provincia: string | null;
+  fechaInicio: string | null;
+  fechaFin: string | null;
+  cupos: number | null;
+  cuposDisponibles: number | null;
+  modalidad: string;
+  requisitos: string | null;
+  otorgaCertificado: boolean;
+  profesor: string | null;
+  matchPorcentaje: number;
+  inscrito: boolean;
+}
+
+function aCurso(dto: CursoResponseDto): Curso {
+  return {
+    id: dto.id,
+    titulo: dto.titulo,
+    descripcion: dto.descripcion ?? '',
+    area: dto.area,
+    provincia: dto.provincia,
+    fechaInicio: dto.fechaInicio ?? '',
+    fechaFin: dto.fechaFin,
+    cupos: dto.cupos,
+    cuposDisponibles: dto.cuposDisponibles,
+    modalidad: dto.modalidad,
+    requisitos: dto.requisitos,
+    otorgaCertificado: dto.otorgaCertificado,
+    profesor: dto.profesor ?? 'Profesor asignado',
+    matchPorcentaje: dto.matchPorcentaje,
+    inscrito: dto.inscrito,
+  };
+}
+
+@Injectable({ providedIn: 'root' })
 export class Cursos {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = '/api/cursos';
+  private readonly config = inject(AppConfig);
+  private readonly baseUrl = `${this.config.apiUrl}/beneficiarios`;
 
-  getCursos(filtros?: CursosFiltros): Observable<Curso[]> {
-    let params = new HttpParams();
-    if (filtros?.modalidad) {
-      params = params.set('modalidad', filtros.modalidad);
-    }
-    if (filtros?.provincia) {
-      params = params.set('provincia', filtros.provincia);
-    }
-    return this.http.get<Curso[]>(this.apiUrl, { params });
+  getCursos(): Observable<Curso[]> {
+    return this.http
+      .get<CursoResponseDto[]>(`${this.baseUrl}/cursos`)
+      .pipe(map((dtos) => dtos.map(aCurso)));
   }
 
-  inscribirse(cursoId: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${cursoId}/inscribirse`, {});
+  getCursoPorId(id: number): Observable<Curso> {
+    return this.http
+      .get<CursoResponseDto>(`${this.baseUrl}/cursos/${id}`)
+      .pipe(map(aCurso));
   }
 
-  darseDeBaja(cursoId: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${cursoId}/baja`, {});
+  getMisCursos(): Observable<Curso[]> {
+    return this.http
+      .get<CursoResponseDto[]>(`${this.baseUrl}/mis-cursos`)
+      .pipe(map((dtos) => dtos.map(aCurso)));
+  }
+
+  inscribirse(cursoId: number): Observable<unknown> {
+    return this.http.post(`${this.baseUrl}/cursos/${cursoId}/inscripciones`, {});
+  }
+
+  darseDeBaja(cursoId: number): Observable<unknown> {
+    return this.http.delete(`${this.baseUrl}/cursos/${cursoId}/inscripciones`);
   }
 }

@@ -25,11 +25,11 @@
     </div>
 
     <div class="filters-row" aria-label="Filtrar por modalidad">
-      <button type="button" class="filter-pill" [class.active]="modalidadFilter() === ''" (click)="modalidadFilter.set(''); aplicarFiltros()">Todas</button>
-      <button type="button" class="filter-pill" [class.active]="modalidadFilter() === 'presencial'" (click)="modalidadFilter.set('presencial'); aplicarFiltros()">Presencial</button>
-      <button type="button" class="filter-pill" [class.active]="modalidadFilter() === 'remoto'" (click)="modalidadFilter.set('remoto'); aplicarFiltros()">Virtual</button>
-      
-      <select class="filter-select" [ngModel]="provinciaFilter()" (ngModelChange)="provinciaFilter.set($event); aplicarFiltros()" aria-label="Filtrar por provincia">
+      <button type="button" class="filter-pill" [class.active]="modalidadFilter() === ''" (click)="modalidadFilter.set('')">Todas</button>
+      <button type="button" class="filter-pill" [class.active]="modalidadFilter() === 'presencial'" (click)="modalidadFilter.set('presencial')">Presencial</button>
+      <button type="button" class="filter-pill" [class.active]="modalidadFilter() === 'remoto'" (click)="modalidadFilter.set('remoto')">Virtual</button>
+
+      <select class="filter-select" [ngModel]="provinciaFilter()" (ngModelChange)="provinciaFilter.set($event)" aria-label="Filtrar por provincia">
         <option value="">Todas las provincias</option>
         <option value="Buenos Aires">Buenos Aires</option>
         <option value="Catamarca">Catamarca</option>
@@ -63,8 +63,8 @@
           <article class="mentoria-card">
             <h2 class="mentoria-titulo">{{ curso.titulo }}</h2>
             <div class="mentoria-mentor">
-              <span class="mentor-label">Organiza:</span>
-              <span class="mentor-name">{{ curso.organizacionNombre }}</span>
+              <span class="mentor-label">Profesor:</span>
+              <span class="mentor-name">{{ curso.profesor }}</span>
             </div>
             <div class="mentoria-datos">
               <span class="modalidad-badge" [class.virtual]="curso.modalidad === 'remoto'">
@@ -76,9 +76,11 @@
                   {{ curso.provincia }}
                 </span>
               }
-              <span class="mentoria-fecha">Cupos: {{ curso.cuposDisponibles }} / {{ curso.cuposTotales }}</span>
+              @if (curso.cupos !== null) {
+                <span class="mentoria-fecha">Cupos: {{ curso.cuposDisponibles }} / {{ curso.cupos }}</span>
+              }
             </div>
-            @if (!curso.estaInscripto) {
+            @if (!curso.inscrito) {
               <button class="btn-detalle" (click)="inscribirse(curso.id)">Inscribirse</button>
             } @else {
               <button class="btn-cancel" (click)="darseDeBaja(curso.id)">Darse de Baja</button>

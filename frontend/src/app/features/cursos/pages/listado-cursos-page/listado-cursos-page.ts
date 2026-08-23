@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -21,7 +21,7 @@ export class ListadoCursosPage implements OnInit {
   private readonly cursosService = inject(Cursos);
   private readonly perfilBeneficiarioService = inject(PerfilBeneficiarioService);
   private readonly notificacionesService = inject(Notificaciones);
-  
+
   public perfil = toSignal<PerfilBeneficiario | null>(
     this.perfilBeneficiarioService.getPerfil(),
     { initialValue: null },
@@ -33,71 +33,67 @@ export class ListadoCursosPage implements OnInit {
   public modalidadFilter = signal<string>('');
   public provinciaFilter = signal<string>('');
   public terminoBusqueda = signal<string>('');
-  
+
   public cursosFiltrados = computed(() => {
+    const modalidad = this.modalidadFilter();
+    const provincia = this.provinciaFilter();
     const termino = this.terminoBusqueda().trim().toLowerCase();
-    return this.cursos().filter(curso => {
-      if (!termino) return true;
-      return curso.titulo.toLowerCase().includes(termino) || 
-             curso.organizacionNombre.toLowerCase().includes(termino);
+
+    return this.cursos().filter((curso) => {
+      const coincideModalidad = !modalidad || curso.modalidad === modalidad;
+      const coincideProvincia = !provincia || curso.provincia === provincia;
+      const coincideBusqueda =
+        !termino ||
+        curso.titulo.toLowerCase().includes(termino) ||
+        curso.profesor.toLowerCase().includes(termino);
+
+      return coincideModalidad && coincideProvincia && coincideBusqueda;
     });
   });
-  
+
   ngOnInit(): void {
     this.cargarCursos();
     this.notificacionesService.refrescarContador();
   }
-  
+
   cargarCursos(): void {
-    const filtros: any = {};
-    if (this.modalidadFilter()) {
-      filtros.modalidad = this.modalidadFilter();
-    }
-    if (this.provinciaFilter()) {
-      filtros.provincia = this.provinciaFilter();
-    }
-    
-    this.cursosService.getCursos(filtros).subscribe({
+    this.cursosService.getCursos().subscribe({
       next: (data) => {
-        const disponibles = data.filter(c => c.cuposDisponibles > 0);
+        const disponibles = data.filter((c) => c.cuposDisponibles === null || c.cuposDisponibles > 0);
         this.cursos.set(disponibles);
       },
-      error: (err) => console.error(err)
+      error: (err) => console.error(err),
     });
   }
-  
-  aplicarFiltros(): void {
-    this.cargarCursos();
-  }
-  
+
   onBusquedaInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.terminoBusqueda.set(input.value);
   }
-  
+
   public errorMensaje = signal<string | null>(null);
-  
-  inscribirse(cursoId: string): void {
+
+  inscribirse(cursoId: number): void {
     this.errorMensaje.set(null);
     this.cursosService.inscribirse(cursoId).subscribe({
       next: () => {
-        this.cursos.update(cursos => 
-          cursos.map(c => c.id === cursoId ? { ...c, estaInscripto: true } : c)
+        this.cursos.update((cursos) =>
+          cursos.map((c) => (c.id === cursoId ? { ...c, inscrito: true } : c)),
         );
       },
       error: () => {
         this.errorMensaje.set('El curso está lleno y no se pudo completar la inscripción.');
-      }
+      },
     });
   }
-  
-  darseDeBaja(cursoId: string): void {
+
+  darseDeBaja(cursoId: number): void {
     this.cursosService.darseDeBaja(cursoId).subscribe({
       next: () => {
-        this.cursos.update(cursos => 
-          cursos.map(c => c.id === cursoId ? { ...c, estaInscripto: false } : c)
+        this.cursos.update((cursos) =>
+          cursos.map((c) => (c.id === cursoId ? { ...c, inscrito: false } : c)),
         );
-      }
+      },
     });
   }
 }

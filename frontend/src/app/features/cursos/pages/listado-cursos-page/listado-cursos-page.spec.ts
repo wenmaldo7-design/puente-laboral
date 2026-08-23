@@ -1,118 +1,174 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
 import { ListadoCursosPage } from './listado-cursos-page';
-import { Cursos } from '../../services/cursos';
-import { of, throwError } from 'rxjs';
-import { Curso } from '../../models/curso.model';
-import { vi } from 'vitest';
+
+const PERFIL_URL = 'http://localhost:3000/beneficiarios/me';
+const CURSOS_URL = 'http://localhost:3000/beneficiarios/cursos';
+
+/** Respuesta real de GET /beneficiarios/me (BeneficiarioPerfilResponseDto). */
+const PERFIL_DTO = {
+  id_usuario: 1,
+  email: 'camila.gomez@example.com',
+  nombre: 'Camila',
+  apellido: 'Gómez',
+  dni: '30123456',
+  fecha_nacimiento: '2001-05-14',
+  telefono: '351-555-0102',
+  direccion: 'Av. Colón 1234, 3º B',
+  ciudad: { id_ciudad: 1, nombre: 'Córdoba', provincia: 'Córdoba' },
+  linkedin: '',
+  github: '',
+  cv_url: '',
+  habilidades: [],
+  areas_interes: [],
+};
+
+/** Respuesta real de GET /beneficiarios/cursos (CursoResponseDto[]). */
+const CURSOS_DTO = [
+  {
+    id: 1,
+    titulo: 'Curso Lleno',
+    descripcion: 'Curso sin cupos disponibles.',
+    area: 'Tecnología',
+    provincia: 'Córdoba',
+    fechaInicio: '2026-09-01T00:00:00.000Z',
+    fechaFin: null,
+    cupos: 10,
+    cuposDisponibles: 0,
+    modalidad: 'remoto',
+    requisitos: null,
+    otorgaCertificado: true,
+    profesor: 'Lucía Fernández',
+    matchPorcentaje: 50,
+    inscrito: false,
+  },
+  {
+    id: 2,
+    titulo: 'Curso Disponible',
+    descripcion: 'Curso con cupos disponibles.',
+    area: 'Tecnología',
+    provincia: 'Córdoba',
+    fechaInicio: '2026-09-05T00:00:00.000Z',
+    fechaFin: null,
+    cupos: 10,
+    cuposDisponibles: 5,
+    modalidad: 'remoto',
+    requisitos: null,
+    otorgaCertificado: false,
+    profesor: 'Martín Ríos',
+    matchPorcentaje: 80,
+    inscrito: false,
+  },
+];
+
+function flushGetPerfil(httpMock: HttpTestingController): void {
+  httpMock.expectOne({ url: PERFIL_URL, method: 'GET' }).flush(PERFIL_DTO);
+}
+
+function flushCursos(httpMock: HttpTestingController, dtos: unknown[] = CURSOS_DTO): void {
+  httpMock.expectOne({ url: CURSOS_URL, method: 'GET' }).flush(dtos);
+}
+
+function flushTodo(fixture: { detectChanges(): void }, httpMock: HttpTestingController): void {
+  fixture.detectChanges();
+  flushGetPerfil(httpMock);
+  flushCursos(httpMock);
+  fixture.detectChanges();
+}
 
 describe('ListadoCursosPage', () => {
-  let component: ListadoCursosPage;
-  let fixture: ComponentFixture<ListadoCursosPage>;
-  let cursosService: any;
+  let httpMock: HttpTestingController;
 
   beforeEach(async () => {
-    cursosService = {
-      getCursos: vi.fn().mockReturnValue(of([])),
-      inscribirse: vi.fn(),
-      darseDeBaja: vi.fn()
-    };
-
     await TestBed.configureTestingModule({
       imports: [ListadoCursosPage],
-      providers: [
-        { provide: Cursos, useValue: cursosService }
-      ]
-    })
-    .compileComponents();
-
-    fixture = TestBed.createComponent(ListadoCursosPage);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+    }).compileComponents();
+    httpMock = TestBed.inject(HttpTestingController);
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    const fixture = TestBed.createComponent(ListadoCursosPage);
+    flushTodo(fixture, httpMock);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 
   it('should not render courses with cuposDisponibles === 0', () => {
-    const mockCursos: Curso[] = [
-      { id: '1', titulo: 'Curso Lleno', cuposDisponibles: 0, cuposTotales: 10, descripcion: '', modalidad: 'remoto', organizacionNombre: '', provincia: 'cba', estaInscripto: false },
-      { id: '2', titulo: 'Curso Disponible', cuposDisponibles: 5, cuposTotales: 10, descripcion: '', modalidad: 'remoto', organizacionNombre: '', provincia: 'cba', estaInscripto: false }
-    ];
-    cursosService.getCursos.mockReturnValue(of(mockCursos));
-    (component as any).cargarCursos(); // Method to implement
-    fixture.detectChanges();
+    const fixture = TestBed.createComponent(ListadoCursosPage);
+    const component = fixture.componentInstance;
+    flushTodo(fixture, httpMock);
 
-    const titles = fixture.nativeElement.querySelectorAll('.curso-titulo');
+    const titles = fixture.nativeElement.querySelectorAll('.mentoria-titulo');
     expect(titles.length).toBe(1);
     expect(titles[0].textContent).toContain('Curso Disponible');
+    expect(component['cursos']().length).toBe(1);
   });
 
-  it('should trigger Cursos service correctly when filtering', () => {
-    (component as any).modalidadFilter.set('presencial');
-    (component as any).provinciaFilter.set('cordoba');
-    (component as any).aplicarFiltros();
+  it('should filter courses by modalidad', () => {
+    const fixture = TestBed.createComponent(ListadoCursosPage);
+    const component = fixture.componentInstance;
+    flushTodo(fixture, httpMock);
 
-    expect(cursosService.getCursos).toHaveBeenCalledWith({ modalidad: 'presencial', provincia: 'cordoba' });
+    component['modalidadFilter'].set('presencial');
+    fixture.detectChanges();
+
+    expect(component['cursosFiltrados']().length).toBe(0);
   });
 
-  it('should update estaInscripto to true when inscribirse is called', () => {
-    const mockCursos: Curso[] = [
-      { id: '2', titulo: 'Curso Disponible', cuposDisponibles: 5, cuposTotales: 10, descripcion: '', modalidad: 'remoto', organizacionNombre: '', provincia: 'cba', estaInscripto: false }
-    ];
-    cursosService.getCursos.mockReturnValue(of(mockCursos));
-    cursosService.inscribirse.mockReturnValue(of(undefined));
-    (component as any).cargarCursos();
+  it('should filter courses by search term matching titulo or profesor', () => {
+    const fixture = TestBed.createComponent(ListadoCursosPage);
+    const component = fixture.componentInstance;
+    flushTodo(fixture, httpMock);
+
+    component['terminoBusqueda'].set('Martín');
     fixture.detectChanges();
 
-    (component as any).inscribirse('2');
-    fixture.detectChanges();
-
-    expect((component as any).cursos().find((c: any) => c.id === '2').estaInscripto).toBe(true);
+    expect(component['cursosFiltrados']().length).toBe(1);
+    expect(component['cursosFiltrados']()[0].profesor).toBe('Martín Ríos');
   });
 
-  it('should display an error message when enrollment fails due to race condition', () => {
-    const mockCursos: Curso[] = [
-      { id: '2', titulo: 'Curso Disponible', cuposDisponibles: 5, cuposTotales: 10, descripcion: '', modalidad: 'remoto', organizacionNombre: '', provincia: 'cba', estaInscripto: false }
-    ];
-    cursosService.getCursos.mockReturnValue(of(mockCursos));
-    cursosService.inscribirse.mockReturnValue(throwError(() => new Error('Course full')));
-    (component as any).cargarCursos();
+  it('should update inscrito to true when inscribirse succeeds', () => {
+    const fixture = TestBed.createComponent(ListadoCursosPage);
+    const component = fixture.componentInstance;
+    flushTodo(fixture, httpMock);
+
+    component['inscribirse'](2);
+    httpMock
+      .expectOne({ url: `${CURSOS_URL}/2/inscripciones`, method: 'POST' })
+      .flush({});
     fixture.detectChanges();
 
-    (component as any).inscribirse('2');
-    fixture.detectChanges();
-
-    expect((component as any).errorMensaje()).toBe('El curso está lleno y no se pudo completar la inscripción.');
+    expect(component['cursos']().find((c) => c.id === 2)?.inscrito).toBe(true);
   });
 
-  it('should update estaInscripto to false when darseDeBaja is called for successful unenrollment', () => {
-    const mockCursos: Curso[] = [
-      { id: '2', titulo: 'Curso Disponible', cuposDisponibles: 5, cuposTotales: 10, descripcion: '', modalidad: 'remoto', organizacionNombre: '', provincia: 'cba', estaInscripto: true }
-    ];
-    cursosService.getCursos.mockReturnValue(of(mockCursos));
-    cursosService.darseDeBaja.mockReturnValue(of(undefined));
-    (component as any).cargarCursos();
+  it('should show an error message when enrollment fails', () => {
+    const fixture = TestBed.createComponent(ListadoCursosPage);
+    const component = fixture.componentInstance;
+    flushTodo(fixture, httpMock);
+
+    component['inscribirse'](2);
+    httpMock
+      .expectOne({ url: `${CURSOS_URL}/2/inscripciones`, method: 'POST' })
+      .flush({ message: 'No quedan cupos disponibles' }, { status: 409, statusText: 'Conflict' });
     fixture.detectChanges();
 
-    (component as any).darseDeBaja('2');
-    fixture.detectChanges();
-
-    expect((component as any).cursos().find((c: any) => c.id === '2').estaInscripto).toBe(false);
+    expect(component['errorMensaje']()).toBe('El curso está lleno y no se pudo completar la inscripción.');
   });
 
-  it('should fetch all courses when clearing filters', () => {
-    (component as any).modalidadFilter.set('presencial');
-    (component as any).provinciaFilter.set('cordoba');
-    (component as any).aplicarFiltros();
-    
-    // Clear filters
-    (component as any).modalidadFilter.set('');
-    (component as any).provinciaFilter.set('');
-    (component as any).aplicarFiltros();
+  it('should update inscrito to false when darseDeBaja succeeds', () => {
+    const fixture = TestBed.createComponent(ListadoCursosPage);
+    const component = fixture.componentInstance;
+    flushTodo(fixture, httpMock);
+    component['cursos'].update((cursos) => cursos.map((c) => (c.id === 2 ? { ...c, inscrito: true } : c)));
 
-    expect(cursosService.getCursos).toHaveBeenCalledWith({});
+    component['darseDeBaja'](2);
+    httpMock
+      .expectOne({ url: `${CURSOS_URL}/2/inscripciones`, method: 'DELETE' })
+      .flush({});
+    fixture.detectChanges();
+
+    expect(component['cursos']().find((c) => c.id === 2)?.inscrito).toBe(false);
   });
 });
