@@ -1,7 +1,6 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { AppConfig } from '../../../core/config/app-config';
 
 export interface CreateCursoDto {
@@ -19,8 +18,6 @@ export class CursosEmpresaService {
   private readonly config = inject(AppConfig);
 
   crearCurso(dto: CreateCursoDto): Observable<any> {
-    // Si el backend no tiene el endpoint, lo simulamos para que el flujo UI funcione.
-    // En un entorno real se haria: return this.http.post<any>(${this.config.apiUrl}/empresas/cursos, dto);
-    return of({ success: true }).pipe(delay(1000));
+    return this.http.post<any>(`${this.config.apiUrl}/empresas/cursos`, dto);
   }
 }
