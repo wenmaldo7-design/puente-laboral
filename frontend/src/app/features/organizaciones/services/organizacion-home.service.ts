@@ -8,6 +8,12 @@ import {
   PostulanteReciente,
 } from '../models/organizacion-home.model';
 
+declare global {
+  interface Window {
+    __env?: { apiUrl?: string };
+  }
+}
+
 let MOCK_METRICAS: MetricaOrgResumen[] = [
   {
     id: 'm-1',
@@ -127,11 +133,6 @@ const MOCK_POSTULANTES: PostulanteReciente[] = [
   },
 ];
 
-/**
- * Los endpoints de oportunidades, métricas y postulantes para organizaciones
- * se integrarán con el backend de NestJS. Mientras tanto se exponen datos mock
- * con la misma forma (Observable) que tendrá la respuesta HTTP real.
- */
 @Injectable({ providedIn: 'root' })
 export class OrganizacionHomeService {
   constructor(private readonly http: HttpClient) {}
@@ -141,17 +142,14 @@ export class OrganizacionHomeService {
   }
 
   getMetricas(): Observable<MetricaOrgResumen[]> {
-    // return this.http.get<MetricaOrgResumen[]>(`${this.apiUrl}/organizaciones/metricas`);
     return of(MOCK_METRICAS);
   }
 
   getOportunidadesPublicadas(): Observable<OportunidadPublicada[]> {
-    // return this.http.get<OportunidadPublicada[]>(`${this.apiUrl}/organizaciones/oportunidades`);
     return of(MOCK_OPORTUNIDADES);
   }
 
   crearOportunidad(dto: CrearOportunidadDto): Observable<OportunidadPublicada> {
-    // return this.http.post<OportunidadPublicada>(`${this.apiUrl}/organizaciones/oportunidades`, dto);
     const nueva: OportunidadPublicada = {
       id: `op-${Date.now()}`,
       titulo: dto.titulo.trim(),
@@ -166,13 +164,12 @@ export class OrganizacionHomeService {
     MOCK_OPORTUNIDADES = [nueva, ...MOCK_OPORTUNIDADES];
     const oportunidadMetrica = MOCK_METRICAS.find(m => m.id === 'm-1');
     if (oportunidadMetrica) {
-      oportunidadMetrica.valor = (parseInt(oportunidadMetrica.valor) + 1).toString();
+      oportunidadMetrica.valor = (Number(oportunidadMetrica.valor) + 1).toString();
     }
     return of(nueva);
   }
 
-  getPostulantesRecientes(): Observable<PostulanteReciente[]> {
-    // return this.http.get<PostulanteReciente[]>(`${this.apiUrl}/organizaciones/postulaciones/recientes`);
+  getPostulantesRecientes(): Observable<PostulanteReciente[]>{
     return of(MOCK_POSTULANTES);
   }
 }

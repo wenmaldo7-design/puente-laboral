@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  //url      = env("DATABASE_URL")
+}
+
+// Entidades base
+model User {
+  id                   Int                 @id @default(autoincrement())
+  email                String              @unique
+  password             String
+  role                 String              // 'Beneficiario', 'Organizacion', 'Admin'
+  beneficiaryProfile   BeneficiaryProfile?
+  organizationProfile  OrganizationProfile?
+}
+
+model BeneficiaryProfile {
+  id           Int           @id @default(autoincrement())
+  userId       Int           @unique
+  user         User          @relation(fields: [userId], references: [id])
+  skills       Skill[]       // Lista de habilidades del usuario
+  applications Application[]
+}
+
+model OrganizationProfile {
+  id            Int           @id @default(autoincrement())
+  userId        Int           @unique
+  user          User          @relation(fields: [userId], references: [id])
+  name          String
+  opportunities Opportunity[]
+}
+
+model Opportunity {
+  id              Int           @id @default(autoincrement())
+  title           String
+  type            String        // 'Empleo' o 'Curso'
+  requiredSkills  Skill[]       // El motor de match comparará esto
+  organizationId  Int
+  organization    OrganizationProfile @relation(fields: [organizationId], references: [id])
+  applications    Application[]
+}
+
+model Skill {
+  id             Int           @id @default(autoincrement())
+  name           String        @unique
+  beneficiaries  BeneficiaryProfile[]
+  opportunities  Opportunity[]
+}
+
+model Application {
+  id              Int        @id @default(autoincrement())
+  beneficiaryId   Int
+  beneficiary     BeneficiaryProfile @relation(fields: [beneficiaryId], references: [id])
+  opportunityId   Int
+  opportunity     Opportunity @relation(fields: [opportunityId], references: [id])
+  status          String     // Pendiente, Entrevista, Inscripto, Finalizado
+  createdAt       DateTime   @default(now())
+}

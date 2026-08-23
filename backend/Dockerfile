@@ -7,6 +7,10 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
+
+# ¡Agregá esta línea para generar Prisma Client antes de compilar!
+RUN npx prisma generate
+
 RUN npm run build
 
 # --- Runtime stage ---
