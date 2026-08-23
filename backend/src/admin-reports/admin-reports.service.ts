@@ -120,20 +120,21 @@ export class AdminReportsService {
       count: g._count.id_estado_postulacion
     }));
 
-    // Distribución Geográfica (Beneficiarios)
-    const geoGroups = await this.prisma.beneficiarios.groupBy({
-      by: ['id_ciudad'],
-      _count: { id_ciudad: true },
-      orderBy: { _count: { id_ciudad: 'desc' } },
+    // Distribución Geográfica (Servicios por Provincia)
+    const geoGroups = await this.prisma.servicios.groupBy({
+      by: ['id_provincia'],
+      _count: { id_provincia: true },
+      where: fromDate ? { fecha_publicacion: { gte: fromDate } } : undefined,
+      orderBy: { _count: { id_provincia: 'desc' } },
       take: 5
     });
-    const validGeoGroups = geoGroups.filter(g => g.id_ciudad !== null);
-    const citiesList = await this.prisma.ciudades.findMany({
-      where: { id_ciudad: { in: validGeoGroups.map(g => g.id_ciudad as number) } }
+    const validGeoGroups = geoGroups.filter(g => g.id_provincia !== null);
+    const provincesList = await this.prisma.provincias.findMany({
+      where: { id_provincia: { in: validGeoGroups.map(g => g.id_provincia as number) } }
     });
     const geographicDistribution = validGeoGroups.map(g => ({
-      city: citiesList.find(c => c.id_ciudad === g.id_ciudad)?.nombre || 'Desconocida',
-      count: g._count.id_ciudad
+      city: provincesList.find(p => p.id_provincia === g.id_provincia)?.nombre || 'Desconocida',
+      count: g._count.id_provincia
     }));
 
     // Candidatos aceptados y Match

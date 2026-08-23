@@ -22,6 +22,7 @@ describe('AdminReportsService', () => {
             habilidades: { findMany: jest.fn().mockResolvedValue([]) },
             estados_postulaciones: { findMany: jest.fn().mockResolvedValue([]) },
             ciudades: { findMany: jest.fn().mockResolvedValue([]) },
+            provincias: { findMany: jest.fn().mockResolvedValue([]) },
           },
         },
       ],
@@ -38,6 +39,12 @@ describe('AdminReportsService', () => {
   describe('getMetrics', () => {
     it('should return metrics for all time range correctly', async () => {
       // Mock data
+      (prisma.servicios.groupBy as jest.Mock).mockResolvedValue([
+        { id_provincia: 1, _count: { id_provincia: 10 } }
+      ]);
+      (prisma.provincias.findMany as jest.Mock).mockResolvedValue([
+        { id_provincia: 1, nombre: 'Córdoba' }
+      ]);
       (prisma.servicios.count as jest.Mock).mockResolvedValue(10);
       (prisma.postulaciones_laborales.count as jest.Mock).mockResolvedValue(5);
       
@@ -96,6 +103,14 @@ describe('AdminReportsService', () => {
     });
 
     it('should handle time ranges correctly', async () => {
+      (prisma.servicios.groupBy as jest.Mock).mockResolvedValue([
+        { id_provincia: 1, _count: { id_provincia: 10 } },
+        { id_provincia: 2, _count: { id_provincia: 5 } }
+      ]);
+      (prisma.provincias.findMany as jest.Mock).mockResolvedValue([
+        { id_provincia: 1, nombre: 'Córdoba' },
+        { id_provincia: 2, nombre: 'Buenos Aires' }
+      ]);
       (prisma.servicios.count as jest.Mock).mockResolvedValue(0);
       (prisma.postulaciones_laborales.count as jest.Mock).mockResolvedValue(0);
       (prisma.postulaciones_laborales.findMany as jest.Mock).mockResolvedValue([]);
@@ -113,6 +128,8 @@ describe('AdminReportsService', () => {
     });
 
     it('should return null for averageMatchPercentage if no accepted candidates', async () => {
+      (prisma.servicios.groupBy as jest.Mock).mockResolvedValue([]);
+      (prisma.provincias.findMany as jest.Mock).mockResolvedValue([]);
       (prisma.servicios.count as jest.Mock).mockResolvedValue(0);
       (prisma.postulaciones_laborales.count as jest.Mock).mockResolvedValue(0);
       (prisma.postulaciones_laborales.findMany as jest.Mock).mockResolvedValue([]);
@@ -124,6 +141,8 @@ describe('AdminReportsService', () => {
 
   describe('exports', () => {
     it('should generate an Excel buffer', async () => {
+      (prisma.servicios.groupBy as jest.Mock).mockResolvedValue([]);
+      (prisma.provincias.findMany as jest.Mock).mockResolvedValue([]);
       (prisma.servicios.count as jest.Mock).mockResolvedValue(10);
       (prisma.postulaciones_laborales.findMany as jest.Mock).mockResolvedValue([]);
       
@@ -133,6 +152,8 @@ describe('AdminReportsService', () => {
     });
 
     it('should generate a PDF buffer', async () => {
+      (prisma.servicios.groupBy as jest.Mock).mockResolvedValue([]);
+      (prisma.provincias.findMany as jest.Mock).mockResolvedValue([]);
       (prisma.servicios.count as jest.Mock).mockResolvedValue(10);
       (prisma.postulaciones_laborales.findMany as jest.Mock).mockResolvedValue([]);
       

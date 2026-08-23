@@ -96,12 +96,7 @@
       <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col h-full">
         <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Candidatos Aceptados</h3>
         <div class="flex-grow flex items-center justify-center py-2">
-          <ng-container *ngIf="metrics()!.totalAcceptedCandidates > 0; else noCandidates">
-            <span class="text-4xl font-bold text-[#042c53]" data-testid="metric-accepted-candidates">{{ metrics()!.totalAcceptedCandidates }}</span>
-          </ng-container>
-          <ng-template #noCandidates>
-            <span class="text-gray-400 italic text-sm">Sin datos</span>
-          </ng-template>
+          <span class="text-4xl font-bold text-[#042c53]" data-testid="metric-accepted-candidates">{{ metrics()!.totalAcceptedCandidates }}</span>
         </div>
       </div>
 
@@ -208,7 +203,7 @@
 
       <!-- Distribución Geográfica -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-        <h3 class="text-lg font-bold text-[#042c53] mb-4">Distribución Geográfica</h3>
+        <h3 class="text-lg font-bold text-[#042c53] mb-4">Provincias Destacadas</h3>
         <ul class="space-y-3" *ngIf="metrics()!.geographicDistribution.length > 0; else noGeo">
           <li *ngFor="let geo of metrics()!.geographicDistribution" class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
             <span class="font-medium text-gray-700 truncate" [title]="geo.city">{{ geo.city }}</span>

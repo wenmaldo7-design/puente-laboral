@@ -64,7 +64,7 @@ describe('DashboardPage', () => {
     fixture.detectChanges();
     
     const elements = fixture.debugElement.queryAll(By.css('.italic.text-gray-400'));
-    expect(elements.length).toBe(5);
+    expect(elements.length).toBe(4);
     expect(elements[0].nativeElement.textContent.trim()).toBe('Sin datos');
   });
 
