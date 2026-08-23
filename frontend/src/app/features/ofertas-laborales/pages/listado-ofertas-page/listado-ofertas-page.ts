@@ -71,6 +71,7 @@ export class ListadoOfertasPage implements OnInit {
   private readonly ofertasLaboralesService = inject(OfertasLaborales);
 
   ngOnInit(): void {
+    this.notificacionesService.refrescarContador();
     this.ofertasLaboralesService.getCompatibles().subscribe({
       next: (ofertas) => {
         this.ofertas.set(ofertas);
@@ -89,8 +90,6 @@ export class ListadoOfertasPage implements OnInit {
     this.ofertasLaboralesService.getCatalogoProvincias().subscribe((provincias) => {
       this.provinciasCatalogo.set(provincias);
     });
-
-    this.notificacionesService.refrescarContador();
   }
 
   protected seleccionarFiltro(id: ModalidadFiltro): void {

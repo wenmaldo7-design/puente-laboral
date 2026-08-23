@@ -48,13 +48,13 @@ export class DetalleOfertaPage implements OnInit {
   private readonly postulacionesService = inject(Postulaciones);
 
   ngOnInit(): void {
+    this.notificacionesService.refrescarContador();
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (!id) {
       this.cargando.set(false);
       return;
     }
     this.cargar(id);
-    this.notificacionesService.refrescarContador();
   }
 
   private cargar(id: number): void {

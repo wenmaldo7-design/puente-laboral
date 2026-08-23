@@ -35,6 +35,7 @@ export class MisPostulacionesPage implements OnInit {
   private readonly postulacionesService = inject(Postulaciones);
 
   ngOnInit(): void {
+    this.notificacionesService.refrescarContador();
     this.postulacionesService.misPostulaciones().subscribe({
       next: (postulaciones) => {
         this.postulaciones.set(postulaciones);
@@ -49,7 +50,5 @@ export class MisPostulacionesPage implements OnInit {
         );
       },
     });
-
-    this.notificacionesService.refrescarContador();
   }
 }

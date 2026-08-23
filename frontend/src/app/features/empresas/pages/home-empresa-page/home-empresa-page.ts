@@ -14,6 +14,8 @@ import {
   PostulanteReciente,
 } from '../../models/empresa-home.model';
 
+const POSTULANTES_POR_PAGINA = 3;
+
 @Component({
   selector: 'app-home-empresa-page',
   imports: [RouterLink, Header],
@@ -27,6 +29,15 @@ export class HomeEmpresaPage implements OnInit {
   protected readonly metricas = signal<MetricaEmpresaResumen[]>([]);
   protected readonly oportunidades = signal<OportunidadPublicada[]>([]);
   protected readonly postulantesRecientes = signal<PostulanteReciente[]>([]);
+
+  protected readonly paginaActual = signal(0);
+  protected readonly totalPaginas = computed(() =>
+    Math.ceil(this.postulantesRecientes().length / POSTULANTES_POR_PAGINA),
+  );
+  protected readonly postulantesPaginados = computed(() => {
+    const inicio = this.paginaActual() * POSTULANTES_POR_PAGINA;
+    return this.postulantesRecientes().slice(inicio, inicio + POSTULANTES_POR_PAGINA);
+  });
 
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
@@ -96,9 +107,23 @@ export class HomeEmpresaPage implements OnInit {
     });
 
     this.homeService.getPostulantesRecientes().subscribe({
-      next: (p) => this.postulantesRecientes.set(p),
-      error: () => this.postulantesRecientes.set([]),
+      next: (p) => {
+        this.postulantesRecientes.set(p);
+        this.paginaActual.set(0);
+      },
+      error: () => {
+        this.postulantesRecientes.set([]);
+        this.paginaActual.set(0);
+      },
     });
+  }
+
+  protected paginaSiguiente(): void {
+    this.paginaActual.update((pagina) => Math.min(pagina + 1, this.totalPaginas() - 1));
+  }
+
+  protected paginaAnterior(): void {
+    this.paginaActual.update((pagina) => Math.max(pagina - 1, 0));
   }
 
   protected seleccionarFiltro(id: FiltroOportunidadEmpresa['id']): void {

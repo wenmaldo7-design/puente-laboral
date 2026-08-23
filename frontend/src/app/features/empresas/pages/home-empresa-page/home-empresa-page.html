@@ -130,7 +130,7 @@
 
         @if (postulantesRecientes().length) {
           <div class="postulantes-list">
-            @for (postulante of postulantesRecientes(); track postulante.id) {
+            @for (postulante of postulantesPaginados(); track postulante.id) {
               <div class="postulante-card">
                 <div class="postulante-main">
                   <div class="avatar" aria-hidden="true">{{ postulante.avatarIniciales }}</div>
@@ -164,6 +164,23 @@
               </div>
             }
           </div>
+
+          @if (totalPaginas() > 1) {
+            <div class="pagination">
+              <button type="button" class="chip" [disabled]="paginaActual() === 0" (click)="paginaAnterior()">
+                Anterior
+              </button>
+              <span class="section-hint">Página {{ paginaActual() + 1 }} de {{ totalPaginas() }}</span>
+              <button
+                type="button"
+                class="chip"
+                [disabled]="paginaActual() === totalPaginas() - 1"
+                (click)="paginaSiguiente()"
+              >
+                Siguiente
+              </button>
+            </div>
+          }
         } @else {
           <p class="empty-state">No hay postulantes recientes para mostrar.</p>
         }

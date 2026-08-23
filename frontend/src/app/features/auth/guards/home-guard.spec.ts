@@ -4,18 +4,22 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { Router, UrlTree, provideRouter } from '@angular/router';
 import { Observable, firstValueFrom } from 'rxjs';
 
-import { guestGuard } from './guest-guard';
+import { homeGuard } from './home-guard';
 import { Auth } from '../services/auth';
 
 const ME_URL = 'http://localhost:3000/auth/beneficiarios/me';
 
-describe('guestGuard', () => {
+function sesionDto(rol: 'beneficiario' | 'empresa' | 'administrador') {
+  return { sub: 1, email: 'a@a.com', rol, iat: 0, exp: 0 };
+}
+
+describe('homeGuard', () => {
   let httpMock: HttpTestingController;
   let auth: Auth;
   let router: Router;
 
   const runGuard = (): Observable<boolean | UrlTree> =>
-    TestBed.runInInjectionContext(() => guestGuard(null as never, null as never)) as Observable<boolean | UrlTree>;
+    TestBed.runInInjectionContext(() => homeGuard(null as never, null as never)) as Observable<boolean | UrlTree>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -52,15 +56,33 @@ describe('guestGuard', () => {
     expect(await resultado).toBe(true);
   });
 
-  it('should redirect to / once the initial load resolves with an active session', async () => {
+  it('should redirect a beneficiario to /beneficiarios', async () => {
     const cargaSesion = auth.cargarSesion();
     const resultado = firstValueFrom(runGuard());
 
-    httpMock
-      .expectOne({ url: ME_URL, method: 'GET' })
-      .flush({ sub: 1, email: 'a@a.com', rol: 'beneficiario', iat: 0, exp: 0 });
+    httpMock.expectOne({ url: ME_URL, method: 'GET' }).flush(sesionDto('beneficiario'));
     await cargaSesion;
 
-    expect(await resultado).toEqual(router.createUrlTree(['/']));
+    expect(await resultado).toEqual(router.createUrlTree(['/beneficiarios']));
+  });
+
+  it('should redirect an empresa to /empresas/home', async () => {
+    const cargaSesion = auth.cargarSesion();
+    const resultado = firstValueFrom(runGuard());
+
+    httpMock.expectOne({ url: ME_URL, method: 'GET' }).flush(sesionDto('empresa'));
+    await cargaSesion;
+
+    expect(await resultado).toEqual(router.createUrlTree(['/empresas/home']));
+  });
+
+  it('should redirect an administrador to /admin/dashboard', async () => {
+    const cargaSesion = auth.cargarSesion();
+    const resultado = firstValueFrom(runGuard());
+
+    httpMock.expectOne({ url: ME_URL, method: 'GET' }).flush(sesionDto('administrador'));
+    await cargaSesion;
+
+    expect(await resultado).toEqual(router.createUrlTree(['/admin/dashboard']));
   });
 });
