@@ -44,31 +44,31 @@
     } @else if (error()) {
       <p class="error-state">{{ error() }}</p>
     } @else if (ofertasFiltradas().length) {
-      <div class="ofertas-grid">
+      <div class="listing-grid">
         @for (oferta of ofertasFiltradas(); track oferta.id_servicio) {
-          <article class="oferta-card">
-            <div class="oferta-badges">
+          <article class="listing-card">
+            <div class="listing-badges">
               @if (oferta.match_porcentaje > 0) {
-                <span class="match-badge">{{ oferta.match_porcentaje }}% match</span>
+                <span class="listing-match-badge">{{ oferta.match_porcentaje }}% match</span>
               }
               @if (etiquetaEstado(oferta); as etiqueta) {
-                <span class="estado-badge">{{ etiqueta }}</span>
+                <span class="listing-estado-badge">{{ etiqueta }}</span>
               }
             </div>
-            <h2 class="oferta-titulo">{{ oferta.titulo }}</h2>
-            <p class="oferta-empresa">{{ oferta.empresa }}</p>
-            <div class="oferta-datos">
-              <span class="modalidad-badge" [class.virtual]="oferta.modalidad === 'virtual'">
+            <h2 class="listing-titulo">{{ oferta.titulo }}</h2>
+            <p class="listing-subtitle">{{ oferta.empresa }}</p>
+            <div class="listing-meta">
+              <span class="listing-modalidad-badge" [class.virtual]="oferta.modalidad === 'virtual'">
                 {{ oferta.modalidad === 'virtual' ? 'Virtual' : oferta.modalidad === 'hibrida' ? 'Híbrida' : 'Presencial' }}
               </span>
               @if (oferta.provincia) {
-                <span class="oferta-provincia">{{ oferta.provincia }}</span>
+                <span class="listing-meta-item">{{ oferta.provincia }}</span>
               }
               @if (oferta.vacantes !== null) {
-                <span class="oferta-cupo">{{ oferta.postulantes_actuales }}/{{ oferta.vacantes }} postulantes</span>
+                <span class="listing-meta-item">{{ oferta.postulantes_actuales }}/{{ oferta.vacantes }} postulantes</span>
               }
             </div>
-            <a class="btn-detalle" [routerLink]="[oferta.id_servicio]">Ver detalle</a>
+            <a class="listing-cta" [routerLink]="[oferta.id_servicio]">Ver detalle</a>
           </article>
         }
       </div>

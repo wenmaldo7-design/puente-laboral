@@ -171,13 +171,17 @@
   align-self: flex-start;
   margin-top: 0.25rem;
   background: transparent;
-  color: var(--text-2);
-  border: 1px solid var(--border);
+  color: #e53e3e;
+  border: 1px solid #e53e3e;
   border-radius: 0.4rem;
   padding: 0.45rem 1rem;
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
+}
+
+.btn-baja:hover {
+  background: #fff5f5;
 }
 
 .btn-baja:disabled {

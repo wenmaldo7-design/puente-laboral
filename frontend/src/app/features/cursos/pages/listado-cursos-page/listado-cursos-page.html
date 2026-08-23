@@ -27,7 +27,7 @@
     <div class="filters-row" aria-label="Filtrar por modalidad">
       <button type="button" class="filter-pill" [class.active]="modalidadFilter() === ''" (click)="modalidadFilter.set('')">Todas</button>
       <button type="button" class="filter-pill" [class.active]="modalidadFilter() === 'presencial'" (click)="modalidadFilter.set('presencial')">Presencial</button>
-      <button type="button" class="filter-pill" [class.active]="modalidadFilter() === 'remoto'" (click)="modalidadFilter.set('remoto')">Virtual</button>
+      <button type="button" class="filter-pill" [class.active]="modalidadFilter() === 'virtual'" (click)="modalidadFilter.set('virtual')">Virtual</button>
 
       <select class="filter-select" [ngModel]="provinciaFilter()" (ngModelChange)="provinciaFilter.set($event)" aria-label="Filtrar por provincia">
         <option value="">Todas las provincias</option>
@@ -58,32 +58,34 @@
     </div>
 
     @if (cursosFiltrados().length) {
-      <div class="mentorias-grid">
+      <div class="listing-grid">
         @for (curso of cursosFiltrados(); track curso.id) {
-          <article class="mentoria-card">
-            <h2 class="mentoria-titulo">{{ curso.titulo }}</h2>
-            <div class="mentoria-mentor">
-              <span class="mentor-label">Profesor:</span>
-              <span class="mentor-name">{{ curso.profesor }}</span>
-            </div>
-            <div class="mentoria-datos">
-              <span class="modalidad-badge" [class.virtual]="curso.modalidad === 'remoto'">
-                {{ curso.modalidad === 'remoto' ? 'Virtual' : 'Presencial' }}
+          <article class="listing-card">
+            @if (curso.matchPorcentaje > 0) {
+              <div class="listing-badges">
+                <span class="listing-match-badge">{{ curso.matchPorcentaje }}% match</span>
+              </div>
+            }
+            <h2 class="listing-titulo">{{ curso.titulo }}</h2>
+            <p class="listing-subtitle">
+              <span class="listing-subtitle-label">Profesor:</span>
+              {{ curso.profesor }}
+            </p>
+            <div class="listing-meta">
+              <span class="listing-modalidad-badge" [class.virtual]="curso.modalidad === 'virtual'">
+                {{ curso.modalidad === 'virtual' ? 'Virtual' : 'Presencial' }}
               </span>
               @if (curso.provincia) {
-                <span class="mentoria-provincia">
-                  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="inline-icon"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                  {{ curso.provincia }}
-                </span>
+                <span class="listing-meta-item">{{ curso.provincia }}</span>
               }
               @if (curso.cupos !== null) {
-                <span class="mentoria-fecha">Cupos: {{ curso.cuposDisponibles }} / {{ curso.cupos }}</span>
+                <span class="listing-meta-item">Cupos: {{ curso.cuposDisponibles }} / {{ curso.cupos }}</span>
               }
             </div>
             @if (!curso.inscrito) {
-              <button class="btn-detalle" (click)="inscribirse(curso.id)">Inscribirse</button>
+              <button class="listing-cta" (click)="inscribirse(curso.id)">Inscribirse</button>
             } @else {
-              <button class="btn-cancel" (click)="darseDeBaja(curso.id)">Darse de Baja</button>
+              <button class="listing-cta-secondary" (click)="darseDeBaja(curso.id)">Darse de Baja</button>
             }
           </article>
         }

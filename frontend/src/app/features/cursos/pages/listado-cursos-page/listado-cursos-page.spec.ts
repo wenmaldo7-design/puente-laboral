@@ -37,7 +37,7 @@ const CURSOS_DTO = [
     fechaFin: null,
     cupos: 10,
     cuposDisponibles: 0,
-    modalidad: 'remoto',
+    modalidad: 'virtual',
     requisitos: null,
     otorgaCertificado: true,
     profesor: 'Lucía Fernández',
@@ -54,7 +54,7 @@ const CURSOS_DTO = [
     fechaFin: null,
     cupos: 10,
     cuposDisponibles: 5,
-    modalidad: 'remoto',
+    modalidad: 'virtual',
     requisitos: null,
     otorgaCertificado: false,
     profesor: 'Martín Ríos',
@@ -100,7 +100,7 @@ describe('ListadoCursosPage', () => {
     const component = fixture.componentInstance;
     flushTodo(fixture, httpMock);
 
-    const titles = fixture.nativeElement.querySelectorAll('.mentoria-titulo');
+    const titles = fixture.nativeElement.querySelectorAll('.listing-titulo');
     expect(titles.length).toBe(1);
     expect(titles[0].textContent).toContain('Curso Disponible');
     expect(component['cursos']().length).toBe(1);

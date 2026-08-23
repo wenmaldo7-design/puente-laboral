@@ -150,7 +150,7 @@ describe('ListadoMentoriasPage', () => {
     flushTodo(fixture, httpMock);
     const compiled = fixture.nativeElement as HTMLElement;
 
-    const enlaces = Array.from(compiled.querySelectorAll('.btn-detalle')) as HTMLAnchorElement[];
+    const enlaces = Array.from(compiled.querySelectorAll('.listing-cta')) as HTMLAnchorElement[];
     const mentorias = component['mentorias']();
 
     expect(enlaces.length).toBe(mentorias.length);

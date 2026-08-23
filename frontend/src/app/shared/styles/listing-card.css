@@ -1,0 +1,133 @@
+/*
+ * Reglas base compartidas por las cards de listado de ofertas, mentorías y
+ * cursos (listado-ofertas-page, listado-mentorias-page, listado-cursos-page).
+ * Cada página sigue definiendo sus propios tokens de color (--card, --accent,
+ * --text, etc.) en su :host; estas clases solo consumen esos tokens, así que
+ * no dependen de un tema global.
+ */
+
+.listing-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.listing-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  background: var(--card);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  box-shadow: 0 1px 2px rgba(4, 44, 83, 0.06);
+}
+
+.listing-badges {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.listing-match-badge {
+  background: var(--match-bg);
+  color: var(--match-text);
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.listing-estado-badge {
+  background: var(--warn-bg);
+  color: var(--warn-text);
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.listing-titulo {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.listing-subtitle {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--text-2);
+}
+
+.listing-subtitle-label {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.listing-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.listing-meta-item {
+  font-size: 0.75rem;
+  color: var(--text-2);
+}
+
+.listing-modalidad-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: var(--border);
+  color: var(--text-2);
+}
+
+.listing-modalidad-badge.virtual {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.listing-cta {
+  margin-top: 0.25rem;
+  align-self: flex-start;
+  background: var(--accent);
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: 0.4rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.listing-cta-secondary {
+  margin-top: 0.25rem;
+  align-self: flex-start;
+  background: transparent;
+  color: #e53e3e;
+  border: 1px solid #e53e3e;
+  border-radius: 0.4rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.listing-cta-secondary:hover {
+  background: #fff5f5;
+}
+
+@media (max-width: 640px) {
+  .listing-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -19,7 +19,7 @@ describe('Cursos', () => {
     fechaFin: null,
     cupos: 20,
     cuposDisponibles: 15,
-    modalidad: 'remoto',
+    modalidad: 'virtual',
     requisitos: null,
     otorgaCertificado: true,
     profesor: 'Lucía Fernández',

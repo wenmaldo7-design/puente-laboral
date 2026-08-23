@@ -101,114 +101,6 @@
   outline: none;
 }
 
-.mentorias-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-}
-
-.mentoria-card {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.5rem;
-  background: var(--card);
-  border-radius: 0.75rem;
-  padding: 1.25rem;
-  box-shadow: 0 1px 2px rgba(4, 44, 83, 0.06);
-}
-
-.mentoria-titulo {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.mentoria-mentor {
-  display: flex;
-  gap: 0.3rem;
-  align-items: center;
-  margin: 0;
-  font-size: 0.8rem;
-  color: var(--text-2);
-}
-
-.mentor-label {
-  font-weight: 600;
-  color: var(--text);
-}
-
-.mentoria-datos {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 0.25rem;
-  margin-bottom: 0.25rem;
-}
-
-.mentoria-datos > span {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.inline-icon {
-  color: var(--text-2);
-  flex-shrink: 0;
-}
-
-.modalidad-badge {
-  display: inline-block;
-  padding: 0.2rem 0.6rem;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  background: var(--border);
-  color: var(--text-2);
-}
-
-.modalidad-badge.virtual {
-  background: var(--accent);
-  color: #ffffff;
-}
-
-.mentoria-fecha {
-  font-size: 0.75rem;
-  color: var(--text-2);
-}
-
-.btn-detalle {
-  margin-top: 0.25rem;
-  align-self: flex-start;
-  background: var(--accent);
-  color: #ffffff;
-  text-decoration: none;
-  border-radius: 0.4rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-}
-
-.btn-cancel {
-  margin-top: 0.25rem;
-  align-self: flex-start;
-  background: transparent;
-  color: #e53e3e;
-  border: 1px solid #e53e3e;
-  border-radius: 0.4rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-cancel:hover {
-  background: #fff5f5;
-}
-
 .empty-state {
   font-size: 0.85rem;
   color: var(--text-2);
@@ -225,9 +117,5 @@
 @media (max-width: 640px) {
   .content {
     padding: 1.5rem 1rem;
-  }
-
-  .mentorias-grid {
-    grid-template-columns: 1fr;
   }
 }

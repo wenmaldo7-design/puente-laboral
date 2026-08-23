@@ -91,99 +91,6 @@
   color: #ffffff;
 }
 
-.ofertas-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-}
-
-.oferta-card {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.5rem;
-  background: var(--card);
-  border-radius: 0.75rem;
-  padding: 1.25rem;
-  box-shadow: 0 1px 2px rgba(4, 44, 83, 0.06);
-}
-
-.oferta-badges {
-  display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-}
-
-.match-badge {
-  background: var(--match-bg);
-  color: var(--match-text);
-  border-radius: 999px;
-  padding: 0.2rem 0.6rem;
-  font-size: 0.7rem;
-  font-weight: 700;
-}
-
-.estado-badge {
-  background: var(--warn-bg);
-  color: var(--warn-text);
-  border-radius: 999px;
-  padding: 0.2rem 0.6rem;
-  font-size: 0.7rem;
-  font-weight: 700;
-}
-
-.oferta-titulo {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.oferta-empresa {
-  margin: 0;
-  font-size: 0.8rem;
-  color: var(--text-2);
-}
-
-.oferta-datos {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.modalidad-badge {
-  display: inline-block;
-  padding: 0.2rem 0.6rem;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  background: var(--border);
-  color: var(--text-2);
-}
-
-.modalidad-badge.virtual {
-  background: var(--accent);
-  color: #ffffff;
-}
-
-.oferta-cupo {
-  font-size: 0.75rem;
-  color: var(--text-2);
-}
-
-.btn-detalle {
-  margin-top: 0.25rem;
-  align-self: flex-start;
-  background: var(--accent);
-  color: #ffffff;
-  text-decoration: none;
-  border-radius: 0.4rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
 .empty-state {
   font-size: 0.85rem;
   color: var(--text-2);
@@ -197,9 +104,5 @@
 @media (max-width: 640px) {
   .content {
     padding: 1.5rem 1rem;
-  }
-
-  .ofertas-grid {
-    grid-template-columns: 1fr;
   }
 }
