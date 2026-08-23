@@ -1,0 +1,309 @@
+<div class="page">
+  <header class="header">
+    <a routerLink="/organizacion/home" class="brand" aria-label="Ir al Inicio de Organizaciones">
+      <svg class="brand-icon" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <circle cx="33" cy="7" r="3" fill="#f2b93b" />
+        <rect x="4" y="24" width="6" height="12" rx="1" fill="#185fa5" />
+        <rect x="13" y="18" width="6" height="18" rx="1" fill="#185fa5" />
+        <rect x="22" y="12" width="6" height="24" rx="1" fill="#185fa5" />
+        <circle cx="7" cy="20" r="2.5" fill="#042c53" />
+        <circle cx="16" cy="14" r="2.5" fill="#042c53" />
+        <circle cx="25" cy="8" r="2.5" fill="#042c53" />
+      </svg>
+      <div class="brand-text">
+        <span class="brand-name">Puente Laboral</span>
+        <span class="brand-role">Portal Organizaciones</span>
+      </div>
+    </a>
+
+    <div class="header-actions">
+      <button type="button" class="btn-icon" aria-label="Notificaciones de candidatos">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M12 3a6 6 0 0 0-6 6v3.2c0 .5-.18.99-.5 1.38L4 15.5c-.7.85-.1 2.1 1 2.1h14c1.1 0 1.7-1.25 1-2.1l-1.5-1.92c-.32-.4-.5-.89-.5-1.38V9a6 6 0 0 0-6-6Z"
+            stroke="#185FA5"
+            stroke-width="1.6"
+            stroke-linejoin="round"
+          />
+          <path d="M9.5 19a2.5 2.5 0 0 0 5 0" stroke="#185FA5" stroke-width="1.6" stroke-linecap="round" />
+        </svg>
+        <span class="badge-count">12</span>
+      </button>
+      <a routerLink="/organizacion/perfil" class="header-user" aria-label="Ir al Perfil de la Organización">
+        <span class="avatar-sm">IT</span>
+        <span class="header-greeting">{{ nombreOrganizacion() }}</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="content">
+    <div class="content-header">
+      <div>
+        <h1 class="main-title">Panel de Organización</h1>
+        <p class="subtitle">Gestioná tus oportunidades y conectá con el talento de la comunidad</p>
+      </div>
+      <button type="button" class="btn-primary" (click)="abrirModalPublicar()">
+        <svg viewBox="0 0 20 20" fill="currentColor" class="btn-icon-svg" aria-hidden="true">
+          <path d="M10 5a1 1 0 0 1 1 1v3h3a1 1 0 1 1 0 2h-3v3a1 1 0 1 1-2 0v-3H6a1 1 0 1 1 0-2h3V6a1 1 0 0 1 1-1Z" />
+        </svg>
+        Publicar Oportunidad
+      </button>
+    </div>
+
+    @if (exitoMensaje()) {
+      <div class="toast-success" role="alert">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="toast-icon" aria-hidden="true">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+          <polyline points="22 4 12 14.01 9 11.01" />
+        </svg>
+        <span>{{ exitoMensaje() }}</span>
+      </div>
+    }
+
+    <section class="metrics-row" aria-label="Resumen de impacto y postulaciones">
+      @for (metrica of metricas(); track metrica.id) {
+        <div class="metric-card">
+          <div class="metric-top">
+            <span class="metric-valor">{{ metrica.valor }}</span>
+            @if (metrica.tendencia) {
+              <span class="metric-tendencia">{{ metrica.tendencia }}</span>
+            }
+          </div>
+          <span class="metric-etiqueta">{{ metrica.etiqueta }}</span>
+        </div>
+      }
+    </section>
+
+    <div class="toolbar">
+      <div class="search-bar">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" stroke="#185FA5" stroke-width="1.6" />
+          <path d="m20 20-3.2-3.2" stroke="#185FA5" stroke-width="1.6" stroke-linecap="round" />
+        </svg>
+        <input
+          type="search"
+          class="search-input"
+          placeholder="Buscar por título de publicación o ubicación..."
+          aria-label="Buscar oportunidades publicadas"
+          [value]="terminoBusqueda()"
+          (input)="onBusquedaInput($event)"
+        />
+      </div>
+
+      <div class="filter-chips" role="group" aria-label="Filtros de oportunidades">
+        @for (filtro of filtros; track filtro.id) {
+          <button
+            type="button"
+            class="chip"
+            [class.chip-active]="filtroActivo() === filtro.id"
+            (click)="seleccionarFiltro(filtro.id)"
+          >
+            {{ filtro.etiqueta }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <section class="section">
+      <div class="section-heading">
+        <h2 class="section-title">Oportunidades Publicadas</h2>
+        <span class="section-counter">{{ oportunidadesFiltradas().length }} resultados</span>
+      </div>
+
+      @if (oportunidadesFiltradas().length) {
+        <div class="oportunidades-grid">
+          @for (op of oportunidadesFiltradas(); track op.id) {
+            <article class="oportunidad-card">
+              <div class="card-header">
+                <span class="tipo-tag tipo-{{ op.tipo }}">{{ op.tipo }}</span>
+                <span class="estado-pill estado-{{ op.estado }}">{{ op.estado }}</span>
+              </div>
+              <h3 class="oportunidad-titulo">{{ op.titulo }}</h3>
+              <p class="oportunidad-ubicacion">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-icon" aria-hidden="true">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                <span>{{ op.ubicacion }}</span>
+              </p>
+
+              <div class="card-footer">
+                <div class="postulaciones-badge">
+                  <strong>{{ op.postulacionesCount }}</strong> postulaciones
+                  @if (op.nuevasPostulacionesCount > 0) {
+                    <span class="nuevas-tag">+{{ op.nuevasPostulacionesCount }} nuevas</span>
+                  }
+                </div>
+                <button type="button" class="btn-action">Ver postulantes</button>
+              </div>
+            </article>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">
+          <p>No se encontraron publicaciones con los filtros seleccionados.</p>
+        </div>
+      }
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <h2 class="section-title">Postulantes Recientes</h2>
+        <span class="section-hint">Últimas personas interesadas en tus vacantes</span>
+      </div>
+
+      @if (postulantesRecientes().length) {
+        <div class="postulantes-list">
+          @for (postulante of postulantesRecientes(); track postulante.id) {
+            <div class="postulante-card">
+              <div class="postulante-main">
+                <div class="avatar" aria-hidden="true">{{ postulante.avatarIniciales }}</div>
+                <div class="postulante-info">
+                  <h4 class="postulante-nombre">{{ postulante.nombre }}</h4>
+                  <p class="postulante-vacante">{{ postulante.oportunidadTitulo }}</p>
+                </div>
+              </div>
+              <div class="postulante-meta">
+                <span class="match-score">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-icon" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10" />
+                    <circle cx="12" cy="12" r="6" />
+                    <circle cx="12" cy="12" r="2" />
+                  </svg>
+                  <span>{{ postulante.matchPorcentaje }}% match</span>
+                </span>
+                <span class="postulante-estado estado-{{ postulante.estado }}">{{ postulante.estado }}</span>
+                <button type="button" class="btn-secondary">Revisar Perfil</button>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="empty-state">No hay postulantes recientes para mostrar.</p>
+      }
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>© 2026 Puente Laboral. Todos los derechos reservados.</span>
+    <div class="footer-links">
+      <a href="#">Términos y condiciones</a>
+      <a href="#">Política de privacidad</a>
+      <a href="#">Soporte a Organizaciones</a>
+    </div>
+  </footer>
+
+  <!-- Modal para Publicar Nueva Oportunidad -->
+  @if (modalPublicarAbierto()) {
+    <div class="modal-backdrop" (click)="cerrarModalPublicar()">
+      <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="modal-title-icon" aria-hidden="true">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+            </svg>
+            <h2 id="modal-title" class="modal-title">Publicar Nueva Oportunidad</h2>
+          </div>
+          <button type="button" class="btn-close" (click)="cerrarModalPublicar()" aria-label="Cerrar modal" [disabled]="guardandoOportunidad()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="close-icon" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+
+        <form (submit)="$event.preventDefault(); guardarOportunidad()" class="modal-form">
+          @if (errorFormulario()) {
+            <div class="alert-error" role="alert">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="alert-icon" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              <span>{{ errorFormulario() }}</span>
+            </div>
+          }
+
+          <div class="form-group">
+            <label for="opTitulo">Título de la Oportunidad <span class="required">*</span></label>
+            <input
+              id="opTitulo"
+              type="text"
+              class="form-control"
+              placeholder="Ej: Desarrollador Trainee Frontend (Angular)"
+              [value]="draftTitulo()"
+              (input)="onTituloInput($event)"
+              [disabled]="guardandoOportunidad()"
+              required
+            />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="opTipo">Tipo de Oportunidad <span class="required">*</span></label>
+              <select
+                id="opTipo"
+                class="form-control form-select"
+                [value]="draftTipo()"
+                (change)="onTipoChange($event)"
+                [disabled]="guardandoOportunidad()"
+              >
+                <option value="empleo">Empleo / Pasantía</option>
+                <option value="curso">Curso / Capacitación</option>
+                <option value="mentoria">Mentoría</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="opUbicacion">Ubicación o Modalidad <span class="required">*</span></label>
+              <input
+                id="opUbicacion"
+                type="text"
+                class="form-control"
+                placeholder="Ej: Córdoba / Remoto, Presencial"
+                [value]="draftUbicacion()"
+                (input)="onUbicacionInput($event)"
+                [disabled]="guardandoOportunidad()"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="opDescripcion">Descripción y Requisitos (opcional)</label>
+            <textarea
+              id="opDescripcion"
+              class="form-control form-textarea"
+              rows="3"
+              placeholder="Breve descripción del perfil buscado, tecnologías, objetivos de inclusión o requisitos clave..."
+              [value]="draftDescripcion()"
+              (input)="onDescripcionInput($event)"
+              [disabled]="guardandoOportunidad()"
+            ></textarea>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-cancel" (click)="cerrarModalPublicar()" [disabled]="guardandoOportunidad()">
+              Cancelar
+            </button>
+            <button type="submit" class="btn-submit" [disabled]="guardandoOportunidad()">
+              @if (guardandoOportunidad()) {
+                <svg class="spinner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12" />
+                </svg>
+                <span>Publicando...</span>
+              } @else {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon-svg" aria-hidden="true">
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
+                </svg>
+                <span>Confirmar y Publicar</span>
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>
